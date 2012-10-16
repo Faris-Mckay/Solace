@@ -5,7 +5,7 @@ import java.util.List;
 import org.solace.util.ProtocolUtils;
 import org.solace.world.World;
 import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.entity.mobile.player.PlayerAdvocate;
+import org.solace.world.game.entity.mobile.player.PlayerServant;
 
 /**
  *
@@ -74,7 +74,7 @@ public class PrivateMessaging {
 		}
 		long name = player.getPlayerCredentials().getUsernameAsLong();
 		int world = getPlayersWorld(name);
-		for (Player p : PlayerAdvocate.playerList) {
+		for (Player p : Game.playerRepository) {
 			if (p == null)
 				continue;
 			if (p.getPrivateMessaging().friendsListContains(name)) {
@@ -111,7 +111,7 @@ public class PrivateMessaging {
 	 * @return
 	 */
 	private int getPlayersWorld(long friend) {
-		for (Player p : PlayerAdvocate.playerList) {
+		for (Player p : Game.playerRepository) {
 			if (p != null) {
 				if (p.getPlayerCredentials().getUsernameAsLong() == friend) {
 					return 1;
@@ -236,7 +236,7 @@ public class PrivateMessaging {
 			player.getPacketSender().sendMessage("That player is offline.");
 			return;
 		}
-		for (Player p : PlayerAdvocate.playerList) {
+		for (Player p : Game.playerRepository) {
 			if (p != null) {
 				if (ProtocolUtils.nameToLong(p.getPlayerCredentials().getUsername()) == username) {
 					p.getPacketSender().sendPrivateMessage(

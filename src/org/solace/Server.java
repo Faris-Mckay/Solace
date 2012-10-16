@@ -8,8 +8,8 @@ import org.solace.network.NIOSelector;
 import org.solace.network.NIOServer;
 import org.solace.task.TaskExecuter;
 import org.solace.task.impl.MaintainedNetworkTask;
-import org.solace.task.impl.MobileUpdateTask;
 import org.solace.util.Constants;
+import org.solace.world.game.Game;
 
 
 /**
@@ -53,8 +53,7 @@ public class Server {
 
     private void start() {
         EngineCleanEvent.init();
-        System.out.println("Task update handlers intitializing...");
-        TaskExecuter.get().schedule(new MobileUpdateTask());
+        Game.beginUpdatingMobiles();
         System.out.println("Solace listening on port: "+Constants.SERVER_LISTEN_PORT);
     }
 }

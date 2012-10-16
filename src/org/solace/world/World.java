@@ -3,9 +3,10 @@ package org.solace.world;
 import java.util.LinkedList;
 import java.util.List;
 import org.solace.util.Constants;
+import org.solace.world.game.Game;
 import org.solace.world.game.entity.mobile.Mobile;
 import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.entity.mobile.player.PlayerAdvocate;
+import org.solace.world.game.entity.mobile.player.PlayerServant;
 
 /**
  *
@@ -22,18 +23,18 @@ public class World {
     final static World world = new World();
     
     public void register(Player player){
-        if(PlayerAdvocate.playerList.size() >= Constants.SERVER_MAX_PLAYERS){
+        if(Game.playerRepository.size() >= Constants.SERVER_MAX_PLAYERS){
             return;
         }
-        PlayerAdvocate.playerList.add(player);
-        PlayerAdvocate.playerList.add(player);
-        player.setIndex(PlayerAdvocate.playerList.size());
+        Game.playerRepository.add(player);
+        Game.playerRepository.add(player);
+        player.setIndex(Game.playerRepository.size());
     }
     
     public void deregister(Player givenPlayer){
-        for(Player player : PlayerAdvocate.playerList){
+        for(Player player : Game.playerRepository){
             if(player == givenPlayer){
-                PlayerAdvocate.playerList.remove(givenPlayer);
+                Game.playerRepository.remove(givenPlayer);
             }
         }
     }

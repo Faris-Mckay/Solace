@@ -12,16 +12,25 @@ public class PlayerAuthentication {
         this.username = username;
         this.password = password;
         this.usernameAsLong = ProtocolUtils.nameToLong(username);
-        this.playerRights = 0;
+        this.playerRights = PrivilegeRank.STANDARD;
     }
     
     private String username;
     private String password;
     private long usernameAsLong;
-    private int playerRights;
+    private PrivilegeRank playerRights;
     
     public int getPlayerRights(){
-        return playerRights;
+        switch(playerRights){
+            case MODERATOR:
+                return 1;
+            case ADMINISTRATOR:
+                return 2;
+            case OWNER:
+                return 3;
+            default:
+                return 0;
+        }
     }
         
             /**
@@ -43,6 +52,28 @@ public class PlayerAuthentication {
      */
     public String getPassword() {
         return password;
+    }
+    
+    public enum PrivilegeRank{
+        /**
+         * A standard (rights 0) account.
+         */
+        STANDARD,
+
+        /**
+         * A player moderator (rights 1) account.
+         */
+        MODERATOR,
+
+        /**
+         * An administrator (rights 2) account.
+         */
+        ADMINISTRATOR,
+        
+        /**
+         * An owner (rights 3) account.
+         */
+        OWNER;
     }
 
 }

@@ -17,6 +17,7 @@ public class Player extends Mobile {
     private PlayerAuthentication playerCredentials;
     private PacketSender packetSender = new PacketSender(this);
     private PrivateMessaging playerMessaging = new PrivateMessaging(this);
+    private PlayerServant assistant = new PlayerServant(this);
     private Location location;
         
     public Player(String username, String password, RSChannelContext channelContext) {
@@ -24,28 +25,32 @@ public class Player extends Mobile {
         this.channelContext = channelContext;
         this.location = new Location(3222, 3222);
     }
+    
+    /**
+     * Can be used for content implementations
+     * but only when absolutely necessary, this is NOT PI
+     */
+    @Override
+    public void update() {
+        
+    }
 
     public Player channelContext(RSChannelContext channelContext) {
-            this.channelContext = channelContext;
-            return this;
+        this.channelContext = channelContext;
+        return this;
     }
 
     public RSChannelContext channelContext() {
-            return channelContext;
+        return channelContext;
     }
 
 
     public PacketSender getPacketSender() {
-            return packetSender;
+        return packetSender;
     }
 
     public void handleLoginData() {
        new PlayerLoginEvent(this).execute();
-    }
-
-    @Override
-    public void update() {
-        
     }
 
     @Override
@@ -70,6 +75,13 @@ public class Player extends Mobile {
      */
     public PlayerAuthentication getPlayerCredentials() {
         return playerCredentials;
+    }
+
+    /**
+     * @return the assistant
+     */
+    public PlayerServant getServant() {
+        return assistant;
     }
 
 

@@ -1,14 +1,26 @@
 package org.solace.world.game.entity.mobile.player;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  *
  * @author Faris
  */
-public final class PlayerAdvocate {
+public class PlayerServant {
     
-     public static final List<Player> playerList = new LinkedList<Player>();
+    private Player master;
+    
+    public PlayerServant(Player master){
+        this.master = master;
+    }
+    
+    public Player getMaster(){
+        return master;
+    }
+    
+    /**
+     * Handles the player update protocol
+     */
+    public void updateMaster(){
+
+    }
 
 }
