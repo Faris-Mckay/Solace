@@ -3,7 +3,9 @@ package org.solace.world;
 import java.util.LinkedList;
 import java.util.List;
 import org.solace.util.Constants;
+import org.solace.world.game.entity.mobile.Mobile;
 import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.world.game.entity.mobile.player.PlayerAdvocate;
 
 /**
  *
@@ -11,7 +13,7 @@ import org.solace.world.game.entity.mobile.player.Player;
  */
 public class World {
     
-    public static final List<Player> worldRepository = new LinkedList<Player>();
+    public static final List<Mobile> mobileRepository = new LinkedList<Mobile>();
     
     public static World getSingleton(){
         return world;
@@ -20,17 +22,18 @@ public class World {
     final static World world = new World();
     
     public void register(Player player){
-        if(worldRepository.size() >= Constants.SERVER_MAX_PLAYERS){
+        if(PlayerAdvocate.playerList.size() >= Constants.SERVER_MAX_PLAYERS){
             return;
         }
-        worldRepository.add(player);
-        player.setIndex(worldRepository.size());
+        PlayerAdvocate.playerList.add(player);
+        PlayerAdvocate.playerList.add(player);
+        player.setIndex(PlayerAdvocate.playerList.size());
     }
     
     public void deregister(Player givenPlayer){
-        for(Player player : worldRepository){
+        for(Player player : PlayerAdvocate.playerList){
             if(player == givenPlayer){
-                worldRepository.remove(givenPlayer);
+                PlayerAdvocate.playerList.remove(givenPlayer);
             }
         }
     }

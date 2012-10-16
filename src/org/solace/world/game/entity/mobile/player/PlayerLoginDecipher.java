@@ -2,15 +2,14 @@ package org.solace.world.game.entity.mobile.player;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import net.burtlebutle.bob.rand.isaac.ISAAC;
 import org.solace.event.impl.PlayerLoadEvent;
 import org.solace.network.NIODecoder;
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.PacketBuilder;
 import org.solace.network.packet.RSPacketDecoder;
-import org.solace.util.ISAAC;
 import org.solace.util.ProtocolUtils;
 import org.solace.world.World;
-import org.solace.world.game.entity.mobile.player.Player;
 
 /**
  * RuneScape login procedure decoder.
@@ -225,7 +224,7 @@ public class PlayerLoginDecipher implements NIODecoder {
 			 */
 			out = PacketBuilder.allocate(3);
 			out.putByte(response);
-			out.putByte(player.getPlayerRights());
+			out.putByte(player.getPlayerCredentials().getPlayerRights());
 			out.putByte(0);
 			out.sendTo(channelContext.channel());
 

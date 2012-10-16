@@ -4,6 +4,6 @@ package org.solace.event;
  *
  * @author Faris
  */
-public class CoreEventExecutor {
+public final class CoreEventExecutor {
 
 }

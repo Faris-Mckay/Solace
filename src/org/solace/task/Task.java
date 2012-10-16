@@ -26,6 +26,7 @@ public abstract class Task {
 	 * A flag which indicates if this task is still running.
 	 */
 	private boolean running = true;
+        
 
 	/**
 	 * Creates a new task with a delay of 1 cycle.
@@ -122,7 +123,7 @@ public abstract class Task {
 	/**
 	 * Performs this task's action.
 	 */
-	protected abstract void execute();
+	public abstract void execute();
 
 	/**
 	 * Changes the delay of this task.
@@ -172,5 +173,6 @@ public abstract class Task {
 		if (!running)
 			throw new IllegalStateException();
 	}
+
 
 }

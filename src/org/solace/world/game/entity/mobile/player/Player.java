@@ -1,12 +1,11 @@
 package org.solace.world.game.entity.mobile.player;
 
-import org.solace.event.InstantExecutionEvent;
 import org.solace.event.impl.PlayerLoginEvent;
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.PacketSender;
-import org.solace.world.map.Location;
-import org.solace.world.game.entity.mobile.Mobile;
 import org.solace.world.game.PrivateMessaging;
+import org.solace.world.game.entity.mobile.Mobile;
+import org.solace.world.map.Location;
 
 /**
  *
@@ -15,39 +14,16 @@ import org.solace.world.game.PrivateMessaging;
 public class Player extends Mobile {
     
     private RSChannelContext channelContext;
+    private PlayerAuthentication playerCredentials;
     private PacketSender packetSender = new PacketSender(this);
     private PrivateMessaging playerMessaging = new PrivateMessaging(this);
     private Location location;
-    private String username;
-    private String password;
-    private long usernameAsLong;
-    private int rights, index;
         
     public Player(String username, String password, RSChannelContext channelContext) {
-        this.username = username;
-        this.password = password;
+        this. playerCredentials = new PlayerAuthentication(username,password);
         this.channelContext = channelContext;
         this.location = new Location(3222, 3222);
-        this.rights = 2;
     }
-
-    public int getIndex() {
-        return index;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
-    public int getPlayerRights(){
-        return rights;
-    }
-    
-    public void setInteractingEntityIndex(int index) {
-		interactingEntityIndex = index;
-	}
-    
-    private int interactingEntityIndex;
 
     public Player channelContext(RSChannelContext channelContext) {
             this.channelContext = channelContext;
@@ -64,7 +40,7 @@ public class Player extends Mobile {
     }
 
     public void handleLoginData() {
-        new InstantExecutionEvent(new PlayerLoginEvent(this)).executeEvent();
+       new PlayerLoginEvent(this).execute();
     }
 
     @Override
@@ -83,31 +59,17 @@ public class Player extends Mobile {
     }
 
     /**
-     * @return the username
-     */
-    public String getUsername() {
-        return username;
-    }
-
-    /**
-     * @return the usernameAsLong
-     */
-    public long getUsernameAsLong() {
-        return usernameAsLong;
-    }
-
-    /**
      * @return the playerMessaging
      */
     public PrivateMessaging getPrivateMessaging() {
         return playerMessaging;
     }
-    
+
     /**
-     * @return the password
+     * @return the playerCredentials
      */
-    public String getPassword() {
-        return password;
+    public PlayerAuthentication getPlayerCredentials() {
+        return playerCredentials;
     }
 
 

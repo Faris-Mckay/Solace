@@ -5,6 +5,7 @@ import java.util.List;
 import org.solace.util.ProtocolUtils;
 import org.solace.world.World;
 import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.world.game.entity.mobile.player.PlayerAdvocate;
 
 /**
  *
@@ -36,7 +37,6 @@ public class PrivateMessaging {
 
 	/**
 	 * Checks if the friends list contains a name
-	 * 
 	 * @param username
 	 * @return
 	 */
@@ -68,13 +68,13 @@ public class PrivateMessaging {
 	 */
 	public void sendFriendsData() {
 		for (int i = 0; i < friends.size(); i++) {
-			if (i == 0)
-				continue;
-			player.getPacketSender().sendFriendList(i, getPlayersWorld(i));
+                    if (i == 0)
+                            continue;
+                    player.getPacketSender().sendFriendList(i, getPlayersWorld(i));
 		}
-		long name = player.getUsernameAsLong();
+		long name = player.getPlayerCredentials().getUsernameAsLong();
 		int world = getPlayersWorld(name);
-		for (Player p : World.worldRepository) {
+		for (Player p : PlayerAdvocate.playerList) {
 			if (p == null)
 				continue;
 			if (p.getPrivateMessaging().friendsListContains(name)) {
@@ -111,9 +111,9 @@ public class PrivateMessaging {
 	 * @return
 	 */
 	private int getPlayersWorld(long friend) {
-		for (Player p : World.worldRepository) {
+		for (Player p : PlayerAdvocate.playerList) {
 			if (p != null) {
-				if (p.getUsernameAsLong() == friend) {
+				if (p.getPlayerCredentials().getUsernameAsLong() == friend) {
 					return 1;
 				}
 			}
@@ -236,11 +236,11 @@ public class PrivateMessaging {
 			player.getPacketSender().sendMessage("That player is offline.");
 			return;
 		}
-		for (Player p : World.worldRepository) {
+		for (Player p : PlayerAdvocate.playerList) {
 			if (p != null) {
-				if (ProtocolUtils.nameToLong(p.getUsername()) == username) {
+				if (ProtocolUtils.nameToLong(p.getPlayerCredentials().getUsername()) == username) {
 					p.getPacketSender().sendPrivateMessage(
-							ProtocolUtils.nameToLong(player.getUsername()), 0,
+							ProtocolUtils.nameToLong(player.getPlayerCredentials().getUsername()), 0,
 							message, size);
 				}
 			}

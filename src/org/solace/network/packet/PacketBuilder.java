@@ -1,7 +1,7 @@
 package org.solace.network.packet;
 
 import java.nio.ByteBuffer;
-import org.solace.util.ISAAC;
+import net.burtlebutle.bob.rand.isaac.ISAAC;
 
 /**
  * Data packet builder.

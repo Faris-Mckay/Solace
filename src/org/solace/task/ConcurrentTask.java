@@ -1,4 +1,4 @@
-package org.solace.task.impl;
+package org.solace.task;
 
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -12,7 +12,7 @@ import org.solace.task.Task;
 public class ConcurrentTask extends Task {
 
     @Override
-    protected void execute() {
+    public void execute() {
         try {
             throw new Exception("ConcurrentTask null execution submitted");
         } catch (Exception ex) {

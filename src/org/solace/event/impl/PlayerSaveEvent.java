@@ -7,6 +7,10 @@ import org.solace.event.Event;
  * @author Faris
  */
 public class PlayerSaveEvent extends Event {
+    
+    public PlayerSaveEvent(){
+        super(EventType.Standalone);
+    }
 
     @Override
     public void init() {

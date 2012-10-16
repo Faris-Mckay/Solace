@@ -10,15 +10,15 @@ import org.solace.world.game.entity.mobile.player.Player;
 public class PlayerLoginEvent extends Event {
     
     public PlayerLoginEvent(Player player){
+        super(EventType.Standalone);
         this.player = player;
     }
     
     Player player;
 
-
     @Override
     public void execute() {
-        System.out.println("Connection recieved from "+player.getUsername());
+        System.out.println("login request recieved from player:  "+player.getPlayerCredentials().getUsername());
     }
 
 

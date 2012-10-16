@@ -1,13 +1,13 @@
 package org.solace.task.impl;
 
 import org.solace.network.NIOSelector;
-import org.solace.task.Task;
+import org.solace.task.ConcurrentTask;
 
 /**
  * Task which maintains listening on the network for connections
  * @author Faris
  */
-public class MaintainedNetworkTask extends Task {
+public class MaintainedNetworkTask extends ConcurrentTask {
     
     public MaintainedNetworkTask(NIOSelector selector){
         this.selector = selector;
@@ -16,7 +16,7 @@ public class MaintainedNetworkTask extends Task {
     NIOSelector selector;
 
     @Override
-    protected void execute() {
+    public void execute() {
         selector.select();
     }
 }

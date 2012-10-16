@@ -3,12 +3,12 @@ package org.solace;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.solace.event.update.ScheduledNPCUpdate;
-import org.solace.event.update.ScheduledPlayerUpdate;
+import org.solace.event.impl.EngineCleanEvent;
 import org.solace.network.NIOSelector;
 import org.solace.network.NIOServer;
 import org.solace.task.TaskExecuter;
 import org.solace.task.impl.MaintainedNetworkTask;
+import org.solace.task.impl.MobileUpdateTask;
 import org.solace.util.Constants;
 
 
@@ -52,9 +52,9 @@ public class Server {
     }
 
     private void start() {
+        EngineCleanEvent.init();
         System.out.println("Task update handlers intitializing...");
-        TaskExecuter.get().schedule(new ScheduledPlayerUpdate());
-        TaskExecuter.get().schedule(new ScheduledNPCUpdate());
+        TaskExecuter.get().schedule(new MobileUpdateTask());
         System.out.println("Solace listening on port: "+Constants.SERVER_LISTEN_PORT);
     }
 }
