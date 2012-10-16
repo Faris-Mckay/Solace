@@ -27,7 +27,6 @@ public class World {
             return;
         }
         Game.playerRepository.add(player);
-        Game.playerRepository.add(player);
         player.setIndex(Game.playerRepository.size());
     }
     

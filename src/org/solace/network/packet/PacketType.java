@@ -1,6 +1,7 @@
 package org.solace.network.packet;
 
 import org.solace.network.RSChannelContext;
+import org.solace.network.packet.impl.RegionHandler;
 
 /**
  * Packet handlers manager.
@@ -29,6 +30,6 @@ public class PacketType {
 	 * Static constructor for packet handlers initializing.
 	 */
 	static {
-		
+            handlers[121] = new RegionHandler();
 	}
 }

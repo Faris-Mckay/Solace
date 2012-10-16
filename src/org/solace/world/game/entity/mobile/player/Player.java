@@ -17,6 +17,7 @@ public class Player extends Mobile {
     private PlayerAuthentication playerCredentials;
     private PacketSender packetSender = new PacketSender(this);
     private PrivateMessaging playerMessaging = new PrivateMessaging(this);
+    private PlayerUpdateFlags updateFlags = new PlayerUpdateFlags();
     private PlayerServant assistant = new PlayerServant(this);
     private Location location;
         
@@ -82,6 +83,13 @@ public class Player extends Mobile {
      */
     public PlayerServant getServant() {
         return assistant;
+    }
+
+    /**
+     * @return the updateFlags
+     */
+    public PlayerUpdateFlags getUpdateFlags() {
+        return updateFlags;
     }
 
 

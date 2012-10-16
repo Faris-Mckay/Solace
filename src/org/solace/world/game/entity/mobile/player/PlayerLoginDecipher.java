@@ -8,12 +8,15 @@ import org.solace.network.NIODecoder;
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.PacketBuilder;
 import org.solace.network.packet.RSPacketDecoder;
+import org.solace.util.Constants;
 import org.solace.util.ProtocolUtils;
 import org.solace.world.World;
+import org.solace.world.game.Game;
 
 /**
  * RuneScape login procedure decoder.
  * @author Faris
+ * @author Klept0
  */
 public class PlayerLoginDecipher implements NIODecoder {
 
@@ -22,15 +25,8 @@ public class PlayerLoginDecipher implements NIODecoder {
 
 	@Override
 	public void decode(RSChannelContext channelContext) throws IOException {
-		/*
-		 * Read the incoming data.
-		 */
 		channelContext.channel().read(buffer);
 		buffer.flip();
-
-		/*
-		 * Handle login procedure.
-		 */
 		switch (state) {
 
 		case READ_USERNAME_HASH:
@@ -122,6 +118,11 @@ public class PlayerLoginDecipher implements NIODecoder {
 			 */
 			@SuppressWarnings("unused")
 			int clientVersion = buffer.getShort();
+                        if(clientVersion != 317){
+                            System.out.println("Invalid Client revision.");
+                            channelContext.channel().close();
+                            break;
+                        }
 
 			/*
 			 * Client memory version, indicates if client is on low or high
@@ -199,25 +200,19 @@ public class PlayerLoginDecipher implements NIODecoder {
 			int response = 2;
 
 			if (!loaded) {
-                                    System.out.println("Connection refused from not loaded");
+                                    System.out.println("IGNORE FOR NOW, NO LOADING AVAILABLE");
 				/*
 				 * Invalid username or password.
 				 */
 				response = 3;
 			} else {
-                                    System.out.println("Connection recieved from loaded ");
 				channelContext.player(player);
 				World.getSingleton().register(player);
 			}
 
-			if (player.getIndex() == -1) {
-                            System.out.println("Connection recieved from index ");
-				/*
-				 * World is full.
-				 */
+			if (Game.playerRepository.size() >= Constants.SERVER_MAX_PLAYERS) {
 				response = 10;
 			}
-                        System.out.println("idle ");
 
 			/*
 			 * Write the login procedure response.
