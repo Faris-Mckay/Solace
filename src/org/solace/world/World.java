@@ -6,7 +6,7 @@ import org.solace.util.Constants;
 import org.solace.world.game.Game;
 import org.solace.world.game.entity.mobile.Mobile;
 import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.entity.mobile.player.PlayerServant;
+import org.solace.world.game.entity.mobile.player.PlayerUpdating;
 
 /**
  *

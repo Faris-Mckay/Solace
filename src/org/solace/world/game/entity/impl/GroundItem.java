@@ -8,6 +8,10 @@ import org.solace.world.game.entity.Entity;
  * @author Faris
  */
 public class GroundItem extends Entity {
+    
+    public GroundItem(Location location){
+        super(location);
+    }
 
     @Override
     public Location getLocation() {

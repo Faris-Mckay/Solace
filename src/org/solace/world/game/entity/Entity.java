@@ -8,6 +8,14 @@ import org.solace.world.map.Location;
  */
 public abstract class Entity {
     
-    public abstract Location getLocation();
+    public Entity(Location location){
+        this.location = location;
+    }
+    
+    public Location location;
+    
+    public Location getLocation(){
+        return location;
+    }
     
 }

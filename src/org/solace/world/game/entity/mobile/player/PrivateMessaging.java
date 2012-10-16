@@ -1,11 +1,12 @@
-package org.solace.world.game;
+package org.solace.world.game.entity.mobile.player;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.solace.util.ProtocolUtils;
 import org.solace.world.World;
+import org.solace.world.game.Game;
 import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.entity.mobile.player.PlayerServant;
+import org.solace.world.game.entity.mobile.player.PlayerUpdating;
 
 /**
  *

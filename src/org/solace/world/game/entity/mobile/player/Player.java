@@ -3,7 +3,6 @@ package org.solace.world.game.entity.mobile.player;
 import org.solace.event.impl.PlayerLoginEvent;
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.PacketSender;
-import org.solace.world.game.PrivateMessaging;
 import org.solace.world.game.entity.mobile.Mobile;
 import org.solace.world.map.Location;
 
@@ -18,7 +17,7 @@ public class Player extends Mobile {
     private PacketSender packetSender = new PacketSender(this);
     private PrivateMessaging playerMessaging = new PrivateMessaging(this);
     private PlayerUpdateFlags updateFlags = new PlayerUpdateFlags();
-    private PlayerServant assistant = new PlayerServant(this);
+    private PlayerUpdating assistant = new PlayerUpdating(this);
     private Location location;
         
     public Player(String username, String password, RSChannelContext channelContext) {
@@ -81,7 +80,7 @@ public class Player extends Mobile {
     /**
      * @return the assistant
      */
-    public PlayerServant getServant() {
+    public PlayerUpdating getServant() {
         return assistant;
     }
 
