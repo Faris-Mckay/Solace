@@ -1,5 +1,6 @@
 package org.solace.task.impl;
 
+import java.util.Iterator;
 import org.solace.task.Task;
 import org.solace.world.game.Game;
 import org.solace.world.game.entity.mobile.player.Player;
@@ -10,11 +11,13 @@ import org.solace.world.game.entity.mobile.player.Player;
  */
 public class PlayerUpdateTask extends Task {
     
-        @Override
+    @Override
     public void execute(){
-        for(Player player : Game.playerRepository){
+        Iterator<Player> it = Game.playerRepository.values().iterator();
+        while(it.hasNext()){
+            Player player = it.next();
             if(player != null){
-                player.getServant().updateMaster();
+                player.getUpdater().updateMaster();
                 player.update();
             }
         }

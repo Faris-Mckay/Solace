@@ -1,12 +1,10 @@
 package org.solace.world.game.entity.mobile.player;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.solace.util.ProtocolUtils;
-import org.solace.world.World;
 import org.solace.world.game.Game;
-import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.entity.mobile.player.PlayerUpdating;
 
 /**
  *
@@ -60,7 +58,7 @@ public class PrivateMessaging {
 	 * issue
 	 */
 	public void updateFriendsListStatus() {
-		player.getPacketSender().sendPMServer(2);
+		player.getPacketDispatcher().sendPMServer(2);
 		sendFriendsData();
 	}
 
@@ -68,22 +66,24 @@ public class PrivateMessaging {
 	 * sends the freshing of friends list
 	 */
 	public void sendFriendsData() {
-		for (int i = 0; i < friends.size(); i++) {
-                    if (i == 0)
-                            continue;
-                    player.getPacketSender().sendFriendList(i, getPlayersWorld(i));
-		}
-		long name = player.getAuthentication().getUsernameAsLong();
-		int world = getPlayersWorld(name);
-		for (Player p : Game.playerRepository) {
-			if (p == null)
-				continue;
-			if (p.getPrivateMessaging().friendsListContains(name)) {
-				if (!p.getPrivateMessaging().ignoreListContains(name)) {
-					p.getPacketSender().sendFriendList(name, world);
-				}
-			}
-		}
+            for (int i = 0; i < friends.size(); i++) {
+                if (i == 0)
+                        continue;
+                player.getPacketDispatcher().sendFriendList(i, getPlayersWorld(i));
+            }
+            long name = player.getAuthentication().getUsernameAsLong();
+            int world = getPlayersWorld(name);
+            Iterator<Player> it = Game.playerRepository.values().iterator();
+            while(it.hasNext()){
+                Player p = it.next();
+                if (p == null)
+                        continue;
+                if (p.getPrivateMessaging().friendsListContains(name)) {
+                    if (!p.getPrivateMessaging().ignoreListContains(name)) {
+                            p.getPacketDispatcher().sendFriendList(name, world);
+                    }
+                }
+            }
 	}
 
 	/**
@@ -112,14 +112,16 @@ public class PrivateMessaging {
 	 * @return
 	 */
 	private int getPlayersWorld(long friend) {
-		for (Player p : Game.playerRepository) {
-			if (p != null) {
-				if (p.getAuthentication().getUsernameAsLong() == friend) {
-					return 1;
-				}
-			}
-		}
-		return 0;
+            Iterator<Player> it = Game.playerRepository.values().iterator();
+            while(it.hasNext()){
+                Player p = it.next();
+                if (p != null) {
+                    if (p.getAuthentication().getUsernameAsLong() == friend) {
+                            return 1;
+                    }
+                }
+            }
+                return 0;
 	}
 
 	/**
@@ -128,19 +130,17 @@ public class PrivateMessaging {
 	 * @param name
 	 */
 	public void addToFriendsList(long name) {
-		if (friends.size() >= 200) {
-			player.getPacketSender().sendMessage("Your friends list is full.");
-			return;
-		}
-		if (friends.contains(name)) {
-			player.getPacketSender().sendMessage(
-					ProtocolUtils.longToName(name)
-							+ " is already on your friends list.");
-			return;
-		}
-		friends.add(name);
-		player.getPacketSender().sendFriendList(name, getPlayersWorld(name));
-		sendFriendsData();
+            if (friends.size() >= 200) {
+                    player.getPacketDispatcher().sendMessage("Your friends list is full.");
+                    return;
+            }
+            if (friends.contains(name)) {
+                    player.getPacketDispatcher().sendMessage(ProtocolUtils.longToName(name)+ " is already on your friends list.");
+                    return;
+            }
+            friends.add(name);
+            player.getPacketDispatcher().sendFriendList(name, getPlayersWorld(name));
+            sendFriendsData();
 	}
 
 	/**
@@ -150,11 +150,11 @@ public class PrivateMessaging {
 	 *            the name to remove
 	 */
 	public void removeFromFriendsList(long name) {
-		if (friends.contains(name)) {
-			friends.remove(name);
-			player.getPacketSender().sendFriendList(name, getPlayersWorld(name));
-			sendFriendsData();
-		}
+            if (friends.contains(name)) {
+                friends.remove(name);
+                player.getPacketDispatcher().sendFriendList(name, getPlayersWorld(name));
+                sendFriendsData();
+            }
 	}
 
 	/**
@@ -163,24 +163,20 @@ public class PrivateMessaging {
 	 * @param name
 	 */
 	public void addToIgnoreList(long name) {
-		if (getIgnoreCount() >= 200) {
-			player.getPacketSender().sendMessage("Your ignore list is full.");
-			return;
-		}
-		if (ignoreListContains(name)) {
-			player.getPacketSender().sendMessage(
-					ProtocolUtils.longToName(name)
-							+ " is already on your ignore list.");
-			return;
-		}
-		if (friendsListContains(name)) {
-			player.getPacketSender().sendMessage(
-					"Please remove " + ProtocolUtils.longToName(name)
-							+ " from your friends list first.");
-			return;
-		}
-		ignores.add(name);
-		sendFriendsData();
+            if (getIgnoreCount() >= 200) {
+                    player.getPacketDispatcher().sendMessage("Your ignore list is full.");
+                    return;
+            }
+            if (ignoreListContains(name)) {
+                    player.getPacketDispatcher().sendMessage(ProtocolUtils.longToName(name)+ " is already on your ignore list.");
+                    return;
+            }
+            if (friendsListContains(name)) {
+                player.getPacketDispatcher().sendMessage("Please remove " + ProtocolUtils.longToName(name)+ " from your friends list first.");
+                return;
+            }
+            ignores.add(name);
+            sendFriendsData();
 	}
 
 	/**
@@ -189,10 +185,10 @@ public class PrivateMessaging {
 	 * @param name
 	 */
 	public void removeFromIgnoreList(long name) {
-		if (!ignoreListContains(name))
-			return;
-		friends.remove(ProtocolUtils.longToName(name));
-		sendFriendsData();
+            if (!ignoreListContains(name))
+                return;
+            friends.remove(ProtocolUtils.longToName(name));
+            sendFriendsData();
 	}
 
 	/**
@@ -233,20 +229,22 @@ public class PrivateMessaging {
 	}
 
 	public void sendPm(Player player, long username, int size, byte[] message) {
-		if (ProtocolUtils.longToName(username) == null) {
-			player.getPacketSender().sendMessage("That player is offline.");
-			return;
-		}
-		for (Player p : Game.playerRepository) {
-			if (p != null) {
-				if (ProtocolUtils.nameToLong(p.getAuthentication().getUsername()) == username) {
-					p.getPacketSender().sendPrivateMessage(
-							ProtocolUtils.nameToLong(player.getAuthentication().getUsername()), 0,
-							message, size);
-				}
-			}
-		}
-		sendFriendsData();
+            if (ProtocolUtils.longToName(username) == null) {
+                    player.getPacketDispatcher().sendMessage("That player is offline.");
+                    return;
+            }
+            Iterator<Player> it = Game.playerRepository.values().iterator();
+            while(it.hasNext()){
+            Player p = it.next();
+                if (p != null) {
+                        if (ProtocolUtils.nameToLong(p.getAuthentication().getUsername()) == username) {
+                                p.getPacketDispatcher().sendPrivateMessage(
+                                                ProtocolUtils.nameToLong(player.getAuthentication().getUsername()), 0,
+                                                message, size);
+                        }
+                }
+            }
+            sendFriendsData();
 	}
 
 }

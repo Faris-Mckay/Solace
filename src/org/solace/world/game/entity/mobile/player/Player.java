@@ -2,9 +2,11 @@ package org.solace.world.game.entity.mobile.player;
 
 import org.solace.event.impl.PlayerLoginEvent;
 import org.solace.network.RSChannelContext;
-import org.solace.network.packet.PacketSender;
+import org.solace.network.packet.PacketDispatcher;
+import org.solace.task.Task;
 import org.solace.world.game.container.Equipment;
 import org.solace.world.game.entity.mobile.Mobile;
+import org.solace.world.map.Location;
 
 /**
  *
@@ -14,13 +16,14 @@ public class Player extends Mobile {
     
     private RSChannelContext channelContext;
     private PlayerAuthentication authenticator;
-    private PacketSender packetSender = new PacketSender(this);
+    private PacketDispatcher packetDispatcher = new PacketDispatcher(this);
     private PrivateMessaging playerMessaging = new PrivateMessaging(this);
     private PlayerUpdateFlags updateFlags = new PlayerUpdateFlags();
     private PlayerUpdating updating = new PlayerUpdating(this);
     private Equipment equipment = new Equipment();
         
     public Player(String username, String password, RSChannelContext channelContext) {
+        super(new Location(3300,3300));
         this. authenticator = new PlayerAuthentication(username,password);
         this.channelContext = channelContext;
         setDefaultAppearance();
@@ -37,6 +40,7 @@ public class Player extends Mobile {
         
     }
     
+    private Task walkToAction;
     private int playerHeadIcon = -1;
     
     public Player channelContext(RSChannelContext channelContext) {
@@ -49,8 +53,8 @@ public class Player extends Mobile {
     }
 
 
-    public PacketSender getPacketSender() {
-        return packetSender;
+    public PacketDispatcher getPacketDispatcher() {
+        return packetDispatcher;
     }
 
     public void handleLoginData() {
@@ -74,7 +78,7 @@ public class Player extends Mobile {
     /**
      * @return the assistant
      */
-    public PlayerUpdating getServant() {
+    public PlayerUpdating getUpdater() {
         return updating;
     }
 
@@ -98,6 +102,21 @@ public class Player extends Mobile {
     public Equipment getEquipment() {
         return equipment;
     }
+    
+    public Player walkToAction(Task walkToAction) {
+            this.walkToAction = walkToAction;
+            return this;
+    }
+
+    /**
+     * Gets the walk to action task.
+     * 
+     * @return the walk to action task
+     */
+    public Task walkToAction() {
+            return walkToAction;
+    }
+    
 
     private void setDefaultAppearance() {
         /**

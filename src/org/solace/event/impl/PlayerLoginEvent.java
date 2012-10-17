@@ -1,6 +1,7 @@
 package org.solace.event.impl;
 
 import org.solace.event.Event;
+import org.solace.util.Constants;
 import org.solace.world.game.entity.mobile.player.Player;
 
 /**
@@ -19,6 +20,7 @@ public class PlayerLoginEvent extends Event {
     @Override
     public void execute() {
         System.out.println("login request recieved from player:  "+player.getAuthentication().getUsername());
+        player.getPacketDispatcher().sendMessage("Welcome "+player.getAuthentication().getUsername()+", to "+Constants.SERVER_NAME);
     }
 
 

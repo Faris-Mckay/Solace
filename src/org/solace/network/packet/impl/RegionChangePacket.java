@@ -8,7 +8,7 @@ import org.solace.world.game.entity.mobile.player.Player;
  *
  * @author Faris
  */
-public class RegionHandler implements PacketHandler {
+public class RegionChangePacket implements PacketHandler {
 
     @Override
     public void handlePacket(Player player, Packet packet) {

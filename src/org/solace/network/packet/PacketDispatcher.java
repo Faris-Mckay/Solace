@@ -7,7 +7,7 @@ import org.solace.world.map.Location;
  * Protocol packets sender.
  * @author Faris
  */
-public class PacketSender {
+public class PacketDispatcher {
 
 	private final Player player;
 
@@ -16,7 +16,7 @@ public class PacketSender {
 	 * @param player
 	 *            the player object
 	 */
-	public PacketSender(Player player) {
+	public PacketDispatcher(Player player) {
 		this.player = player;
 	}
 
@@ -26,7 +26,7 @@ public class PacketSender {
 	 * @return
 	 */
 
-	public PacketSender sendChatInterface(int frame) {
+	public PacketDispatcher sendChatInterface(int frame) {
 		PacketBuilder out = PacketBuilder.allocate(128);
 		out.createFrame(164, player.channelContext().encryption());
 		out.putLEShort(frame);
@@ -34,7 +34,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender sendCoordinates2(Location position) {
+	public PacketDispatcher sendCoordinates2(Location position) {
 		PacketBuilder out = PacketBuilder.allocate(3);
 		out.createFrame(85, player.channelContext().encryption());
 		int y = position.getY() - player.getLocation().getRegion().regionY() * 8 - 2;
@@ -45,7 +45,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender sendProjectile(Location position, int offsetX,int offsetY, int id, int startHeight, int endHeight, int speed,int lockon) {
+	public PacketDispatcher sendProjectile(Location position, int offsetX,int offsetY, int id, int startHeight, int endHeight, int speed,int lockon) {
 		PacketBuilder out = PacketBuilder.allocate(32);
 		sendCoordinates2(position);
 		out.createFrame(117, player.channelContext().encryption());
@@ -64,16 +64,16 @@ public class PacketSender {
 		return this;
 	}
 	
-	public PacketSender sendDialogueAnimation(int animId, int interfaceId) {
-		PacketBuilder out = PacketBuilder.allocate(5);
-		out.createFrame(200, player.channelContext().encryption());
-		out.putShort(animId);
-		out.putShort(interfaceId);
-		out.sendTo(player.channelContext().channel());
-		return this;
+	public PacketDispatcher sendDialogueAnimation(int animId, int interfaceId) {
+            PacketBuilder out = PacketBuilder.allocate(5);
+            out.createFrame(200, player.channelContext().encryption());
+            out.putShort(animId);
+            out.putShort(interfaceId);
+            out.sendTo(player.channelContext().channel());
+            return this;
 	}
 
-	public PacketSender sendPlayerDialogueHead(int interfaceId) {
+	public PacketDispatcher sendPlayerDialogueHead(int interfaceId) {
 		PacketBuilder out = PacketBuilder.allocate(5);
 		out.createFrame(185, player.channelContext().encryption());
 		out.putLEShortA(interfaceId);
@@ -81,7 +81,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender sendNPCDialogueHead(int npcId, int interfaceId) {
+	public PacketDispatcher sendNPCDialogueHead(int npcId, int interfaceId) {
 		PacketBuilder out = PacketBuilder.allocate(100);
 		out.createFrame(75, player.channelContext().encryption());
 		out.putLEShortA(npcId);
@@ -96,7 +96,7 @@ public class PacketSender {
 	 * @param world
 	 * @return
 	 */
-	public PacketSender sendFriendList(long name, int world) {
+	public PacketDispatcher sendFriendList(long name, int world) {
 		PacketBuilder out = PacketBuilder.allocate(10);
 		out.createFrame(50, player.channelContext().encryption());
 		if (world != 0) {
@@ -108,7 +108,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender sendItemOnInterface(int id, int zoom, int model) {
+	public PacketDispatcher sendItemOnInterface(int id, int zoom, int model) {
 		PacketBuilder out = PacketBuilder.allocate(7);
 		out.createFrame(246, player.channelContext().encryption());
 		out.putLEShort(id);
@@ -118,7 +118,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender sendPMServer(int state) {
+	public PacketDispatcher sendPMServer(int state) {
 		PacketBuilder out = PacketBuilder.allocate(2);
 		out.createFrame(221, player.channelContext().encryption());
 		out.putByte(state);
@@ -126,7 +126,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender createPlayerHints(int type, int id, int k, int l) {
+	public PacketDispatcher createPlayerHints(int type, int id, int k, int l) {
 		PacketBuilder out = PacketBuilder.allocate(2028);
 		out.createFrame(254, player.channelContext().encryption());
 		out.putByte(type);
@@ -143,7 +143,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender sendPrivateMessage(long name, int rights, byte[] message, int messageSize) {
+	public PacketDispatcher sendPrivateMessage(long name, int rights, byte[] message, int messageSize) {
 		PacketBuilder out = PacketBuilder.allocate(2048);
 		out.createSizedFrame(196, player.channelContext().encryption());
 		out.putLong(name);
@@ -156,7 +156,7 @@ public class PacketSender {
 	}
 
 	
-	public PacketSender sendInitPacket() {
+	public PacketDispatcher sendInitPacket() {
 		PacketBuilder out = PacketBuilder.allocate(4);
 		out.createFrame(249, player.channelContext().encryption());
 		out.putByteA(1);
@@ -189,7 +189,7 @@ public class PacketSender {
 		return this;
 	}
 	
-	public PacketSender sendLoginConfig() {
+	public PacketDispatcher sendLoginConfig() {
 		//sendConfig(152, player.isAutoRetaliating() ? 1 : 0);
                 //sendConfig(173, player.isAutoRetaliating() ? 1 : 0);
 		//sendConfig(173, player.movementQueue().running() ? 1 : 0);
@@ -199,7 +199,7 @@ public class PacketSender {
 	/**
 	 * Sends the logout packet.
 	 */
-	public PacketSender sendLogout() {
+	public PacketDispatcher sendLogout() {
 		PacketBuilder out = PacketBuilder.allocate(1);
 		out.createFrame(109, player.channelContext().encryption());
 		out.sendTo(player.channelContext().channel());
@@ -207,7 +207,7 @@ public class PacketSender {
 	}
 
 	
-	public PacketSender sendMapRegion() {
+	public PacketDispatcher sendMapRegion() {
 		PacketBuilder out = PacketBuilder.allocate(5);
 		out.createFrame(73, player.channelContext().encryption());
 		out.putShortA(player.getLocation().getRegion().regionX() + 6);
@@ -223,7 +223,7 @@ public class PacketSender {
 	 * @param message
 	 *            the message
 	 */
-	public PacketSender sendMessage(String message) {
+	public PacketDispatcher sendMessage(String message) {
 		PacketBuilder out = PacketBuilder.allocate(256);
 		out.createSizedFrame(253, player.channelContext().encryption());
 		out.putString(message);
@@ -232,7 +232,7 @@ public class PacketSender {
 		return this;
 	}
         /*
-	public PacketSender sendSpecialBar(boolean usingSpecial, boolean flag) {
+	public PacketDispatcher sendSpecialBar(boolean usingSpecial, boolean flag) {
 		sendConfig(300, player.getSpecialAmount());
 		if (flag) {
 			sendConfig(301, usingSpecial ? 1 : 0);
@@ -252,7 +252,7 @@ public class PacketSender {
 	 * @param string
 	 *            the string
 	 */
-	public PacketSender sendString(int stringIndex, String string) {
+	public PacketDispatcher sendString(int stringIndex, String string) {
 		PacketBuilder out = PacketBuilder.allocate(2048);
 		out.createShortSizedFrame(126, player.channelContext().encryption());
 		out.putString(string);
@@ -262,14 +262,14 @@ public class PacketSender {
 		return this;
 	}
 
-        /*
-	public PacketSender sendCloseInterface() {
+        
+	public PacketDispatcher sendCloseInterface() {
 		PacketBuilder out = PacketBuilder.allocate(1);
 		out.createFrame(219, player.channelContext().encryption());
-		player.getDialogue().setNewDialogue(-1);
+		//player.getDialogue().setNewDialogue(-1);
 		out.sendTo(player.channelContext().channel());
 		return this;
-	}*/
+	}
 
 	/**
 	 * Sends interface set to the client.
@@ -280,7 +280,7 @@ public class PacketSender {
 	 * @param sidebarInterfaceIndex
 	 *            the sidebar interface
 	 */
-	public PacketSender sendInterfaceSet(int interfaceIndex,
+	public PacketDispatcher sendInterfaceSet(int interfaceIndex,
 			int sidebarInterfaceIndex) {
 		PacketBuilder out = PacketBuilder.allocate(5);
 		out.createFrame(248, player.channelContext().encryption());
@@ -297,7 +297,7 @@ public class PacketSender {
 	 *            The interface id
 	 * @return The packet sender
 	 */
-	public PacketSender sendInterface(int interfaceIndex) {
+	public PacketDispatcher sendInterface(int interfaceIndex) {
 		PacketBuilder out = PacketBuilder.allocate(5);
 		out.createFrame(97, player.channelContext().encryption());
 		out.putShort(interfaceIndex);
@@ -314,7 +314,7 @@ public class PacketSender {
 	 * @param menuName
 	 *            the menu option name
 	 */
-	public PacketSender sendPlayerMenuOption(int menuIndex, String menuName) {
+	public PacketDispatcher sendPlayerMenuOption(int menuIndex, String menuName) {
 		PacketBuilder out = PacketBuilder.allocate(256);
 		out.createSizedFrame(104, player.channelContext().encryption());
 		out.putByteC(menuIndex).putByteA(0);
@@ -333,7 +333,7 @@ public class PacketSender {
 	 * @param interfaceId
 	 *            the interface index
 	 */
-	public PacketSender sendSidebar(int sidebarId, int interfaceId) {
+	public PacketDispatcher sendSidebar(int sidebarId, int interfaceId) {
 		PacketBuilder out = PacketBuilder.allocate(4);
 		out.createFrame(71, player.channelContext().encryption());
 		out.putShort(interfaceId);
@@ -342,7 +342,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender moveComponent(int i, int o, int id) {
+	public PacketDispatcher moveComponent(int i, int o, int id) {
 		PacketBuilder out = PacketBuilder.allocate(128);
 		out.createFrame(70, player.channelContext().encryption());
 		out.putShort(i);
@@ -352,7 +352,7 @@ public class PacketSender {
 		return this;
 	}
 
-	public PacketSender interfaceConfig(int MainFrame, int SubFrame) {
+	public PacketDispatcher interfaceConfig(int MainFrame, int SubFrame) {
 		PacketBuilder out = PacketBuilder.allocate(4);
 		out.createFrame(171, player.channelContext().encryption());
 		out.putByte(MainFrame);
@@ -370,7 +370,7 @@ public class PacketSender {
 	 * @param state
 	 *            the configuration state
 	 */
-	public PacketSender sendConfig(int configIndex, int state) {
+	public PacketDispatcher sendConfig(int configIndex, int state) {
 		PacketBuilder out = PacketBuilder.allocate(4);
 		out.createFrame(36, player.channelContext().encryption());
 		out.putLEShort(configIndex);
@@ -380,7 +380,7 @@ public class PacketSender {
 	}
 
 	/*
-	public PacketSender sendItemContainer(ItemContainer container,int interfaceIndex) {
+	public PacketDispatcher sendItemContainer(ItemContainer container,int interfaceIndex) {
 		PacketBuilder out = PacketBuilder.allocate(5 + (container.capacity() * 7));
 		out.createShortSizedFrame(53, player.channelContext().encryption());
 		out.putShort(interfaceIndex);
@@ -400,7 +400,7 @@ public class PacketSender {
 	}
 
 	
-	public PacketSender sendEntityLocation(Location location) {
+	public PacketDispatcher sendEntityLocation(Location location) {
 		PacketBuilder out = PacketBuilder.allocate(3);
 		out.createFrame(85, player.channelContext().encryption());
 		out.putByteC(location.getY() - 8 * player.currentRegion().regionY());
@@ -410,7 +410,7 @@ public class PacketSender {
 	}
 
 	
-	public PacketSender sendGroundItem(GroundItem groundItem) {
+	public PacketDispatcher sendGroundItem(GroundItem groundItem) {
 		sendEntityLocation(groundItem.getLocation());
 		PacketBuilder out = PacketBuilder.allocate(6);
 		out.createFrame(44, player.channelContext().encryption());
@@ -422,7 +422,7 @@ public class PacketSender {
 	}
 
 	
-	public PacketSender sendRemoveGroundItem(GroundItem groundItem) {
+	public PacketDispatcher sendRemoveGroundItem(GroundItem groundItem) {
 		sendEntityLocation(groundItem.getLocation());
 		PacketBuilder out = PacketBuilder.allocate(4);
 		out.createFrame(156, player.channelContext().encryption());
@@ -433,7 +433,7 @@ public class PacketSender {
 	}
 
 
-	public PacketSender sendObject(Object object, final boolean expiredObject) {
+	public PacketDispatcher sendObject(Object object, final boolean expiredObject) {
 		sendEntityLocation(object.objectLocation);
 		PacketBuilder out = PacketBuilder.allocate(6);
 		out.createFrame(151, player.channelContext().encryption());
@@ -445,7 +445,7 @@ public class PacketSender {
 	}
 
 
-	public PacketSender sendRemoveObject(Object object) {
+	public PacketDispatcher sendRemoveObject(Object object) {
 		sendEntityLocation(object.objectLocation);
 		PacketBuilder out = PacketBuilder.allocate(4);
 		out.createFrame(101, player.channelContext().encryption());
@@ -456,7 +456,7 @@ public class PacketSender {
 	}
 
 
-	public PacketSender sendSkill(final int skill) {
+	public PacketDispatcher sendSkill(final int skill) {
 		PacketBuilder out = PacketBuilder.allocate(16);
 		out.createFrame(134, player.channelContext().encryption());
 		out.putByte(skill);
@@ -473,7 +473,7 @@ public class PacketSender {
          *          this music ID
          * @return The packet sender
          */
-        public PacketSender sendSong(int id) {
+        public PacketDispatcher sendSong(int id) {
             PacketBuilder out = PacketBuilder.allocate(3);
                 out.createFrame(74, player.channelContext().encryption());
                 out.putLEShort(id);

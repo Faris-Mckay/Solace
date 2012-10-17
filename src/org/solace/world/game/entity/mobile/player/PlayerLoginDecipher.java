@@ -231,7 +231,7 @@ public class PlayerLoginDecipher implements NIODecoder {
 			/*
 			 * And finally sending the initialization packet to the client.
 			 */
-			player.getPacketSender().sendInitPacket();
+			player.getPacketDispatcher().sendInitPacket();
 			break;
 		}
 	}

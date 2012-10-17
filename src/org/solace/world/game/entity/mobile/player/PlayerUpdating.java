@@ -3,7 +3,6 @@ package org.solace.world.game.entity.mobile.player;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import org.solace.world.game.container.Equipment;
 import org.solace.network.packet.PacketBuilder;
 import org.solace.util.ProtocolUtils;
 import org.solace.world.game.Game;
@@ -30,7 +29,9 @@ public class PlayerUpdating {
     
     public List populateRegion(PacketBuilder out, PacketBuilder block){
         master.getLocation().getRegion().clearRegionContents();
-        for(Player player : Game.playerRepository){
+        Iterator<Player> it = Game.playerRepository.values().iterator();
+        while(it.hasNext()){
+            Player player = it.next();
             if(player == null){
                 continue;
             }
@@ -43,9 +44,11 @@ public class PlayerUpdating {
             if (!player.getLocation().withinDistance(player.getLocation())) {
                 continue;
             }
-            master.getLocation().getRegion().playersWithinRegion().add(player);
-            addPlayer(out, player);
-            updateGivenPlayer(block, player, true);
+            if(player != master){
+                master.getLocation().getRegion().playersWithinRegion().add(player);
+                addPlayer(out, player);
+                updateGivenPlayer(block, player, true);              
+            }
             }
             return master.getLocation().getRegion().playersWithinRegion();
     }
@@ -55,7 +58,7 @@ public class PlayerUpdating {
      */
     public void updateMaster(){
         if(mapRegionChanging){
-            master.getPacketSender().sendMapRegion(); 
+            master.getPacketDispatcher().sendMapRegion(); 
         }
         PacketBuilder out = PacketBuilder.allocate(16384);
         PacketBuilder block = PacketBuilder.allocate(8192);
@@ -68,9 +71,11 @@ public class PlayerUpdating {
         //Begin updating local players
         for (Iterator<Player> i = localPlayers.iterator(); i.hasNext();) {
             Player player = i.next();
-            if(Game.playerRepository.contains(player) && !player.getServant().teleporting&& getMaster().getLocation().withinDistance(player.getLocation())){
+            if(Game.playerRepository.values().contains(player) && !player.getUpdater().teleporting && getMaster().getLocation().withinDistance(player.getLocation())){
                 updatePlayerMovement(out, player);
-                updateGivenPlayer(block, player, false);              
+                if (player.getUpdateFlags().isUpdateRequired()) {
+                    updateGivenPlayer(block, player, false); 
+                }             
             } else {
                 out.putBits(1, 1); // Update Requierd
 		out.putBits(2, 3); // Remove Player
@@ -140,31 +145,54 @@ public class PlayerUpdating {
             out.putBits(2, 3); // Player Teleported
             out.putBits(2, master.getLocation().getH()); // current height
             out.putBits(1, teleporting); // if teleport discard walking
-            out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update												// required
-            out.putBits(7, master.getLocation().getRegion().localY()); //these might be wrong print them out
+            out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update required
+            out.putBits(7, master.getLocation().getRegion().localY());
             out.putBits(7, master.getLocation().getRegion().localX());
         } else {
-            if (master.getUpdateFlags().isUpdateRequired()) {
-                out.putBits(1, 1); // update required
-                out.putBits(2, 0); // we didn't move
+            if (master.getMobilityManager().walkingDirection() == -1) {
+                if (master.getUpdateFlags().isUpdateRequired()) {
+                        out.putBits(1, 1); // update required
+                        out.putBits(2, 0); // we didn't move
+                } else {
+                        out.putBits(1, 0); // Nothing changed
+                }
             } else {
-                out.putBits(1, 0); // Nothing changed
+                if (master.getMobilityManager().runningDirection() == -1) {
+                        out.putBits(1, 1); // Walked
+                        out.putBits(2, 1); // Only walked
+                        out.putBits(3, master.getMobilityManager().walkingDirection()); // Direction
+                        out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update block
+                } else {
+                        out.putBits(1, 1); // Walked
+                        out.putBits(2, 2); // Player is running
+                        out.putBits(3, master.getMobilityManager().walkingDirection()); // Walking
+                        out.putBits(3, master.getMobilityManager().runningDirection()); // Running
+                        out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
+                                                                                                                                                // block
+                }
             }
         }
     }
 
     private void updatePlayerMovement(PacketBuilder out, Player player) {
-        if(player.getServant().teleporting){
+        if (player.getMobilityManager().walkingDirection() == -1) {
+            if (player.getUpdateFlags().isUpdateRequired()) {
+                    out.putBits(1, 1); // Update required
+                    out.putBits(2, 0); // No movement
+            } else {
+                    out.putBits(1, 0); // Nothing changed
+            }
+        } else if (player.getMobilityManager().runningDirection() == -1) {
+            out.putBits(1, 1); // Update required
+            out.putBits(2, 1); // Player walking one tile
+            out.putBits(3, player.getMobilityManager().walkingDirection()); // Walking
+            out.putBits(1, player.getUpdateFlags().isUpdateRequired()); // Update
+        } else {
             out.putBits(1, 1); // Update Required
-            out.putBits(2, 3); // Player Teleported
-            out.putBits(2, player.getLocation().getH()); // current height
-            out.putBits(1, teleporting); // if teleport discard walking
-            out.putBits(1, player.getUpdateFlags().isUpdateRequired()); // update                                                                                                         // required
-            out.putBits(7, player.getLocation().getRegion().localY());
-            out.putBits(7, player.getLocation().getRegion().localX());
-        } else{
-            out.putBits(1, 1); // update required
-            out.putBits(2, 0); // we didn't move
+            out.putBits(2, 2); // Moved two tiles
+            out.putBits(3, player.getMobilityManager().walkingDirection()); // Walking
+            out.putBits(3, player.getMobilityManager().runningDirection()); // Running
+            out.putBits(1, player.getUpdateFlags().isUpdateRequired()); // Update
         }
     }
     
@@ -181,6 +209,15 @@ public class PlayerUpdating {
     private void checkRequiredUpdates(PacketBuilder out, Player player, boolean force) {
         if (player.getUpdateFlags().isAppearanceUpdateRequired() || force) {
                 updatePlayerAppearance(out, player);
+        }
+        if (player.getUpdateFlags().isForceMovementUpdateRequired()) {
+                out.putByteS(player.getUpdateFlags().getStartX());
+                out.putByteS(player.getUpdateFlags().getStartY());
+                out.putByteS(player.getUpdateFlags().getEndX());
+                out.putByteS(player.getUpdateFlags().getEndY());
+                out.putLEShortA(player.getUpdateFlags().getSpeed1());
+                out.putShortA(player.getUpdateFlags().getSpeed2());
+                out.putByteS(player.getUpdateFlags().getDirection());
         }
     }
 
@@ -225,6 +262,23 @@ public class PlayerUpdating {
         props.putShort(0); //games room title crap
         out.putByteC(props.buffer().position());
         out.put(props.buffer());
+    }
+    
+    public PlayerUpdating localPlayers(List<Player> localPlayers) {
+            this.localPlayers = localPlayers;
+            return this;
+    }
+
+
+    public PlayerUpdating setMapRegionChanging(boolean status) {
+            this.mapRegionChanging = status;
+            return this;
+    }
+
+ 
+    public PlayerUpdating setTeleporting(boolean status) {
+            this.teleporting = status;
+            return this;
     }
         
 }

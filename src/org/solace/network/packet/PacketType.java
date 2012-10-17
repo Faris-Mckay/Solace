@@ -1,7 +1,9 @@
 package org.solace.network.packet;
 
 import org.solace.network.RSChannelContext;
-import org.solace.network.packet.impl.RegionHandler;
+import org.solace.network.packet.impl.AppearanceChangePacket;
+import org.solace.network.packet.impl.RegionChangePacket;
+import org.solace.network.packet.impl.WalkingUpdatePacket;
 
 /**
  * Packet handlers manager.
@@ -30,6 +32,12 @@ public class PacketType {
 	 * Static constructor for packet handlers initializing.
 	 */
 	static {
-            handlers[121] = new RegionHandler();
+            handlers[101] = new AppearanceChangePacket();
+            
+            handlers[121] = new RegionChangePacket();
+            
+            handlers[WalkingUpdatePacket.COMMAND_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
+            handlers[WalkingUpdatePacket.GAME_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
+            handlers[WalkingUpdatePacket.MINIMAP_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
 	}
 }

@@ -24,9 +24,10 @@ public class IndexManager {
      * @returns first unassigned index
      */
     public static Integer getIndex(){
-        for(Integer index : indexStore){
-            if(index != null){
-                return index;
+        for(int i=0; i<indexStore.length; i++){
+            if(indexStore[i] == null){
+                indexStore[i] = i;
+                return indexStore[i];
             }
         }
         return null;

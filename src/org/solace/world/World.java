@@ -7,7 +7,6 @@ import org.solace.util.IndexManager;
 import org.solace.world.game.Game;
 import org.solace.world.game.entity.mobile.Mobile;
 import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.entity.mobile.player.PlayerUpdating;
 
 /**
  *
@@ -28,18 +27,15 @@ public class World {
             if(Game.playerRepository.size() >= Constants.SERVER_MAX_PLAYERS){
                 return;
             }
-            Game.playerRepository.add(player);
-            player.setIndex(IndexManager.getIndex());
+            Integer pIndex = IndexManager.getIndex();
+            Game.playerRepository.put(pIndex, player);
+            player.setIndex(pIndex);
         }
     }
     
-    public void deregister(Player givenPlayer){
-        for(Player player : Game.playerRepository){
-            if(player == givenPlayer){
-                Game.playerRepository.remove(givenPlayer);
-                IndexManager.freeIndex(player.getIndex());
-            }
-        }
+    public void deregister(Player player){
+        Game.playerRepository.remove(player.getIndex());
+        IndexManager.freeIndex(player.getIndex());
     }
 
 }

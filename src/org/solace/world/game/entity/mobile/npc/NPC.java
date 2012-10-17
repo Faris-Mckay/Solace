@@ -1,7 +1,7 @@
 package org.solace.world.game.entity.mobile.npc;
 
-import org.solace.world.map.Location;
 import org.solace.world.game.entity.mobile.Mobile;
+import org.solace.world.map.Location;
 
 /**
  *
@@ -9,7 +9,9 @@ import org.solace.world.game.entity.mobile.Mobile;
  */
 public class NPC extends Mobile {
     
-    Location location;
+    public NPC(){
+        super(new Location(3222, 3222));
+    }
 
     @Override
     public void update() {
@@ -20,9 +22,5 @@ public class NPC extends Mobile {
         
     }
 
-    @Override
-    public Location getLocation() {
-        return location;
-    }
 
 }
