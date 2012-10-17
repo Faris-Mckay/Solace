@@ -103,31 +103,31 @@ public class PlayerUpdating {
                 mask |= 0x400;
         }
         if (player.getUpdateFlags().isGraphicsUpdateRequired()) {
-                mask |= 0x100;
+               // mask |= 0x100;
         }
         if (player.getUpdateFlags().isAnimationUpdateRequired()) {
-                mask |= 0x8;
+               // mask |= 0x8;
         }
         if (player.getUpdateFlags().isForceChatUpdate()) {
-                mask |= 0x4;
+             //   mask |= 0x4;
         }
         if (player.getUpdateFlags().isChatUpdateRequired() && player != master) {
-                mask |= 0x80;
+             //   mask |= 0x80;
         }
         if (player.getUpdateFlags().isEntityFaceUpdate()) {
-                mask |= 0x1;
+                //mask |= 0x1;
         }
         if (player.getUpdateFlags().isAppearanceUpdateRequired() || force) {
                 mask |= 0x10;
         }
         if (player.getUpdateFlags().isFaceToDirection()) {
-                mask |= 0x2;
+               // mask |= 0x2;
         }
         if (player.getUpdateFlags().isHitUpdate()) {
-                mask |= 0x20;
+               // mask |= 0x20;
         }
         if (player.getUpdateFlags().isHitUpdate2()) {
-                mask |= 0x200;
+               // mask |= 0x200;
         }
 	if (mask >= 0x100) {
             mask |= 0x40;
@@ -279,6 +279,13 @@ public class PlayerUpdating {
     public PlayerUpdating setTeleporting(boolean status) {
             this.teleporting = status;
             return this;
+    }
+
+    public void resetUpdateVars() {
+        setTeleporting(false);
+        setMapRegionChanging(false);
+        master.getUpdateFlags().setUpdateRequired(false);
+        master.getUpdateFlags().setAppearanceUpdateRequired(false);
     }
         
 }

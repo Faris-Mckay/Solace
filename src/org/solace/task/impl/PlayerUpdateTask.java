@@ -13,12 +13,21 @@ public class PlayerUpdateTask extends Task {
     
     @Override
     public void execute(){
-        Iterator<Player> it = Game.playerRepository.values().iterator();
-        while(it.hasNext()){
-            Player player = it.next();
+        for (Player player : Game.playerRepository.values()) {
+            if(player != null){
+                player.update();
+            }
+        }
+        
+        for (Player player : Game.playerRepository.values()) {
             if(player != null){
                 player.getUpdater().updateMaster();
-                player.update();
+            }
+        }
+        
+        for (Player player : Game.playerRepository.values()) {
+            if(player != null){
+                player.getUpdater().resetUpdateVars();
             }
         }
     }

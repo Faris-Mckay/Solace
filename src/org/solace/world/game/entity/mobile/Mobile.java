@@ -13,6 +13,7 @@ public abstract class Mobile extends Entity {
     private WelfareStatus welfareStatus;
     private MovementStatus moveStatus;
     private Location targettedLocation;
+    public Location cachedRegion;
     private Entity interactingEntity;
     private MobilityManager mobilityQueue = new MobilityManager(this);
     
@@ -44,9 +45,13 @@ public abstract class Mobile extends Entity {
         super.location = location;
     }
     
-    public Mobile currentRegion(Location currentRegion) {
-        location = currentRegion;
+    public Entity region(Location currentRegion) {
+        this.cachedRegion = currentRegion;
         return this;
+    }
+    
+    public Location cachedRegion(){
+        return this.cachedRegion;
     }
 
     /**

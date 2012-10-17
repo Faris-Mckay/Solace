@@ -27,31 +27,31 @@ public class WalkingUpdatePacket implements PacketHandler {
         player.setInteractingEntityIndex(-1);
         player.setInteractingEntity(null);
         player.getUpdateFlags().setEntityFaceUpdate(true);
-                MobilityManager queue = player.getMobilityManager();
-                queue.prepare();
-                int steps = (packet.length() - 5) / 2;
-                int[][] path = new int[steps][2];
-                int firstStepX = packet.getLEShortA();
-                for (int i = 0; i < steps; i++) {
-                        path[i][0] = packet.getByte();
-                        path[i][1] = packet.getByte();
-                }
-                int firstStepY = packet.getLEShort();
-                queue.queueDestination(new Location(firstStepX, firstStepY));
-                for (int i = 0; i < steps; i++) {
-                        path[i][0] += firstStepX;
-                        path[i][1] += firstStepY;
-                        queue.queueDestination(new Location(path[i][0], path[i][1]));
-                }
-                queue.finish();
+        MobilityManager queue = player.getMobilityManager();
+        queue.prepare();
+        int steps = (packet.length() - 5) / 2;
+        int[][] path = new int[steps][2];
+        int firstStepX = packet.getLEShortA();
+        for (int i = 0; i < steps; i++) {
+                path[i][0] = packet.getByte();
+                path[i][1] = packet.getByte();
+        }
+        int firstStepY = packet.getLEShort();
+        queue.queueDestination(new Location(firstStepX, firstStepY));
+        for (int i = 0; i < steps; i++) {
+                path[i][0] += firstStepX;
+                path[i][1] += firstStepY;
+                queue.queueDestination(new Location(path[i][0], path[i][1]));
+        }
+        queue.finish();
 
-                /*
-                 * Reset the walk to action task.
-                 */
-                if (player.walkToAction() != null) {
-                        player.walkToAction().stop();
-                        player.walkToAction(null);
-                }
+        /*
+         * Reset the walk to action task.
+         */
+        if (player.walkToAction() != null) {
+                player.walkToAction().stop();
+                player.walkToAction(null);
+        }
 
     }
 

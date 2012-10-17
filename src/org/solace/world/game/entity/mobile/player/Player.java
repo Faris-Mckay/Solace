@@ -23,7 +23,7 @@ public class Player extends Mobile {
     private Equipment equipment = new Equipment();
         
     public Player(String username, String password, RSChannelContext channelContext) {
-        super(new Location(3300,3300));
+        super(new Location(3222,3222));
         this. authenticator = new PlayerAuthentication(username,password);
         this.channelContext = channelContext;
         setDefaultAppearance();
@@ -37,7 +37,7 @@ public class Player extends Mobile {
      */
     @Override
     public void update() {
-        
+        getMobilityManager().processMovement();
     }
     
     private Task walkToAction;

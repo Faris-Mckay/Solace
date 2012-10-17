@@ -213,7 +213,7 @@ public class PacketDispatcher {
 		out.putShortA(player.getLocation().getRegion().regionX() + 6);
 		out.putShort(player.getLocation().getRegion().regionY() + 6);
 		out.sendTo(player.channelContext().channel());
-		player.currentRegion(player.getLocation().copy());
+		player.region(player.getLocation().copy());
 		return this;
 	}
 
@@ -403,8 +403,8 @@ public class PacketDispatcher {
 	public PacketDispatcher sendEntityLocation(Location location) {
 		PacketBuilder out = PacketBuilder.allocate(3);
 		out.createFrame(85, player.channelContext().encryption());
-		out.putByteC(location.getY() - 8 * player.currentRegion().regionY());
-		out.putByteC(location.getX() - 8 * player.currentRegion().regionX());
+		out.putByteC(location.getY() - 8 * player.cachedRegion().regionY());
+		out.putByteC(location.getX() - 8 * player.cachedRegion().regionX());
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
