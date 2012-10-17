@@ -73,8 +73,8 @@ public class MobilityManager {
                 if (running() && !movementSteps.isEmpty()) {
                         runningDirection(generateDirection());
                 }
-                int diffX = mobile.getLocation().getX() - mobile.cachedRegion().getRegion().regionX() * 8;
-                int diffY = mobile.getLocation().getY() - mobile.cachedRegion().getRegion().regionY() * 8;
+                int diffX = mobile.getLocation().getX() - mobile.cachedRegion().regionX() * 8;
+                int diffY = mobile.getLocation().getY() - mobile.cachedRegion().regionY() * 8;
                 boolean changed = diffX < 16 || diffX >= 88 || diffY < 16 || diffY >= 88;
                 ((Player) mobile).getUpdater().setMapRegionChanging(changed);
             } else if (mobile instanceof NPC) {

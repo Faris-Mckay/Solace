@@ -17,6 +17,8 @@ public class PlayerUpdating {
     private boolean teleporting = true;
     private boolean mapRegionChanging = true;
     private List<Player> localPlayers;
+    public byte chatText[] = new byte[256];
+    public int chatTextEffects = 0, chatTextColor = 0;
     
     public PlayerUpdating(Player master){
         this.master = master;
@@ -28,20 +30,20 @@ public class PlayerUpdating {
     }
     
     public List populateRegion(PacketBuilder out, PacketBuilder block){
-        master.getLocation().getRegion().clearRegionContents();
+        master.getLocation().getRegion().playersWithinRegion().clear();
         Iterator<Player> it = Game.playerRepository.values().iterator();
         while(it.hasNext()){
             Player player = it.next();
-            if(player == null){
-                continue;
-            }
             if (master.getLocation().getRegion().playersWithinRegion().size() >= 255) {
                 break;
+            }
+            if(player == null){
+                continue;
             }
             if(master.getLocation().getRegion().playersWithinRegion().contains(player)){
                 continue;
             }
-            if (!player.getLocation().withinDistance(player.getLocation())) {
+            if (!player.getLocation().withinDistance(master.getLocation())) {
                 continue;
             }
             if(player != master){
@@ -109,10 +111,10 @@ public class PlayerUpdating {
                // mask |= 0x8;
         }
         if (player.getUpdateFlags().isForceChatUpdate()) {
-             //   mask |= 0x4;
+                mask |= 0x4;
         }
         if (player.getUpdateFlags().isChatUpdateRequired() && player != master) {
-             //   mask |= 0x80;
+                mask |= 0x80;
         }
         if (player.getUpdateFlags().isEntityFaceUpdate()) {
                 //mask |= 0x1;
@@ -219,6 +221,20 @@ public class PlayerUpdating {
                 out.putShortA(player.getUpdateFlags().getSpeed2());
                 out.putByteS(player.getUpdateFlags().getDirection());
         }
+        if (player.getUpdateFlags().isForceChatUpdate()) {
+                out.putString(player.getUpdateFlags().getForceChatMessage());
+        }
+        if (player.getUpdateFlags().isChatUpdateRequired() && player != master) {
+                updatePlayerChat(out, player);
+        }
+    }
+    
+    public void updatePlayerChat(PacketBuilder out, Player player) {
+        int effects = ((player.getUpdater().chatTextColor & 0xff) << 8) + (player.getUpdater().chatTextEffects & 0xff);
+        out.putLEShort(effects);
+        out.putByte(player.getAuthentication().getPlayerRights()); 
+        out.putByteC(player.getUpdater().chatText.length);
+        out.put(player.getUpdater().chatText);
     }
 
     public void updatePlayerAppearance(PacketBuilder out, Player player) {
@@ -282,10 +298,11 @@ public class PlayerUpdating {
     }
 
     public void resetUpdateVars() {
+        chatTextEffects = chatTextColor = 0;
+	chatText = new byte[256];
         setTeleporting(false);
         setMapRegionChanging(false);
-        master.getUpdateFlags().setUpdateRequired(false);
-        master.getUpdateFlags().setAppearanceUpdateRequired(false);
+        master.getUpdateFlags().reset();
     }
         
 }

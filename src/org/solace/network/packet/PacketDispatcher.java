@@ -213,7 +213,7 @@ public class PacketDispatcher {
 		out.putShortA(player.getLocation().getRegion().regionX() + 6);
 		out.putShort(player.getLocation().getRegion().regionY() + 6);
 		out.sendTo(player.channelContext().channel());
-		player.region(player.getLocation().copy());
+		player.region(player.getLocation().copy().getRegion());
 		return this;
 	}
 

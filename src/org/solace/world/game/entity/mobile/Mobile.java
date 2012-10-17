@@ -2,7 +2,7 @@ package org.solace.world.game.entity.mobile;
 
 import org.solace.world.map.Location;
 import org.solace.world.game.entity.Entity;
-import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.world.map.Region;
 
 /**
  *
@@ -13,7 +13,7 @@ public abstract class Mobile extends Entity {
     private WelfareStatus welfareStatus;
     private MovementStatus moveStatus;
     private Location targettedLocation;
-    public Location cachedRegion;
+    public Region cachedRegion;
     private Entity interactingEntity;
     private MobilityManager mobilityQueue = new MobilityManager(this);
     
@@ -45,12 +45,12 @@ public abstract class Mobile extends Entity {
         super.location = location;
     }
     
-    public Entity region(Location currentRegion) {
+    public Entity region(Region currentRegion) {
         this.cachedRegion = currentRegion;
         return this;
     }
     
-    public Location cachedRegion(){
+    public Region cachedRegion(){
         return this.cachedRegion;
     }
 
