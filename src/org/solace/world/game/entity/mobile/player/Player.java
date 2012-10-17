@@ -3,8 +3,8 @@ package org.solace.world.game.entity.mobile.player;
 import org.solace.event.impl.PlayerLoginEvent;
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.PacketSender;
+import org.solace.world.game.container.Equipment;
 import org.solace.world.game.entity.mobile.Mobile;
-import org.solace.world.map.Location;
 
 /**
  *
@@ -13,17 +13,19 @@ import org.solace.world.map.Location;
 public class Player extends Mobile {
     
     private RSChannelContext channelContext;
-    private PlayerAuthentication playerCredentials;
+    private PlayerAuthentication authenticator;
     private PacketSender packetSender = new PacketSender(this);
     private PrivateMessaging playerMessaging = new PrivateMessaging(this);
     private PlayerUpdateFlags updateFlags = new PlayerUpdateFlags();
-    private PlayerUpdating assistant = new PlayerUpdating(this);
-    private Location location;
+    private PlayerUpdating updating = new PlayerUpdating(this);
+    private Equipment equipment = new Equipment();
         
     public Player(String username, String password, RSChannelContext channelContext) {
-        this. playerCredentials = new PlayerAuthentication(username,password);
+        this. authenticator = new PlayerAuthentication(username,password);
         this.channelContext = channelContext;
-        this.location = new Location(3222, 3222);
+        setDefaultAppearance();
+        getUpdateFlags().setUpdateRequired(true);
+        getUpdateFlags().setAppearanceUpdateRequired(true);
     }
     
     /**
@@ -34,7 +36,9 @@ public class Player extends Mobile {
     public void update() {
         
     }
-
+    
+    private int playerHeadIcon = -1;
+    
     public Player channelContext(RSChannelContext channelContext) {
         this.channelContext = channelContext;
         return this;
@@ -53,16 +57,6 @@ public class Player extends Mobile {
        new PlayerLoginEvent(this).execute();
     }
 
-    @Override
-    public Location getLocation() {
-        return location;
-    }
-    
-    public Player currentRegion(Location currentRegion) {
-        this.location = currentRegion;
-        return this;
-    }
-
     /**
      * @return the playerMessaging
      */
@@ -73,15 +67,15 @@ public class Player extends Mobile {
     /**
      * @return the playerCredentials
      */
-    public PlayerAuthentication getPlayerCredentials() {
-        return playerCredentials;
+    public PlayerAuthentication getAuthentication() {
+        return authenticator;
     }
 
     /**
      * @return the assistant
      */
     public PlayerUpdating getServant() {
-        return assistant;
+        return updating;
     }
 
     /**
@@ -90,6 +84,47 @@ public class Player extends Mobile {
     public PlayerUpdateFlags getUpdateFlags() {
         return updateFlags;
     }
+
+    /**
+     * @return the playerHeadIcon
+     */
+    public int getPlayerHeadIcon() {
+        return playerHeadIcon;
+    }
+
+    /**
+     * @return the equipment
+     */
+    public Equipment getEquipment() {
+        return equipment;
+    }
+
+    private void setDefaultAppearance() {
+        /**
+         * Gender
+         */
+        getAuthentication().appearanceIndex[0] = 0;
+
+        /**
+         * Clothing
+         */
+        getAuthentication().appearanceIndex[1] = 0;
+        getAuthentication().appearanceIndex[2] = 18;
+        getAuthentication().appearanceIndex[3] = 26;
+        getAuthentication().appearanceIndex[4] = 35;
+        getAuthentication().appearanceIndex[5] = 36;
+        getAuthentication().appearanceIndex[6] = 42;
+        getAuthentication().appearanceIndex[7] = 10;
+        /**
+         * Colors
+         */
+        getAuthentication().appearanceIndex[8] = 7;
+        getAuthentication().appearanceIndex[9] = 8;
+        getAuthentication().appearanceIndex[10] = 9;
+        getAuthentication().appearanceIndex[11] = 5;
+        getAuthentication().appearanceIndex[12] = 0;
+
+     }
 
 
 

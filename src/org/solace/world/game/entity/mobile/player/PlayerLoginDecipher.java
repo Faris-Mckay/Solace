@@ -219,7 +219,7 @@ public class PlayerLoginDecipher implements NIODecoder {
 			 */
 			out = PacketBuilder.allocate(3);
 			out.putByte(response);
-			out.putByte(player.getPlayerCredentials().getPlayerRights());
+			out.putByte(player.getAuthentication().getPlayerRights());
 			out.putByte(0);
 			out.sendTo(channelContext.channel());
 

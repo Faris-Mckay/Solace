@@ -16,7 +16,6 @@ public abstract class Mobile extends Entity {
     
     public abstract void update();
     
-    
     private int index;
 
     /**
@@ -32,7 +31,6 @@ public abstract class Mobile extends Entity {
     public void setIndex(int index) {
         this.index = index;
     }
-    
     
     public Mobile currentRegion(Location currentRegion) {
         location = currentRegion;

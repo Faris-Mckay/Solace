@@ -45,8 +45,7 @@ public class PlayerUpdateFlags {
      * @param speed2
      * @param direction
      */
-    public void sendForceMovement(Player player, final int x, final int y,
-                    final int speed1, final int speed2, final int direction) {
+    public void sendForceMovement(Player player, final int x, final int y,final int speed1, final int speed2, final int direction) {
             this.startX = player.getLocation().getRegion().localX();
             this.startY = player.getLocation().getRegion().localY();
             this.endX = player.getLocation().getRegion().localX() + x;
@@ -58,9 +57,7 @@ public class PlayerUpdateFlags {
             isUpdateRequired = true;
     }
 
-    public void sendForceMovementDoubleSwing(Player player, final int x,
-                    final int y, final int startY, final int speed1, final int speed2,
-                    final int direction) {
+    public void sendForceMovementDoubleSwing(Player player, final int x,final int y, final int startY, final int speed1, final int speed2,final int direction) {
             this.startX = player.getLocation().getRegion().localX();
             this.startY = player.getLocation().getRegion().localY();
             this.endX = player.getLocation().getRegion().localX() + x;

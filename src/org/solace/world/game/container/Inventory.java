@@ -4,9 +4,9 @@ package org.solace.world.game.container;
  *
  * @author Faris
  */
-public class Item extends Container {
+public class Inventory extends Container {
     
-    public Item(){
+    public Inventory(){
         super(28);
     }
 

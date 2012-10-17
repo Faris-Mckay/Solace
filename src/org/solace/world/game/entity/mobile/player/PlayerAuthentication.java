@@ -54,6 +54,79 @@ public class PlayerAuthentication {
         return password;
     }
     
+    public int[] appearanceIndex = new int[13];
+	
+    private boolean changeAppearance = false;
+
+
+    public int playerGender() {
+            return appearanceIndex[0];
+    }
+
+    public int playerHead() {
+            return appearanceIndex[1];
+    }
+
+    public int playerTorso() {
+            return appearanceIndex[2];
+    }
+
+    public int playerArms() {
+            return appearanceIndex[3];
+    }
+
+    public int playerHands() {
+            return appearanceIndex[4];
+    }
+
+    public int playerLegs() {
+            return appearanceIndex[5];
+    }
+
+    public int playerFeet() {
+            return appearanceIndex[6];
+    }
+
+    public int playerJaw() {
+            return appearanceIndex[7];
+    }
+
+    public int playerHairColour() {
+            return appearanceIndex[8];
+    }
+
+    public int playerTorsoColour() {
+            return appearanceIndex[9];
+    }
+
+    public int playerLegColour() {
+            return appearanceIndex[10];
+    }
+
+    public int playerFeetColour() {
+            return appearanceIndex[11];
+    }
+
+    public int playerSkinColour() {
+            return appearanceIndex[12];
+    }
+
+    public int getPlayerAppearanceIndex(int index) {
+        return appearanceIndex[index];
+    }
+
+    public void setPlayerAppearanceIndex(int index, int appearance) {
+        this.appearanceIndex[index] = appearance;
+    }
+
+    public boolean getChangeAppearance() {
+            return changeAppearance;
+    }
+
+    public void setChangeAppearance(boolean status) {
+            this.changeAppearance = status;
+    }
+    
     public enum PrivilegeRank{
         /**
          * A standard (rights 0) account.

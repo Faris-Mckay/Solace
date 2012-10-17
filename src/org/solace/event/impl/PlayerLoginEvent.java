@@ -18,7 +18,7 @@ public class PlayerLoginEvent extends Event {
 
     @Override
     public void execute() {
-        System.out.println("login request recieved from player:  "+player.getPlayerCredentials().getUsername());
+        System.out.println("login request recieved from player:  "+player.getAuthentication().getUsername());
     }
 
 

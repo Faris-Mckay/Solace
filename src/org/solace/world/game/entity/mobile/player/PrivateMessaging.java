@@ -73,7 +73,7 @@ public class PrivateMessaging {
                             continue;
                     player.getPacketSender().sendFriendList(i, getPlayersWorld(i));
 		}
-		long name = player.getPlayerCredentials().getUsernameAsLong();
+		long name = player.getAuthentication().getUsernameAsLong();
 		int world = getPlayersWorld(name);
 		for (Player p : Game.playerRepository) {
 			if (p == null)
@@ -114,7 +114,7 @@ public class PrivateMessaging {
 	private int getPlayersWorld(long friend) {
 		for (Player p : Game.playerRepository) {
 			if (p != null) {
-				if (p.getPlayerCredentials().getUsernameAsLong() == friend) {
+				if (p.getAuthentication().getUsernameAsLong() == friend) {
 					return 1;
 				}
 			}
@@ -239,9 +239,9 @@ public class PrivateMessaging {
 		}
 		for (Player p : Game.playerRepository) {
 			if (p != null) {
-				if (ProtocolUtils.nameToLong(p.getPlayerCredentials().getUsername()) == username) {
+				if (ProtocolUtils.nameToLong(p.getAuthentication().getUsername()) == username) {
 					p.getPacketSender().sendPrivateMessage(
-							ProtocolUtils.nameToLong(player.getPlayerCredentials().getUsername()), 0,
+							ProtocolUtils.nameToLong(player.getAuthentication().getUsername()), 0,
 							message, size);
 				}
 			}
