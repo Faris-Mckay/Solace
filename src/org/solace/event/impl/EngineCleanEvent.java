@@ -1,5 +1,6 @@
 package org.solace.event.impl;
 
+import org.solace.Server;
 import org.solace.task.Task;
 import org.solace.task.UniqueTimedTask;
 
@@ -11,13 +12,13 @@ import org.solace.task.UniqueTimedTask;
 public class EngineCleanEvent {
     
     public static void init(){
-        System.out.println("Submitting Resource Cleanup task...");
+        Server.logger.info("Submitting resource cleanup task...");
         new UniqueTimedTask(5, new Task(){
             @Override
             public void execute(){
                 System.gc();
                 System.runFinalization();
-                System.out.println("System object cleanup scheduled");
+                Server.logger.info("System resource cleanup scheduled...");
             }
         });
     }

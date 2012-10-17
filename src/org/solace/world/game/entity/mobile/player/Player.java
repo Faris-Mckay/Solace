@@ -1,5 +1,6 @@
 package org.solace.world.game.entity.mobile.player;
 
+import org.solace.world.game.content.PrivateMessaging;
 import org.solace.event.impl.PlayerLoginEvent;
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.PacketDispatcher;

@@ -27,6 +27,7 @@ public class WalkingUpdatePacket implements PacketHandler {
         player.setInteractingEntityIndex(-1);
         player.setInteractingEntity(null);
         player.getUpdateFlags().setEntityFaceUpdate(true);
+        //test something nop
         MobilityManager queue = player.getMobilityManager();
         queue.prepare();
         int steps = (packet.length() - 5) / 2;

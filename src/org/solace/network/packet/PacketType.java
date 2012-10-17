@@ -2,6 +2,7 @@ package org.solace.network.packet;
 
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.impl.AppearanceChangePacket;
+import org.solace.network.packet.impl.IncomingChatPacket;
 import org.solace.network.packet.impl.RegionChangePacket;
 import org.solace.network.packet.impl.WalkingUpdatePacket;
 
@@ -11,7 +12,7 @@ import org.solace.network.packet.impl.WalkingUpdatePacket;
  */
 public class PacketType {
 
-	private static PacketHandler[] handlers = new PacketHandler[256];
+	private static PacketHandler[] incomingPacket = new PacketHandler[256];
 
 	/**
 	 * Handles an incoming packet.
@@ -23,8 +24,8 @@ public class PacketType {
 	 *            the packet
 	 */
 	public static void handlePacket(RSChannelContext channelContext,Packet packet) {
-		if (handlers[packet.opcode()] != null) {
-			handlers[packet.opcode()].handlePacket(channelContext.player(), packet);
+		if (incomingPacket[packet.opcode()] != null) {
+			incomingPacket[packet.opcode()].handlePacket(channelContext.player(), packet);
 		}
 	}
 
@@ -32,12 +33,12 @@ public class PacketType {
 	 * Static constructor for packet handlers initializing.
 	 */
 	static {
-            handlers[101] = new AppearanceChangePacket();
+            incomingPacket[101] = new AppearanceChangePacket();
+            incomingPacket[4] = new IncomingChatPacket();
+            incomingPacket[121] = new RegionChangePacket();
             
-            handlers[121] = new RegionChangePacket();
-            
-            handlers[WalkingUpdatePacket.COMMAND_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
-            handlers[WalkingUpdatePacket.GAME_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
-            handlers[WalkingUpdatePacket.MINIMAP_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
+            incomingPacket[WalkingUpdatePacket.COMMAND_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
+            incomingPacket[WalkingUpdatePacket.GAME_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
+            incomingPacket[WalkingUpdatePacket.MINIMAP_MOVEMENT_OPCODE] = new WalkingUpdatePacket();
 	}
 }

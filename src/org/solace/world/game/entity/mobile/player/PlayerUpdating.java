@@ -49,6 +49,7 @@ public class PlayerUpdating {
             if(player != master){
                 master.getLocation().getRegion().playersWithinRegion().add(player);
                 addPlayer(out, player);
+                //or here?
                 updateGivenPlayer(block, player, true);              
             }
             }
@@ -67,7 +68,7 @@ public class PlayerUpdating {
         out.createShortSizedFrame(81, master.channelContext().encryption());
         out.bitAccess();
         updateThisPlayerMovement(out);
-        updateGivenPlayer(block, master, false);
+        updateGivenPlayer(block, master, false); 
         out.putBits(8, localPlayers.size());
         
         //Begin updating local players
@@ -76,6 +77,7 @@ public class PlayerUpdating {
             if(Game.playerRepository.values().contains(player) && !player.getUpdater().teleporting && getMaster().getLocation().withinDistance(player.getLocation())){
                 updatePlayerMovement(out, player);
                 if (player.getUpdateFlags().isUpdateRequired()) {
+                //either here
                     updateGivenPlayer(block, player, false); 
                 }             
             } else {
@@ -100,6 +102,7 @@ public class PlayerUpdating {
         if (!player.getUpdateFlags().isUpdateRequired() && !force) {
             return;
         }
+        // are any of these required with movement or chat? that r not enabled already
         int mask = 0x0;
         if (player.getUpdateFlags().isForceMovementUpdateRequired()) {
                 mask |= 0x400;
@@ -141,14 +144,14 @@ public class PlayerUpdating {
         checkRequiredUpdates(out, player, force);
     }
     
-    public void updateThisPlayerMovement(PacketBuilder out) {
-        if (teleporting || mapRegionChanging) {
+    public void updateThisPlayerMovement(PacketBuilder out) { //this and the other player movement update are identical lol
+        if (teleporting) { //) || mapRegionChanging) {
             out.putBits(1, 1); // Update Required
             out.putBits(2, 3); // Player Teleported
             out.putBits(2, master.getLocation().getH()); // current height
-            out.putBits(1, teleporting); // if teleport discard walking
+            out.putBits(1, mapRegionChanging); //teleporting); 
             out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update required
-            out.putBits(7, master.getLocation().getRegion().localY());
+            out.putBits(7, master.getLocation().getRegion().localY()); // are these right local regions? yeah i sorted them earleir
             out.putBits(7, master.getLocation().getRegion().localX());
         } else {
             if (master.getMobilityManager().walkingDirection() == -1) {
@@ -160,13 +163,13 @@ public class PlayerUpdating {
                 }
             } else {
                 if (master.getMobilityManager().runningDirection() == -1) {
-                        out.putBits(1, 1); // Walked
-                        out.putBits(2, 1); // Only walked
+                        out.putBits(1, 1); // this is update required...
+                        out.putBits(2, 1); // walking
                         out.putBits(3, master.getMobilityManager().walkingDirection()); // Direction
                         out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update block
                 } else {
-                        out.putBits(1, 1); // Walked
-                        out.putBits(2, 2); // Player is running
+                        out.putBits(1, 1); //updating required
+                        out.putBits(2, 2); // running - 2 seconds
                         out.putBits(3, master.getMobilityManager().walkingDirection()); // Walking
                         out.putBits(3, master.getMobilityManager().runningDirection()); // Running
                         out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
@@ -209,9 +212,8 @@ public class PlayerUpdating {
     }
 
     private void checkRequiredUpdates(PacketBuilder out, Player player, boolean force) {
-        if (player.getUpdateFlags().isAppearanceUpdateRequired() || force) {
-                updatePlayerAppearance(out, player);
-        }
+ 
+       
         if (player.getUpdateFlags().isForceMovementUpdateRequired()) {
                 out.putByteS(player.getUpdateFlags().getStartX());
                 out.putByteS(player.getUpdateFlags().getStartY());
@@ -227,6 +229,9 @@ public class PlayerUpdating {
         if (player.getUpdateFlags().isChatUpdateRequired() && player != master) {
                 updatePlayerChat(out, player);
         }
+         if (player.getUpdateFlags().isAppearanceUpdateRequired() || force) {
+                updatePlayerAppearance(out, player);
+        }
     }
     
     public void updatePlayerChat(PacketBuilder out, Player player) {
@@ -234,7 +239,7 @@ public class PlayerUpdating {
         out.putLEShort(effects);
         out.putByte(player.getAuthentication().getPlayerRights()); 
         out.putByteC(player.getUpdater().chatText.length);
-        out.put(player.getUpdater().chatText);
+        out.put(player.getUpdater().chatText); // im wondering about this line, it works for lightrune :P but is he doing something different
     }
 
     public void updatePlayerAppearance(PacketBuilder out, Player player) {
@@ -294,6 +299,20 @@ public class PlayerUpdating {
  
     public PlayerUpdating setTeleporting(boolean status) {
             this.teleporting = status;
+            return this;
+    }
+    public PlayerUpdating chatText(byte[] chatText) {
+            this.chatText = chatText;
+            return this;
+    }
+
+    public PlayerUpdating chatTextEffects(int chatTextEffects) {
+            this.chatTextEffects = chatTextEffects;
+            return this;
+    }
+
+    public PlayerUpdating chatTextColor(int chatTextColor) {
+            this.chatTextColor = chatTextColor;
             return this;
     }
 

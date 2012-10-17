@@ -102,15 +102,12 @@ public class PlayerUpdateFlags {
     }
 
     /**
-     * sendsa high graphic
+     * send sa high graphic
      * 
      * @param graphicsId
      */
     public void sendHighGraphic(int graphicsId) {
-            this.graphicsId = graphicsId;
-            this.graphicsDelay = 100 << 16 + 0;
-            graphicsUpdateRequired = true;
-            isUpdateRequired = true;
+            sendHighGraphic(graphicsId, 0); //common sense son
     }
 
     /**
@@ -132,10 +129,7 @@ public class PlayerUpdateFlags {
      * @param animationId
      */
     public void sendAnimation(int animationId) {
-            this.animationId = animationId;
-            this.animationDelay = 0;
-            animationUpdateRequired = true;
-            isUpdateRequired = true;
+            sendAnimation(animationId, 0);
     }
 
     /**
@@ -150,7 +144,6 @@ public class PlayerUpdateFlags {
             animationUpdateRequired = true;
             isUpdateRequired = true;
     }
-
     /**
      * sets the face update to face an entity
      * 

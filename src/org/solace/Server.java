@@ -17,6 +17,8 @@ import org.solace.world.game.Game;
  * @author Faris
  */
 public class Server {
+    
+    public static Logger logger = Logger.getLogger(Server.class.getName());
            
     public static NIOSelector selector;
     
@@ -30,14 +32,14 @@ public class Server {
     private void constructNetwork() throws IOException {
         NIOServer.bind(Constants.SERVER_LISTEN_PORT);
         TaskExecuter.get().schedule(networkTask);
-        System.out.println("Constructing network backend...");
+        logger.info("Constructing network backend...");
     }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("Starting up Solace...");
+        logger.info("Starting up Solace...");
         new Server().serverStartUp();
     }
     
@@ -54,6 +56,6 @@ public class Server {
     private void start() {
         EngineCleanEvent.init();
         Game.beginUpdatingMobiles();
-        System.out.println("Solace listening on port: "+Constants.SERVER_LISTEN_PORT);
+        logger.info("Solace listening on port: "+Constants.SERVER_LISTEN_PORT);
     }
 }

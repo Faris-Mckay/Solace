@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.solace.Server;
 import org.solace.task.TaskExecuter;
 import org.solace.task.impl.NPCUpdateTask;
 import org.solace.task.impl.PlayerUpdateTask;
@@ -19,7 +20,7 @@ public class Game {
     public static final List<NPC> npcRepository = new LinkedList<NPC>();
     
     public static void beginUpdatingMobiles(){
-        System.out.println("Task update handlers intitializing...");
+        Server.logger.info("Task update handlers intitializing...");
         TaskExecuter.get().schedule(new NPCUpdateTask());
         TaskExecuter.get().schedule(new PlayerUpdateTask());
     }
