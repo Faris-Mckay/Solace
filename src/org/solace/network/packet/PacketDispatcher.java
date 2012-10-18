@@ -1,10 +1,15 @@
 package org.solace.network.packet;
 
+import org.solace.util.ProtocolUtils;
+import org.solace.world.game.item.Item;
+import org.solace.world.game.item.container.Container;
 import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.world.game.content.skills.SkillHandler;
 import org.solace.world.map.Location;
 
 /**
  * Protocol packets sender.
+ * 
  * @author Faris
  */
 public class PacketDispatcher {
@@ -13,6 +18,7 @@ public class PacketDispatcher {
 
 	/**
 	 * Creates a new packet sender for player.
+	 * 
 	 * @param player
 	 *            the player object
 	 */
@@ -22,6 +28,7 @@ public class PacketDispatcher {
 
 	/**
 	 * sends the frame id to the client for chat box
+	 * 
 	 * @param frame
 	 * @return
 	 */
@@ -37,15 +44,19 @@ public class PacketDispatcher {
 	public PacketDispatcher sendCoordinates2(Location position) {
 		PacketBuilder out = PacketBuilder.allocate(3);
 		out.createFrame(85, player.channelContext().encryption());
-		int y = position.getY() - player.getLocation().getRegion().regionY() * 8 - 2;
-		int x = position.getX() - player.getLocation().getRegion().regionX() * 8 - 3;
+		int y = position.getY() - player.getLocation().getRegion().regionY()
+				* 8 - 2;
+		int x = position.getX() - player.getLocation().getRegion().regionX()
+				* 8 - 3;
 		out.putByteC(y);
 		out.putByteC(x);
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
 
-	public PacketDispatcher sendProjectile(Location position, int offsetX,int offsetY, int id, int startHeight, int endHeight, int speed,int lockon) {
+	public PacketDispatcher sendProjectile(Location position, int offsetX,
+			int offsetY, int id, int startHeight, int endHeight, int speed,
+			int lockon) {
 		PacketBuilder out = PacketBuilder.allocate(32);
 		sendCoordinates2(position);
 		out.createFrame(117, player.channelContext().encryption());
@@ -63,14 +74,14 @@ public class PacketDispatcher {
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
-	
+
 	public PacketDispatcher sendDialogueAnimation(int animId, int interfaceId) {
-            PacketBuilder out = PacketBuilder.allocate(5);
-            out.createFrame(200, player.channelContext().encryption());
-            out.putShort(animId);
-            out.putShort(interfaceId);
-            out.sendTo(player.channelContext().channel());
-            return this;
+		PacketBuilder out = PacketBuilder.allocate(5);
+		out.createFrame(200, player.channelContext().encryption());
+		out.putShort(animId);
+		out.putShort(interfaceId);
+		out.sendTo(player.channelContext().channel());
+		return this;
 	}
 
 	public PacketDispatcher sendPlayerDialogueHead(int interfaceId) {
@@ -92,6 +103,7 @@ public class PacketDispatcher {
 
 	/**
 	 * Sends online status to the friends list for any player on the list
+	 * 
 	 * @param name
 	 * @param world
 	 * @return
@@ -143,7 +155,8 @@ public class PacketDispatcher {
 		return this;
 	}
 
-	public PacketDispatcher sendPrivateMessage(long name, int rights, byte[] message, int messageSize) {
+	public PacketDispatcher sendPrivateMessage(long name, int rights,
+			byte[] message, int messageSize) {
 		PacketBuilder out = PacketBuilder.allocate(2048);
 		out.createSizedFrame(196, player.channelContext().encryption());
 		out.putLong(name);
@@ -154,45 +167,45 @@ public class PacketDispatcher {
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
-
 	
+	private void setSidebarInterfaces() {
+		int[] data = { 
+				2423, 3917, 638, 3213, 1644, 5608, 1151, -1, 5065,
+				5715, 2449, 904, 147, 962 
+		};
+		//TODO: player magic book
+		for (int i = 0; i < data.length; i++) {
+			sendSidebar(i, data[i]);
+		}
+	}
+
 	public PacketDispatcher sendInitPacket() {
 		PacketBuilder out = PacketBuilder.allocate(4);
 		out.createFrame(249, player.channelContext().encryption());
 		out.putByteA(1);
 		out.putLEShortA(player.getIndex());
 		out.sendTo(player.channelContext().channel());
-		//for (int i = 0; i < Skill.SKILL_COUNT; i++) {
-		//	sendSkill(i);
-		//}
-		sendSidebar(0, 2423); // attack tab
-		sendSidebar(1, 3917); // skills tab
-		sendSidebar(2, 638); // quest tab
-		sendSidebar(3, 3213); // backpack tab
-		sendSidebar(4, 1644); // items wearing tab
-		sendSidebar(5, 5608); // pray tab
-		//sendSidebar(6, player.getMagicBook() == 1 ? 1151 : 12855); // magic tab
-		sendSidebar(7, -1); // clan chat
-		sendSidebar(8, 5065); // friend
-		sendSidebar(9, 5715); // ignore
-		sendSidebar(10, 2449); // logout tab
-		sendSidebar(11, 904); // wrench tab
-		sendSidebar(12, 147); // run tab
-		sendSidebar(13, -1); // harp tab
+		for (int i = 0; i < SkillHandler.MAXIMUM_SKILLS; i++) {
+			player.getSkills().refreshSkill(i);
+		}
+		player.getPrivateMessaging().updateFriendsListStatus();
+		setSidebarInterfaces();
 		sendPlayerMenuOption(3, "Attack");
 		sendPlayerMenuOption(4, "Trade With");
 		sendPlayerMenuOption(5, "Follow");
-		//sendItemContainer(player.getInventory(), Inventory.INVENTORY_INTERFACE);
-		//sendItemContainer(player.getEquipment(), Equipment.EQUIPMENT_INTERFACE);
+		// sendItemContainer(player.getInventory(),
+		// Inventory.INVENTORY_INTERFACE);
+		// sendItemContainer(player.getEquipment(),
+		// Equipment.EQUIPMENT_INTERFACE);
 		player.handleLoginData();
 		sendLoginConfig();
 		return this;
 	}
-	
+
 	public PacketDispatcher sendLoginConfig() {
-		//sendConfig(152, player.isAutoRetaliating() ? 1 : 0);
-                //sendConfig(173, player.isAutoRetaliating() ? 1 : 0);
-		//sendConfig(173, player.movementQueue().running() ? 1 : 0);
+		// sendConfig(152, player.isAutoRetaliating() ? 1 : 0);
+		// sendConfig(173, player.isAutoRetaliating() ? 1 : 0);
+		// sendConfig(173, player.movementQueue().running() ? 1 : 0);
 		return this;
 	}
 
@@ -206,7 +219,6 @@ public class PacketDispatcher {
 		return this;
 	}
 
-	
 	public PacketDispatcher sendMapRegion() {
 		PacketBuilder out = PacketBuilder.allocate(5);
 		out.createFrame(73, player.channelContext().encryption());
@@ -231,17 +243,15 @@ public class PacketDispatcher {
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
-        /*
-	public PacketDispatcher sendSpecialBar(boolean usingSpecial, boolean flag) {
-		sendConfig(300, player.getSpecialAmount());
-		if (flag) {
-			sendConfig(301, usingSpecial ? 1 : 0);
-			player.setUsingSpecial(usingSpecial);
-			player.getEquipment().refreshItems();
-			player.getEquipment().sendWeapon(player);
-		}
-		return this;
-	}*/
+
+	/*
+	 * public PacketDispatcher sendSpecialBar(boolean usingSpecial, boolean
+	 * flag) { sendConfig(300, player.getSpecialAmount()); if (flag) {
+	 * sendConfig(301, usingSpecial ? 1 : 0);
+	 * player.setUsingSpecial(usingSpecial);
+	 * player.getEquipment().refreshItems();
+	 * player.getEquipment().sendWeapon(player); } return this; }
+	 */
 
 	/**
 	 * Sends string to the interface.
@@ -262,11 +272,10 @@ public class PacketDispatcher {
 		return this;
 	}
 
-        
 	public PacketDispatcher sendCloseInterface() {
 		PacketBuilder out = PacketBuilder.allocate(1);
 		out.createFrame(219, player.channelContext().encryption());
-		//player.getDialogue().setNewDialogue(-1);
+		// player.getDialogue().setNewDialogue(-1);
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
@@ -380,107 +389,113 @@ public class PacketDispatcher {
 	}
 
 	/*
-	public PacketDispatcher sendItemContainer(ItemContainer container,int interfaceIndex) {
-		PacketBuilder out = PacketBuilder.allocate(5 + (container.capacity() * 7));
-		out.createShortSizedFrame(53, player.channelContext().encryption());
-		out.putShort(interfaceIndex);
-		out.putShort(container.capacity());
-		for (Item item : container.items()) {
-			if (item.amount() > 254) {
-				out.putByte(255);
-				out.putMESmallInt(item.amount());
-			} else {
-				out.putByte(item.amount());
-			}
-			out.putLEShortA(item.getId() + 1);
-		}
-		out.finishShortSizedFrame();
-		out.sendTo(player.channelContext().channel());
-		return this;
-	}
-
-	
-	public PacketDispatcher sendEntityLocation(Location location) {
-		PacketBuilder out = PacketBuilder.allocate(3);
-		out.createFrame(85, player.channelContext().encryption());
-		out.putByteC(location.getY() - 8 * player.cachedRegion().regionY());
-		out.putByteC(location.getX() - 8 * player.cachedRegion().regionX());
-		out.sendTo(player.channelContext().channel());
-		return this;
-	}
-
-	
-	public PacketDispatcher sendGroundItem(GroundItem groundItem) {
-		sendEntityLocation(groundItem.getLocation());
-		PacketBuilder out = PacketBuilder.allocate(6);
-		out.createFrame(44, player.channelContext().encryption());
-		out.putLEShortA(groundItem.item().getId());
-		out.putShort(groundItem.item().amount());
-		out.putByte(0);
-		out.sendTo(player.channelContext().channel());
-		return this;
-	}
-
-	
-	public PacketDispatcher sendRemoveGroundItem(GroundItem groundItem) {
-		sendEntityLocation(groundItem.getLocation());
-		PacketBuilder out = PacketBuilder.allocate(4);
-		out.createFrame(156, player.channelContext().encryption());
-		out.putByteS(0);
-		out.putShort(groundItem.item().getId());
-		out.sendTo(player.channelContext().channel());
-		return this;
-	}
-
-
-	public PacketDispatcher sendObject(Object object, final boolean expiredObject) {
-		sendEntityLocation(object.objectLocation);
-		PacketBuilder out = PacketBuilder.allocate(6);
-		out.createFrame(151, player.channelContext().encryption());
-		out.putByteS(0);
-		out.putLEShort(expiredObject ? object.replacementId : object.objectId);
-		out.putByteS((10 << 2) + (0 & 3));
-		out.sendTo(player.channelContext().channel());
-		return this;
-	}
-
-
-	public PacketDispatcher sendRemoveObject(Object object) {
-		sendEntityLocation(object.objectLocation);
-		PacketBuilder out = PacketBuilder.allocate(4);
-		out.createFrame(101, player.channelContext().encryption());
-		out.putByteC((10 << 2) + (0 & 3));
-		out.putByte(0);
-		out.sendTo(player.channelContext().channel());
-		return this;
-	}
-
+	 * public PacketDispatcher sendItemContainer(ItemContainer container,int
+	 * interfaceIndex) { PacketBuilder out = PacketBuilder.allocate(5 +
+	 * (container.capacity() * 7)); out.createShortSizedFrame(53,
+	 * player.channelContext().encryption()); out.putShort(interfaceIndex);
+	 * out.putShort(container.capacity()); for (Item item : container.items()) {
+	 * if (item.amount() > 254) { out.putByte(255);
+	 * out.putMESmallInt(item.amount()); } else { out.putByte(item.amount()); }
+	 * out.putLEShortA(item.getId() + 1); } out.finishShortSizedFrame();
+	 * out.sendTo(player.channelContext().channel()); return this; }
+	 * 
+	 * 
+	 * public PacketDispatcher sendEntityLocation(Location location) {
+	 * PacketBuilder out = PacketBuilder.allocate(3); out.createFrame(85,
+	 * player.channelContext().encryption()); out.putByteC(location.getY() - 8 *
+	 * player.cachedRegion().regionY()); out.putByteC(location.getX() - 8 *
+	 * player.cachedRegion().regionX());
+	 * out.sendTo(player.channelContext().channel()); return this; }
+	 * 
+	 * 
+	 * public PacketDispatcher sendGroundItem(GroundItem groundItem) {
+	 * sendEntityLocation(groundItem.getLocation()); PacketBuilder out =
+	 * PacketBuilder.allocate(6); out.createFrame(44,
+	 * player.channelContext().encryption());
+	 * out.putLEShortA(groundItem.item().getId());
+	 * out.putShort(groundItem.item().amount()); out.putByte(0);
+	 * out.sendTo(player.channelContext().channel()); return this; }
+	 * 
+	 * 
+	 * public PacketDispatcher sendRemoveGroundItem(GroundItem groundItem) {
+	 * sendEntityLocation(groundItem.getLocation()); PacketBuilder out =
+	 * PacketBuilder.allocate(4); out.createFrame(156,
+	 * player.channelContext().encryption()); out.putByteS(0);
+	 * out.putShort(groundItem.item().getId());
+	 * out.sendTo(player.channelContext().channel()); return this; }
+	 * 
+	 * 
+	 * public PacketDispatcher sendObject(Object object, final boolean
+	 * expiredObject) { sendEntityLocation(object.objectLocation); PacketBuilder
+	 * out = PacketBuilder.allocate(6); out.createFrame(151,
+	 * player.channelContext().encryption()); out.putByteS(0);
+	 * out.putLEShort(expiredObject ? object.replacementId : object.objectId);
+	 * out.putByteS((10 << 2) + (0 & 3));
+	 * out.sendTo(player.channelContext().channel()); return this; }
+	 * 
+	 * 
+	 * public PacketDispatcher sendRemoveObject(Object object) {
+	 * sendEntityLocation(object.objectLocation); PacketBuilder out =
+	 * PacketBuilder.allocate(4); out.createFrame(101,
+	 * player.channelContext().encryption()); out.putByteC((10 << 2) + (0 & 3));
+	 * out.putByte(0); out.sendTo(player.channelContext().channel()); return
+	 * this; }
+	 */
 
 	public PacketDispatcher sendSkill(final int skill) {
 		PacketBuilder out = PacketBuilder.allocate(16);
 		out.createFrame(134, player.channelContext().encryption());
 		out.putByte(skill);
-		out.putMESmallInt((int) player.getSkill().getXP(skill));
-		out.putByte(player.getSkill().getLevel(skill));
+		out.putMESmallInt((int) player.getSkills().getPlayerExp()[skill]);
+		out.putByte(player.getSkills().getPlayerLevel()[skill]);
 		out.sendTo(player.channelContext().channel());
 		return this;
-	}*/
-        
-        /**
-         * Sends a music to the client
-         * 
-         * @param id
-         *          this music ID
-         * @return The packet sender
-         */
-        public PacketDispatcher sendSong(int id) {
-            PacketBuilder out = PacketBuilder.allocate(3);
-                out.createFrame(74, player.channelContext().encryption());
-                out.putLEShort(id);
+	}
+
+	/**
+	 * Sends a music to the client
+	 * 
+	 * @param id
+	 *            this music ID
+	 * @return The packet sender
+	 */
+	public PacketDispatcher sendSong(int id) {
+		PacketBuilder out = PacketBuilder.allocate(3);
+		out.createFrame(74, player.channelContext().encryption());
+		out.putLEShort(id);
 		out.sendTo(player.channelContext().channel());
-                return this;
-        }
-        
+		return this;
+	}
+
+	/**
+	 * Sends item container to the client interface.
+	 * 
+	 * @param container
+	 *            the item container
+	 * 
+	 * @param interfaceIndex
+	 *            the interface index
+	 */
+	public PacketDispatcher sendItemContainer(Container container,
+			int interfaceIndex) {
+		PacketBuilder out = PacketBuilder
+				.allocate(5 + (container.capacity() * 7));
+		out.createShortSizedFrame(53, player.channelContext().encryption());
+		out.putShort(interfaceIndex);
+		out.putShort(container.capacity());
+		for (Item item : container.items()) {
+			if (item.getAmount() > 254) {
+				out.putByte(255);
+				out.putInt(item.getAmount());
+			} else {
+				out.putByte(item.getAmount());
+			}
+			out.putLEShortA(item.getIndex() + 1);
+		}
+		out.finishShortSizedFrame();
+		out.sendTo(player.channelContext().channel());
+		return this;
+	}
 
 	/**
 	 * Gets the associated player

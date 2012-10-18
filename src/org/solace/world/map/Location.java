@@ -2,21 +2,22 @@ package org.solace.world.map;
 
 /**
  * Represents coordinates of world entity.
+ * 
  * @author Faris
  */
 public class Location {
 
 	protected int x, y, z;
-        private Region region;
+	private Region region;
 
 	public Location(int x, int y) {
 		setX(x).setY(y).setH(0);
-                this.region = new Region(this);
+		this.region = new Region(this);
 	}
 
 	public Location(int x, int y, int h) {
 		setX(x).setY(y).setH(z);
-                this.region = new Region(this);
+		this.region = new Region(this);
 	}
 
 	public Location setX(int x) {
@@ -31,7 +32,7 @@ public class Location {
 		this.x = x;
 		this.y = y;
 		this.z = 0;
-                this.region = new Region(this);
+		this.region = new Region(this);
 		return this;
 	}
 
@@ -39,7 +40,7 @@ public class Location {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-                this.region = new Region(this);
+		this.region = new Region(this);
 		return this;
 	}
 
@@ -65,12 +66,10 @@ public class Location {
 	public int getH() {
 		return z;
 	}
-        
-        public Region getRegion(){
-            return region;
-        }
 
-
+	public Region getRegion() {
+		return region;
+	}
 
 	/**
 	 * Transforms this location.
@@ -123,7 +122,8 @@ public class Location {
 			return false;
 		}
 		Location p = delta(this, other);
-		return p.getX() <= 14 && p.getX() >= -15 && p.getY() <= 14 && p.getY() >= -15;
+		return p.getX() <= 14 && p.getX() >= -15 && p.getY() <= 14
+				&& p.getY() >= -15;
 	}
 
 	/**
@@ -166,7 +166,8 @@ public class Location {
 	 *            the other location
 	 */
 	public boolean sameAs(Location location) {
-		return location.getX() == x && location.getY() == y && location.getH() == z;
+		return location.getX() == x && location.getY() == y
+				&& location.getH() == z;
 	}
 
 	/**
@@ -194,6 +195,60 @@ public class Location {
 	}
 
 	/**
+	 * Gets the region coordinate of this location.
+	 * 
+	 * @return the region x coordinate
+	 */
+	public int regionX() {
+		return (this.x >> 3) - 6;
+	}
+
+	/**
+	 * Gets the region coordinate of this location.
+	 * 
+	 * @return the region y coordinate
+	 */
+	public int regionY() {
+		return (this.y >> 3) - 6;
+	}
+
+	/**
+	 * Gets the local coordinate of this location.
+	 * 
+	 * @return the local x coordinate
+	 */
+	public int localX() {
+		return localX(this);
+	}
+
+	/**
+	 * Gets the local coordinate of this location.
+	 * 
+	 * @return the local y coordinate
+	 */
+	public int localY() {
+		return localY(this);
+	}
+
+	/**
+	 * Gets the relative local coordinate to another region.
+	 * 
+	 * @return the local x coordinate
+	 */
+	public int localX(Location location) {
+		return location.x - 8 * location.regionX();
+	}
+
+	/**
+	 * Gets the relative local coordinate to another region.
+	 * 
+	 * @return the local y coordinate
+	 */
+	public int localY(Location location) {
+		return location.y - 8 * location.regionY();
+	}
+
+	/**
 	 * Checks to see if the entity is inside a bank
 	 * 
 	 * @param location
@@ -201,21 +256,21 @@ public class Location {
 	 * @return If the entity is inside a bank
 	 */
 	public boolean inBank(final Location location) {
-            return withinArea(location, 3090, 3099, 3487, 3500)
-                || withinArea(location, 3089, 3090, 3492, 3498)
-                || withinArea(location, 3248, 3258, 3413, 3428)
-                || withinArea(location, 3179, 3191, 3432, 3448)
-                || withinArea(location, 2944, 2948, 3365, 3374)
-                || withinArea(location, 2942, 2948, 3367, 3374)
-                || withinArea(location, 2944, 2950, 3365, 3370)
-                || withinArea(location, 3008, 3019, 3352, 3359)
-                || withinArea(location, 3017, 3022, 3352, 3357)
-                || withinArea(location, 3203, 3213, 3200, 3237)
-                || withinArea(location, 3212, 3215, 3200, 3235)
-                || withinArea(location, 3215, 3220, 3202, 3235)
-                || withinArea(location, 3220, 3227, 3202, 3229)
-                || withinArea(location, 3227, 3230, 3208, 3226)
-                || withinArea(location, 3226, 3228, 3230, 3211)
-                || withinArea(location, 3227, 3229, 3208, 3226);
+		return withinArea(location, 3090, 3099, 3487, 3500)
+				|| withinArea(location, 3089, 3090, 3492, 3498)
+				|| withinArea(location, 3248, 3258, 3413, 3428)
+				|| withinArea(location, 3179, 3191, 3432, 3448)
+				|| withinArea(location, 2944, 2948, 3365, 3374)
+				|| withinArea(location, 2942, 2948, 3367, 3374)
+				|| withinArea(location, 2944, 2950, 3365, 3370)
+				|| withinArea(location, 3008, 3019, 3352, 3359)
+				|| withinArea(location, 3017, 3022, 3352, 3357)
+				|| withinArea(location, 3203, 3213, 3200, 3237)
+				|| withinArea(location, 3212, 3215, 3200, 3235)
+				|| withinArea(location, 3215, 3220, 3202, 3235)
+				|| withinArea(location, 3220, 3227, 3202, 3229)
+				|| withinArea(location, 3227, 3230, 3208, 3226)
+				|| withinArea(location, 3226, 3228, 3230, 3211)
+				|| withinArea(location, 3227, 3229, 3208, 3226);
 	}
 }

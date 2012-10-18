@@ -252,7 +252,7 @@ public class Packet {
 			channel.write(buffer);
 		} catch (Exception e) {
 			World.getSingleton().deregister(((RSChannelContext) channel.keyFor(
-					selector.selector()).attachment()).player());
+					NIOSelector.selector()).attachment()).player());
 		}
 		return this;
 	}

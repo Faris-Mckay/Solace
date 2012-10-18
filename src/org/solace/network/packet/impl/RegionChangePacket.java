@@ -12,7 +12,11 @@ public class RegionChangePacket implements PacketHandler {
 
     @Override
     public void handlePacket(Player player, Packet packet) {
-        //TODO
+        
+        /**
+         * Updates the new song for the players region
+         */
+        player.getMusicHandler().handleMusic();
     }
 
 }

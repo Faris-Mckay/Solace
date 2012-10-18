@@ -21,11 +21,7 @@ public abstract class Mobile extends Entity {
         super(location);
     }
     
-    public abstract void update();
-    
-    private int index;
-    private int maximumWalkingDistance;
-    private int interactingEntityIndex;
+    private int index, maximumWalkingDistance, interactingEntityIndex;
 
     /**
      * @return the index
@@ -41,15 +37,28 @@ public abstract class Mobile extends Entity {
         this.index = index;
     }
     
+    /**
+     * Parses in a location and sets it to the Entity's location variable
+     * @param location 
+     */
     public void setLocation(Location location){
         super.location = location;
     }
     
+    /**
+     * Parses in a region, sets the entity's variable 
+     * @param currentRegion
+     * @return the player with the updated region
+     */
     public Entity region(Region currentRegion) {
         this.cachedRegion = currentRegion;
         return this;
     }
     
+    /**
+     * returns cached region for player region checking
+     * @return 
+     */
     public Region cachedRegion(){
         return this.cachedRegion;
     }
@@ -97,14 +106,26 @@ public abstract class Mobile extends Entity {
         return this;
     }
     
+    /**
+     * Returns the mobility/movement handler for the entity
+     * @return 
+     */
     public MobilityManager getMobilityManager() {
         return mobilityQueue;
     }
-
+    
+    /**
+     * Returns current entity interacted with
+     * @return 
+     */
     public Entity getInteractingEntity() {
         return interactingEntity;
     }
-
+    
+    /**
+     * Parses in a entity and sets as the current entity interaction
+     * @param interactingEntity 
+     */
     public void setInteractingEntity(Entity interactingEntity) {
         this.interactingEntity = interactingEntity;
     }
@@ -138,16 +159,36 @@ public abstract class Mobile extends Entity {
     }
     
     public enum WelfareStatus{
-        
+        /**
+         * The Mobile Entity is 
+         * current alive
+         */
         ALIVE,
         
+        /**
+         * The Mobile Entity is
+         * currently dead
+         */
         DEAD,
         
+        /**
+         * The Mobile Entity is
+         * currently in the process of dieing
+         */
         DIEING;
     }
     
     public enum MovementStatus{
+        /**
+         * The Mobile Entity is
+         * standing still
+         */
         STATIONARY,
+        
+        /**
+         * The Mobile Entity is
+         * currently moving
+         */
         MOBILE,
     }
  

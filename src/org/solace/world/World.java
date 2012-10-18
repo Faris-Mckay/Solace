@@ -2,10 +2,12 @@ package org.solace.world;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import org.solace.util.Constants;
 import org.solace.util.IndexManager;
 import org.solace.world.game.Game;
 import org.solace.world.game.entity.mobile.Mobile;
+import org.solace.world.game.entity.mobile.npc.NPC;
 import org.solace.world.game.entity.mobile.player.Player;
 
 /**

@@ -14,4 +14,6 @@ public class Constants {
     
     public static final String SERVER_NAME = "Solace";
 
+	public static int SERVER_MAX_NPCS = 8000;
+
 }

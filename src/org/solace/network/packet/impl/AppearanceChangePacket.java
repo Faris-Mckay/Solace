@@ -2,6 +2,7 @@ package org.solace.network.packet.impl;
 
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
+import org.solace.world.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.world.game.entity.mobile.player.Player;
 
 /**
@@ -25,7 +26,7 @@ public class AppearanceChangePacket implements PacketHandler {
             player.getAuthentication().setPlayerAppearanceIndex(10, packet.getByte());
             player.getAuthentication().setPlayerAppearanceIndex(11, packet.getByte());
             player.getAuthentication().setPlayerAppearanceIndex(12, packet.getByte());
-            player.getUpdateFlags().setAppearanceUpdateRequired(true);
+            player.getUpdateFlags().flag(UpdateFlag.APPEARANCE);
     }
 
 }

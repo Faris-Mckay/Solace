@@ -2,6 +2,7 @@ package org.solace.network.packet.impl;
 
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
+import org.solace.world.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.world.game.entity.mobile.Mobile.WelfareStatus;
 import org.solace.world.game.entity.mobile.MobilityManager;
 import org.solace.world.game.entity.mobile.player.Player;
@@ -26,7 +27,7 @@ public class WalkingUpdatePacket implements PacketHandler {
             return;
         player.setInteractingEntityIndex(-1);
         player.setInteractingEntity(null);
-        player.getUpdateFlags().setEntityFaceUpdate(true);
+        player.getUpdateFlags().flag(UpdateFlag.FACE_ENTITY);
         //test something nop
         MobilityManager queue = player.getMobilityManager();
         queue.prepare();
@@ -38,6 +39,8 @@ public class WalkingUpdatePacket implements PacketHandler {
                 path[i][1] = packet.getByte();
         }
         int firstStepY = packet.getLEShort();
+        final boolean runSteps = packet.getByteC() == 1;
+        queue.setRunQueue(runSteps);
         queue.queueDestination(new Location(firstStepX, firstStepY));
         for (int i = 0; i < steps; i++) {
                 path[i][0] += firstStepX;
