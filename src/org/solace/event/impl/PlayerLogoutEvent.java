@@ -24,7 +24,7 @@ public class PlayerLogoutEvent extends Event {
                     World.getSingleton().deregister(player);
                     return;
                 }
-                player.channelContext().channel().close();
+                player.channelContext().channel().close();  
                 World.getSingleton().deregister(player);
                 Server.logger.info("[Deregistry]: connection terminated for player: "+player.getAuthentication().getUsername());
             } catch (IOException e) {

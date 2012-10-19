@@ -23,7 +23,7 @@ public class PlayerLoginEvent extends Event {
     public void execute() {
         Server.logger.info("[Registry]: new connection made from player: "+player.getAuthentication().getUsername());
         player.getPacketDispatcher().sendMessage("Welcome "+player.getAuthentication().getUsername()+", to "+Constants.SERVER_NAME);
-        player.getPacketDispatcher().sendMessage("Current players: "+Game.playerRepository.size());
+        player.getPacketDispatcher().sendMessage("Current players: "+(Game.playerRepository.size() + Game.registryQueue.size()));
     }
 
 

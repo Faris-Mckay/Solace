@@ -224,7 +224,7 @@ public class MobilityManager {
 	 */
 	public MobilityManager finish() {
 		movementSteps.removeFirst();
-                //oldMovementSteps.removeFirst();
+                oldMovementSteps.removeFirst();
 		return this;
 	}
         

@@ -99,35 +99,34 @@ public class PlayerUpdating {
 		}
 		int mask = 0x0;
 		if (player.getUpdateFlags().get(UpdateFlag.FORCE_MOVEMENT)) {
-			mask |= 0x400;
+			mask |= UpdateFlag.FORCE_MOVEMENT.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
-			mask |= 0x100;
+			mask |= UpdateFlag.GRAPHICS.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.ANIMATION)) {
-			mask |= 0x8;
+			mask |= UpdateFlag.ANIMATION.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
-			mask |= 0x4;
+			mask |= UpdateFlag.FORCED_CHAT.getMask();
 		}
-		if (player.getUpdateFlags().get(UpdateFlag.CHAT)
-				&& player != getMaster()) {
-			mask |= 0x80;
+		if (player.getUpdateFlags().get(UpdateFlag.CHAT) && player != getMaster()) {
+			mask |= UpdateFlag.CHAT.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			// mask |= 0x1;
+			// mask |= UpdateFlag.FACE_ENTITY.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
-			mask |= 0x10;
+			mask |= UpdateFlag.APPEARANCE.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
-			// mask |= 0x2;
+			// mask |= UpdateFlag.FACE_COORDINATE.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
-			// mask |= 0x20;
+			// mask |= UpdateFlag.HIT.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
-			// mask |= 0x200;
+			// mask |= UpdateFlag.HIT_2.getMask();
 		}
 		if (mask >= 0x100) {
 			mask |= 0x40;
