@@ -1,7 +1,9 @@
 package org.solace.world.game.entity.mobile;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Queue;
 
 import org.solace.util.ProtocolUtils;
 import org.solace.world.game.entity.UpdateFlags.UpdateFlag;
@@ -18,6 +20,8 @@ public class MobilityManager {
 
 	private Mobile mobile;
 	private Deque<Location> movementSteps;
+        private Deque<Location> oldMovementSteps;
+        
 
 	private int walkingDirection = -1, runningDirection = -1;
 	private boolean running = true;
@@ -34,11 +38,18 @@ public class MobilityManager {
 
 	public MobilityManager(Mobile entity2) {
 		movementSteps = new LinkedList<Location>();
+                oldMovementSteps = new LinkedList<Location>();
 		entity(entity2);
 	}
-
+        
+        /**
+         * Handles adding single steps into the movementQueue
+         * @param destination
+         * @return 
+         */
 	public MobilityManager queueDestination(Location destination) {
-		Location lastStep = movementSteps.peekLast();
+		Location lastStep = getLast();
+                
 		int diffX = destination.getX() - lastStep.getX();
 		int diffY = destination.getY() - lastStep.getY();
 		int stepsAmount = Math.max(Math.abs(diffX), Math.abs(diffY));
@@ -53,20 +64,66 @@ public class MobilityManager {
 			} else if (diffY > 0) {
 				diffY--;
 			}
-			queueStep(destination.getX() - diffX, destination.getY() - diffY);
+                        int newX = destination.getX() - diffX, newY = destination.getY() - diffY;
+			queueStep(newX, newY); 
 		}
 		return this;
 	}
+        
+        private Location getLast() {
+		Location last = movementSteps.peekLast();
+		if (last == null) {
+			return new Location(mobile.getLocation().getX(), mobile.getLocation().getY());
+		}
+		return last;
+	}
+        
+        private static final class Point {
 
+		/**
+		 * The point's position.
+		 */
+		private final Location position;
+
+		/**
+		 * The direction to walk to this point.
+		 */
+		private final Direction direction;
+
+		/**
+		 * Creates a point.
+		 * @param position The position.
+		 * @param direction The direction.
+		 */
+		public Point(Location position, Direction direction) {
+			this.position = position;
+			this.direction = direction;
+		}
+
+		@Override
+		public String toString() {
+			return Point.class.getName() + " [direction=" + direction + ", position=" + position + "]";
+		}
+
+	}
+        
+        /**
+         * Adds a single step into the queue
+         * @param x
+         * @param y
+         * @return 
+         */
 	public MobilityManager queueStep(int x, int y) {
-		Location currentStep = movementSteps.peekLast();
+		Location currentStep = getLast();
 		int diffX = x - currentStep.getX();
 		int diffY = y - currentStep.getY();
-		if (ProtocolUtils.getDirection(diffX, diffY) > -1) {
+		if (ProtocolUtils.getDirection(diffX, diffY) > -1) {  
 			movementSteps.add(new Location(x, y));
+                        oldMovementSteps.add(new Location(x, y));
 		}
 		return this;
-	}
+	
+        }
 
 	/**
 	 * Processes getMobile movement.
@@ -101,10 +158,8 @@ public class MobilityManager {
 			case MOBILE:
 				mobile.getLocation().lastX = mobile.getLocation().getX();
 				mobile.getLocation().lastY = mobile.getLocation().getY();
-				int distanceX = Math.abs(mobile.getLocation().getX()
-						- mobile.getTargettedLocation().getX());
-				int distanceY = Math.abs(mobile.getLocation().getY()
-						- mobile.getTargettedLocation().getY());
+				int distanceX = Math.abs(mobile.getLocation().getX()- mobile.getTargettedLocation().getX());
+				int distanceY = Math.abs(mobile.getLocation().getY()- mobile.getTargettedLocation().getY());
 				int offsetX = ProtocolUtils.DIRECTION_DELTA_X[random];
 				int offsetY = ProtocolUtils.DIRECTION_DELTA_Y[random];
 				Location newLocation = new Location((mobile.getLocation()
@@ -169,16 +224,59 @@ public class MobilityManager {
 	 */
 	public MobilityManager finish() {
 		movementSteps.removeFirst();
+                //oldMovementSteps.removeFirst();
 		return this;
 	}
+        
+        public boolean addFirstStep(int firstStepX, int firstStepY){
+            Location serverPosition = mobile.getLocation();
+            int deltaX = firstStepX - serverPosition.getX();
+            int deltaY = firstStepY - serverPosition.getY();
 
+            if (Direction.isConnectable(deltaX, deltaY)) {
+                System.out.println("Connectable");
+                movementSteps.clear();
+                oldMovementSteps.clear();
+                queueDestination(new Location(firstStepX,firstStepY));
+                return true;
+            }
+            System.out.println("non connectable");
+            Queue<Location> travelBackQueue = new ArrayDeque<Location>();
+
+		Location oldPoint;
+		while ((oldPoint = oldMovementSteps.pollLast()) != null) {
+			Location oldPosition = oldPoint.copy();
+			deltaX = oldPosition.getX() - serverPosition.getX();
+			deltaY = oldPosition.getX() - serverPosition.getY();
+			travelBackQueue.add(oldPosition);
+			if (Direction.isConnectable(deltaX, deltaY)) {
+				movementSteps.clear();
+				oldMovementSteps.clear();
+				for (Location travelBackPosition : travelBackQueue) {
+					queueDestination(new Location(travelBackPosition.getX(),travelBackPosition.getY()));
+				}
+				queueDestination(new Location(firstStepX, firstStepY));
+				return true;
+			}
+		}
+
+            oldMovementSteps.clear();
+            return false;
+        }
+        
+        
+        /**
+         * TODO LOL
+         * @param directionX
+         * @param directionY 
+         */
 	public void walkTo(final int directionX, final int directionY) {
 		Location entityLocation = getMobile().getLocation();
-		int x = (entityLocation.getX() + directionX);
-		int y = (entityLocation.getY() + directionY);
+		int newX = (entityLocation.getX() + directionX);
+		int newY = (entityLocation.getY() + directionY);
 		prepare();
-		queueDestination(new Location(x, y));
-		finish();
+		queueDestination(new Location(newX, newY));
+		finish();   
 	}
 
 	public MobilityManager entity(Mobile entity2) {

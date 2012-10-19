@@ -29,22 +29,28 @@ public class WalkingUpdatePacket implements PacketHandler {
         player.setInteractingEntity(null);
         player.getUpdateFlags().flag(UpdateFlag.FACE_ENTITY);
         MobilityManager queue = player.getMobilityManager();
+        player.getPacketDispatcher().sendCloseInterface();
         queue.prepare();
         int steps = (packet.length() - 5) / 2;
         int[][] path = new int[steps][2];
         int firstStepX = packet.getLEShortA();
+        
         for (int i = 0; i < steps; i++) {
                 path[i][0] = packet.getByte();
                 path[i][1] = packet.getByte();
         }
         int firstStepY = packet.getLEShort();
-        final boolean runSteps = packet.getByteC() == 1;
-        queue.setRunQueue(runSteps);
         queue.queueDestination(new Location(firstStepX, firstStepY));
         for (int i = 0; i < steps; i++) {
                 path[i][0] += firstStepX;
                 path[i][1] += firstStepY;
-                queue.queueDestination(new Location(path[i][0], path[i][1]));
+                if (i == 0) {
+                        if (!queue.addFirstStep(path[i][0], path[i][1])) {
+                                return; /* ignore packet */
+                        }
+            } else {
+                    queue.queueDestination(new Location(path[i][0], path[i][1]));
+            }
         }
         queue.finish();
 

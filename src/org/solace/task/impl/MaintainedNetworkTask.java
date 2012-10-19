@@ -1,8 +1,5 @@
 package org.solace.task.impl;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import org.solace.network.NIOSelector;
 import org.solace.task.Task;
 

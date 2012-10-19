@@ -23,7 +23,7 @@
 <entry key="1_profiler.settings.sort.results.by.thread.cpu.time">false</entry>
 <entry key="2_profiler.settings.instr.scheme">1</entry>
 <entry key="1_profiler.settings.instrument.method.invoke">true</entry>
-<entry key="1_profiler.settings.instr.scheme">1</entry>
+<entry key="1_profiler.settings.instr.scheme">3</entry>
 <entry key="2_profiler.settings.sampling.interval">10</entry>
 <entry key="0_profiler.settings.instr.scheme">1</entry>
 <entry key="1_profiler.settings.run.gc.on.get.results.in.memory.profiling">true</entry>

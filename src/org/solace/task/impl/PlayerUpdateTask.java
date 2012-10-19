@@ -1,6 +1,5 @@
 package org.solace.task.impl;
 
-import java.util.Iterator;
 import org.solace.task.Task;
 import org.solace.world.World;
 import org.solace.world.game.Game;
@@ -15,7 +14,7 @@ public class PlayerUpdateTask extends Task {
     @Override
     public void execute(){
         
-        long time = System.currentTimeMillis();
+        //long time = System.currentTimeMillis();
         /**
          * Loops through and handles all player movement
          */
@@ -49,7 +48,7 @@ public class PlayerUpdateTask extends Task {
          */
         World.getSingleton().syncCycleRegistrys();
         
-        System.out.println(System.currentTimeMillis()-time+"ms taken for cycle");
+       // System.out.println(System.currentTimeMillis()-time+"ms taken for cycle");
     }
 
 }
