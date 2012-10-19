@@ -247,6 +247,17 @@ public class Location {
 	public int localY(Location location) {
 		return location.y - 8 * location.regionY();
 	}
+        
+        /**
+	 * Checks if the direction represented by the two delta values can connect
+	 * two points together in a single direction.
+	 * @param deltaX The difference in X coordinates.
+	 * @param deltaY The difference in X coordinates.
+	 * @return {@code true} if so, {@code false} if not.
+	 */
+	public static boolean isConnectable(int deltaX, int deltaY) {
+		return Math.abs(deltaX) == Math.abs(deltaY) || deltaX == 0 || deltaY == 0;
+	}
 
 	/**
 	 * Checks to see if the entity is inside a bank

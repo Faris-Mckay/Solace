@@ -3,7 +3,7 @@ package org.solace.network;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import org.solace.Server;
+import org.solace.task.impl.MaintainedNetworkTask;
 import org.solace.world.game.entity.mobile.player.PlayerLoginDecipher;
 import org.solace.world.World;
 
@@ -11,7 +11,8 @@ import org.solace.world.World;
  *
  * @author Faris
  */
-public class NIOAcceptor extends Thread {   
+public class NIOAcceptor extends Thread { 
+    
     
     @Override
     public void run() {

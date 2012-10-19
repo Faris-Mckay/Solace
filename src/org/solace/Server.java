@@ -26,11 +26,11 @@ public class Server {
 
     private void init() throws Exception{
        selector = new NIOSelector();
-       networkTask = new MaintainedNetworkTask(selector);
     }
     
     private void constructNetwork() throws IOException {
         NIOServer.bind(Constants.SERVER_LISTEN_PORT);
+        networkTask = new MaintainedNetworkTask(selector);
         TaskExecuter.get().schedule(networkTask);
         logger.info("Constructing network backend...");
     }

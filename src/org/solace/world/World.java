@@ -25,19 +25,33 @@ public class World {
     final static World world = new World();
     
     public void register(Player player){
-        synchronized(player){
-            if(Game.playerRepository.size() >= Constants.SERVER_MAX_PLAYERS){
-                return;
-            }
-            Integer pIndex = IndexManager.getIndex();
-            Game.playerRepository.put(pIndex, player);
-            player.setIndex(pIndex);
+        if(Game.playerRepository.size() >= Constants.SERVER_MAX_PLAYERS){
+            return;
         }
+        Integer pIndex = IndexManager.getIndex();
+        player.setIndex(pIndex);
+        Game.registryQueue.add(player);
+    }
+    
+    public void syncCycleRegistrys(){
+        if (Game.registryQueue.size() == 0){
+            return;
+        }
+        for(Player player : Game.registryQueue){
+            if (player.isLogoutRequired()){
+                Game.playerRepository.remove(player.getIndex()); 
+                IndexManager.freeIndex(player.getIndex());
+                player = null;
+            } else {
+                Game.playerRepository.put(player.getIndex(), player);               
+            }
+        }
+        Game.registryQueue.clear();
     }
     
     public void deregister(Player player){
-        Game.playerRepository.remove(player.getIndex());
-        IndexManager.freeIndex(player.getIndex());
+        player.setLogoutRequired(true);
+        Game.registryQueue.add(player);
     }
 
 }

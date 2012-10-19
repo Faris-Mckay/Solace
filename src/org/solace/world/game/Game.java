@@ -16,8 +16,9 @@ import org.solace.world.game.entity.mobile.player.Player;
  * @author Faris
  */
 public class Game {
-    public static final Map<Integer,Player> playerRepository = new HashMap<Integer,Player>();
-    public static final Map<Integer, NPC> npcRepository = new HashMap<Integer, NPC>();
+    public static Map<Integer,Player> playerRepository = new HashMap<Integer,Player>();
+    public static List<Player> registryQueue = new LinkedList<Player>();
+    public static Map<Integer, NPC> npcRepository = new HashMap<Integer, NPC>();
     
     public static void beginUpdatingMobiles(){
         Server.logger.info("Task update handlers intitializing...");

@@ -20,7 +20,7 @@ public class WalkingUpdatePacket implements PacketHandler {
 
     @Override
     public void handlePacket(Player player, Packet packet) {
-        if (packet.opcode() == 248) {
+         if (packet.opcode() == 248) {
                 packet.length(packet.length() - 14);
         }
         if (player.getStatus() == WelfareStatus.DEAD)
@@ -28,7 +28,6 @@ public class WalkingUpdatePacket implements PacketHandler {
         player.setInteractingEntityIndex(-1);
         player.setInteractingEntity(null);
         player.getUpdateFlags().flag(UpdateFlag.FACE_ENTITY);
-        //test something nop
         MobilityManager queue = player.getMobilityManager();
         queue.prepare();
         int steps = (packet.length() - 5) / 2;

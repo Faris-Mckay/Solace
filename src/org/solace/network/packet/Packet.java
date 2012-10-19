@@ -251,8 +251,7 @@ public class Packet {
 			buffer.flip();
 			channel.write(buffer);
 		} catch (Exception e) {
-			World.getSingleton().deregister(((RSChannelContext) channel.keyFor(
-					NIOSelector.selector()).attachment()).player());
+			World.getSingleton().deregister(((RSChannelContext) channel.keyFor(NIOSelector.selector()).attachment()).player());
 		}
 		return this;
 	}

@@ -33,11 +33,8 @@ public class PlayerUpdating {
 
 	private void populateRegion(PacketBuilder out, PacketBuilder block) {
 		master.getLocation().getRegion().playersWithinRegion().clear();
-		Iterator<Player> it = Game.playerRepository.values().iterator();
-		while (it.hasNext()) {
-			Player player = it.next();
+		for(Player player : Game.playerRepository.values()) {
 			if (getMaster().getUpdater().localPlayers.size() >= 255) {
-				// list is full
 				break;
 			}
 			if (player == null)
@@ -47,8 +44,7 @@ public class PlayerUpdating {
 			if (!getMaster().getUpdater().localPlayers.contains(player)
 					&& getMaster().getLocation().withinDistance(
 							player.getLocation())) {
-				master.getLocation().getRegion().playersWithinRegion()
-						.add(player);
+				//master.getLocation().getRegion().playersWithinRegion().add(player);
 				getMaster().getUpdater().localPlayers.add(player);
 				addPlayer(out, player);
 				updateGivenPlayer(block, player, true);

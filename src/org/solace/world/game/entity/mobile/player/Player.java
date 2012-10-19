@@ -1,5 +1,6 @@
 package org.solace.world.game.entity.mobile.player;
 
+import java.util.Random;
 import org.solace.world.game.content.skills.SkillHandler;
 import org.solace.event.impl.PlayerLoginEvent;
 import org.solace.event.impl.PlayerLogoutEvent;
@@ -40,15 +41,16 @@ public class Player extends Mobile {
          * Player stored primitives
          */
         private int playerHeadIcon = -1;
+        private boolean logoutRequired = false;
 
 	public Player(String username, String password, RSChannelContext channelContext) {
-		super(new Location(3222, 3222));
-		this.authenticator = new PlayerAuthentication(username, password);
-		this.channelContext = channelContext;
-		setDefaultSkills();
-		setDefaultAppearance();
-		getUpdateFlags().flag(UpdateFlag.UPDATE_REQUIRED);
-		getUpdateFlags().flag(UpdateFlag.APPEARANCE);
+            super(new Location(3222 + new Random().nextInt(300), 3222 + new Random().nextInt(300)));
+            this.authenticator = new PlayerAuthentication(username, password);
+            this.channelContext = channelContext;
+            setDefaultSkills();
+            setDefaultAppearance();
+            getUpdateFlags().flag(UpdateFlag.UPDATE_REQUIRED);
+            getUpdateFlags().flag(UpdateFlag.APPEARANCE);
 	}
 
 	/**
@@ -186,6 +188,20 @@ public class Player extends Mobile {
 	public SkillHandler getSkills() {
 		return skills;
 	}
+        
+        /**
+         * @return the logoutRequired
+         */
+        public boolean isLogoutRequired() {
+            return logoutRequired;
+        }
+
+        /**
+         * @param logoutRequired the logoutRequired to set
+         */
+        public void setLogoutRequired(boolean logoutRequired) {
+            this.logoutRequired = logoutRequired;
+        }        
 	
         /**
          * Sets the defaulted skill values and experience levels
@@ -225,5 +241,6 @@ public class Player extends Mobile {
 		getAuthentication().appearanceIndex[12] = 0;
 
 	}
+
 
 }
