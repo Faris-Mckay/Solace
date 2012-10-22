@@ -6,11 +6,17 @@ package org.solace.event;
  */
 public abstract class Event {
     
-    public Event(EventType eventType){
-        this.eventType = eventType;
-    }
+    public int cyclesPassed = 0;
     
-    public EventType eventType;
+    private int executeInterval;
+    private boolean shouldEnd, instant;
+    private EventType eventType;
+    
+    public Event(EventType eventType, int executeInterval, boolean instant){
+        this.eventType = eventType;
+        this.executeInterval = executeInterval;
+        this.instant = instant;
+    }
     
     /**
      * Optional to be called, can be used to set up your event before execution
@@ -27,6 +33,41 @@ public abstract class Event {
      */
     public void stop(){
         //DEFAULT STOP METHOD, MUST OVERRIDE TO GAIN USAGE
+    }
+
+    /**
+     * @return the eventType
+     */
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    /**
+     * @return the shouldEnd
+     */
+    public boolean isShouldEnd() {
+        return shouldEnd;
+    }
+
+    /**
+     * @param shouldEnd the shouldEnd to set
+     */
+    public void setShouldEnd(boolean shouldEnd) {
+        this.shouldEnd = shouldEnd;
+    }
+
+    /**
+     * @return the executeInterval
+     */
+    public int getExecuteInterval() {
+        return executeInterval;
+    }
+
+    /**
+     * @return the instant
+     */
+    public boolean isInstant() {
+        return instant;
     }
     
     public enum EventType{

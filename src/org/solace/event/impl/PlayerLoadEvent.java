@@ -10,7 +10,7 @@ import org.solace.game.entity.mobile.player.Player;
 public class PlayerLoadEvent extends Event {
     
     public PlayerLoadEvent(){
-        super(EventType.Standalone);
+        super(EventType.Standalone, 0 , false);
     }
 
     public static boolean loadGame(Player player){

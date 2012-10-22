@@ -11,7 +11,7 @@ public class PlayerLogoutEvent extends Event {
 	private Player player;
 
 	public PlayerLogoutEvent(Player player) {
-            super(EventType.Standalone);
+            super(EventType.Standalone, 0 , false);
             this.player = player;
 	}
 

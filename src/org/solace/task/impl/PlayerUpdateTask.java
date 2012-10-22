@@ -10,6 +10,11 @@ import org.solace.game.entity.mobile.player.Player;
  */
 public class PlayerUpdateTask extends Task {
     
+    public PlayerUpdateTask(){
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+    }
+    
+    
     @Override
     public void execute(){
         

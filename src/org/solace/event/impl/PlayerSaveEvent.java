@@ -9,7 +9,7 @@ import org.solace.event.Event;
 public class PlayerSaveEvent extends Event {
     
     public PlayerSaveEvent(){
-        super(EventType.Standalone);
+        super(EventType.Standalone, 0 , false);
     }
 
     @Override

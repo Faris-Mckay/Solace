@@ -13,7 +13,7 @@ import org.solace.game.entity.mobile.player.Player;
 public class PlayerLoginEvent extends Event {
     
     public PlayerLoginEvent(Player player){
-        super(EventType.Standalone);
+        super(EventType.Standalone, 0 , false);
         this.player = player;
     }
     
