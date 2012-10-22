@@ -2,11 +2,11 @@ package org.solace.network.packet.impl;
 
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
-import org.solace.world.game.entity.UpdateFlags.UpdateFlag;
-import org.solace.world.game.entity.mobile.Mobile.WelfareStatus;
-import org.solace.world.game.entity.mobile.MobilityManager;
-import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.map.Location;
+import org.solace.game.entity.UpdateFlags.UpdateFlag;
+import org.solace.game.entity.mobile.Mobile.WelfareStatus;
+import org.solace.game.entity.mobile.MobilityManager;
+import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.map.Location;
 
 /**
  *
@@ -20,47 +20,35 @@ public class WalkingUpdatePacket implements PacketHandler {
 
     @Override
     public void handlePacket(Player player, Packet packet) {
-         if (packet.opcode() == 248) {
-                packet.length(packet.length() - 14);
-        }
-        if (player.getStatus() == WelfareStatus.DEAD)
-            return;
-        player.setInteractingEntityIndex(-1);
-        player.setInteractingEntity(null);
-        player.getUpdateFlags().flag(UpdateFlag.FACE_ENTITY);
-        MobilityManager queue = player.getMobilityManager();
-        player.getPacketDispatcher().sendCloseInterface();
-        queue.prepare();
-        int steps = (packet.length() - 5) / 2;
-        int[][] path = new int[steps][2];
-        int firstStepX = packet.getLEShortA();
-        
-        for (int i = 0; i < steps; i++) {
-                path[i][0] = packet.getByte();
-                path[i][1] = packet.getByte();
-        }
-        int firstStepY = packet.getLEShort();
-        queue.queueDestination(new Location(firstStepX, firstStepY));
-        for (int i = 0; i < steps; i++) {
-                path[i][0] += firstStepX;
-                path[i][1] += firstStepY;
-                if (i == 0) {
-                        if (!queue.addFirstStep(path[i][0], path[i][1])) {
-                                return; /* ignore packet */
-                        }
-            } else {
-                    queue.queueDestination(new Location(path[i][0], path[i][1]));
-            }
-        }
-        queue.finish();
+        if (packet.opcode() == 248) {
+			packet.length(packet.length() - 14);
+		}
 
-        /*
-         * Reset the walk to action task.
-         */
-        if (player.walkToAction() != null) {
-                player.walkToAction().stop();
-                player.walkToAction(null);
-        }
+		MobilityManager queue = player.getMobilityManager();
+		queue.prepare();
+		int steps = (packet.length() - 5) / 2;
+		int[][] path = new int[steps][2];
+		int firstStepX = packet.getLEShortA();
+		for (int i = 0; i < steps; i++) {
+			path[i][0] = packet.getByte();
+			path[i][1] = packet.getByte();
+		}
+		int firstStepY = packet.getLEShort();
+		queue.queueDestination(new Location(firstStepX, firstStepY));
+		for (int i = 0; i < steps; i++) {
+			path[i][0] += firstStepX;
+			path[i][1] += firstStepY;
+			queue.queueDestination(new Location(path[i][0], path[i][1]));
+		}
+		queue.finish();
+
+		/*
+		 * Reset the walk to action task.
+		 */
+		if (player.walkToAction() != null) {
+			player.walkToAction().stop();
+			player.walkToAction(null);
+		}
 
     }
 

@@ -3,8 +3,8 @@ package org.solace.event.impl;
 import org.solace.Server;
 import org.solace.event.Event;
 import org.solace.util.Constants;
-import org.solace.world.game.Game;
-import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.game.Game;
+import org.solace.game.entity.mobile.player.Player;
 
 /**
  *

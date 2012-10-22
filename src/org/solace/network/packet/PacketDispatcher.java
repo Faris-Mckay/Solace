@@ -1,11 +1,11 @@
 package org.solace.network.packet;
 
 import org.solace.util.ProtocolUtils;
-import org.solace.world.game.item.Item;
-import org.solace.world.game.item.container.Container;
-import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.content.skills.SkillHandler;
-import org.solace.world.map.Location;
+import org.solace.game.item.Item;
+import org.solace.game.item.container.Container;
+import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.content.skills.SkillHandler;
+import org.solace.game.map.Location;
 
 /**
  * Protocol packets sender.
@@ -54,9 +54,7 @@ public class PacketDispatcher {
 		return this;
 	}
 
-	public PacketDispatcher sendProjectile(Location position, int offsetX,
-			int offsetY, int id, int startHeight, int endHeight, int speed,
-			int lockon) {
+	public PacketDispatcher sendProjectile(Location position, int offsetX, int offsetY, int id, int startHeight, int endHeight, int speed, int lockon) {
 		PacketBuilder out = PacketBuilder.allocate(32);
 		sendCoordinates2(position);
 		out.createFrame(117, player.channelContext().encryption());
@@ -279,6 +277,7 @@ public class PacketDispatcher {
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
+        
 
 	/**
 	 * Sends interface set to the client.

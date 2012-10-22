@@ -9,7 +9,9 @@ import org.solace.network.NIOServer;
 import org.solace.task.TaskExecuter;
 import org.solace.task.impl.MaintainedNetworkTask;
 import org.solace.util.Constants;
-import org.solace.world.game.Game;
+import org.solace.game.Game;
+import org.solace.game.entity.mobile.npc.NPCAdvocate;
+import org.solace.game.item.ItemDefinitions;
 
 
 /**
@@ -25,7 +27,12 @@ public class Server {
     public static MaintainedNetworkTask networkTask;
 
     private void init() throws Exception{
+        //networking
        selector = new NIOSelector();
+       
+       //logic loading
+       ItemDefinitions.read();
+       NPCAdvocate.loadNPCDefs();
     }
     
     private void constructNetwork() throws IOException {
@@ -55,7 +62,7 @@ public class Server {
 
     private void start() {
         EngineCleanEvent.init();
-        Game.beginUpdatingMobiles();
+        Game.submitMobileTask();
         logger.info("Solace listening on port: "+Constants.SERVER_LISTEN_PORT);
     }
 }

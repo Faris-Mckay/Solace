@@ -1,6 +1,6 @@
 package org.solace.event.impl;
 
-import org.solace.world.map.Location;
+import org.solace.game.map.Location;
 
 
 /**

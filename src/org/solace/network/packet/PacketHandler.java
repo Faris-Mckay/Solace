@@ -1,6 +1,6 @@
 package org.solace.network.packet;
 
-import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.game.entity.mobile.player.Player;
 
 /**
  * Packet handler interface.

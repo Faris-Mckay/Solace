@@ -3,7 +3,7 @@ package org.solace.network;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import org.solace.world.World;
+import org.solace.game.Game;
 
 /**
  *
@@ -24,7 +24,7 @@ public class NIOSelector {
                 try {
                     channelContext.decoder().decode(channelContext);
                 } catch (Exception e) {
-                    World.getSingleton().deregister(channelContext.player());
+                    Game.getSingleton().deregister(channelContext.player());
                     key.channel().close();
                     key.cancel();
                 }

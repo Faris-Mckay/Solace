@@ -2,7 +2,7 @@ package org.solace.network;
 
 import java.nio.channels.SocketChannel;
 import net.burtlebutle.bob.rand.isaac.ISAAC;
-import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.game.entity.mobile.player.Player;
 
 /**
  *

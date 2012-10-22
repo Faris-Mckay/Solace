@@ -1,8 +1,8 @@
 package org.solace.task.impl;
 
+import org.solace.game.Game;
+import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.task.Task;
-import org.solace.world.game.Game;
-import org.solace.world.game.entity.mobile.npc.NPC;
 
 /**
  * 

@@ -3,9 +3,8 @@ package org.solace.network;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import org.solace.task.impl.MaintainedNetworkTask;
-import org.solace.world.game.entity.mobile.player.PlayerLoginDecipher;
-import org.solace.world.World;
+import org.solace.game.Game;
+import org.solace.game.entity.mobile.player.PlayerLoginDecipher;
 
 /**
  *
@@ -32,7 +31,7 @@ public class NIOAcceptor extends Thread {
                 }
                 if (!channel.isOpen()) {
                     if (channelContext.player() != null) {
-                        World.getSingleton().deregister(channelContext.player());
+                        Game.getSingleton().deregister(channelContext.player());
                     }
                     continue;
                 }

@@ -1,7 +1,7 @@
 package org.solace.util;
 
 import java.nio.ByteBuffer;
-import org.solace.world.map.Location;
+import org.solace.game.map.Location;
 
 
 /**
@@ -14,10 +14,7 @@ public class ProtocolUtils {
 	 * Reads RuneScape protocol string from the buffer. RuneScape protocol
 	 * strings are split by character 10 while by default strings tend to be
 	 * split by character 0.
-	 * 
-	 * @param buffer
-	 *            the byte buffer to read string from
-	 * 
+	 * @param buffer the byte buffer to read string from
 	 * @return the RuneScape protocol string
 	 */
 	public static String getRSString(ByteBuffer buffer) {

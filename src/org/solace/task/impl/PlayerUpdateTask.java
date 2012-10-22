@@ -1,9 +1,8 @@
 package org.solace.task.impl;
 
 import org.solace.task.Task;
-import org.solace.world.World;
-import org.solace.world.game.Game;
-import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.game.Game;
+import org.solace.game.entity.mobile.player.Player;
 
 /**
  *
@@ -14,7 +13,6 @@ public class PlayerUpdateTask extends Task {
     @Override
     public void execute(){
         
-        //long time = System.currentTimeMillis();
         /**
          * Loops through and handles all player movement
          */
@@ -46,9 +44,7 @@ public class PlayerUpdateTask extends Task {
         /**
          * Finally, register all players waiting to log in
          */
-        World.getSingleton().syncCycleRegistrys();
-        
-       // System.out.println(System.currentTimeMillis()-time+"ms taken for cycle");
+        Game.getSingleton().syncCycleRegistrys();
     }
 
 }

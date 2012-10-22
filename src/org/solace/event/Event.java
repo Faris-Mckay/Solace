@@ -1,7 +1,5 @@
 package org.solace.event;
 
-import org.solace.world.game.entity.mobile.player.Player;
-
 /**
  *
  * @author Faris

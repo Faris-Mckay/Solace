@@ -2,8 +2,8 @@ package org.solace.network.packet.impl;
 
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
-import org.solace.world.game.Game;
-import org.solace.world.game.entity.mobile.player.Player;
+import org.solace.game.Game;
+import org.solace.game.entity.mobile.player.Player;
 
 public class PlayeInteractionPacket implements PacketHandler {
 	
@@ -16,17 +16,24 @@ public class PlayeInteractionPacket implements PacketHandler {
 	public void handlePacket(Player player, Packet packet) {
 		switch (packet.opcode()) {
 		case ATTACK:
-			handleAttackOptions(player, packet);
-			break;
-		}
+                    handleAttackOption(player, packet);
+                    break;
+                case FOLLOW:
+                    handleFollowOption(player,packet);
+                    break;
+                }
+                
 	}
 
-	private void handleAttackOptions(Player player, Packet packet) {
+	private void handleAttackOption(Player player, Packet packet) {
 		int playerIndex = packet.getLEShort();
 		Player otherPlayer = Game.playerRepository.get(playerIndex);
 		if (otherPlayer == null)
 			return;
 		player.getPacketDispatcher().sendMessage("Other Players Index: " + otherPlayer.getIndex());
 	}
+        private void handleFollowOption(Player player, Packet packet){
+            //TODO
+        }
 
 }

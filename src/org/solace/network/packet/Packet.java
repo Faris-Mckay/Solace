@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import org.solace.network.NIOSelector;
 import org.solace.network.RSChannelContext;
-import org.solace.world.World;
+import org.solace.game.Game;
 
 /**
  * Single data packet implementation.
@@ -251,7 +251,7 @@ public class Packet {
 			buffer.flip();
 			channel.write(buffer);
 		} catch (Exception e) {
-			World.getSingleton().deregister(((RSChannelContext) channel.keyFor(NIOSelector.selector()).attachment()).player());
+			Game.getSingleton().deregister(((RSChannelContext) channel.keyFor(org.solace.network.NIOSelector.selector()).attachment()).player());
 		}
 		return this;
 	}

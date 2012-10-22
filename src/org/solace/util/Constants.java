@@ -14,6 +14,10 @@ public class Constants {
     
     public static final String SERVER_NAME = "Solace";
 
-	public static int SERVER_MAX_NPCS = 8000;
+    public static final int SERVER_MAX_NPCS = 2000;
+    
+    public static final boolean UNLOCKABLE_EMOTES_ENABLED = true;
+    
+    public static final int ITEM_UPPER_LIMIT = 25000;
 
 }

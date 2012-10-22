@@ -3,15 +3,15 @@ package org.solace.network.packet.impl;
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
 import org.solace.util.ProtocolUtils;
-import org.solace.world.game.Game;
-import org.solace.world.game.entity.Animation;
-import org.solace.world.game.entity.Graphic;
-import org.solace.world.game.entity.UpdateFlags.UpdateFlag;
-import org.solace.world.game.entity.mobile.Mobile.MovementStatus;
-import org.solace.world.game.entity.mobile.npc.NPC;
-import org.solace.world.game.entity.mobile.npc.NPCAdvocate;
-import org.solace.world.game.entity.mobile.player.Player;
-import org.solace.world.game.item.Item;
+import org.solace.game.Game;
+import org.solace.game.entity.Animation;
+import org.solace.game.entity.Graphic;
+import org.solace.game.entity.UpdateFlags.UpdateFlag;
+import org.solace.game.entity.mobile.Mobile.MovementStatus;
+import org.solace.game.entity.mobile.npc.NPC;
+import org.solace.game.entity.mobile.npc.NPCAdvocate;
+import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.item.Item;
 
 /**
  * 
@@ -24,15 +24,16 @@ public class CommandPacket implements PacketHandler {
 	public void handlePacket(Player player, Packet packet) {
 		String command = ProtocolUtils.getRSString(packet.buffer());
 		String[] args = command.split(" ");
-                String firstWord = args[0].toLowerCase(), secondWord = args[1].toLowerCase(), thirdWord = args[2].toLowerCase();;
-                
-		/**
-		 * Temporary for testing
-		 */
-		switch (firstWord) {
+                String firstWord = args[0].toLowerCase();
+                String secondWord;
+                switch(firstWord){
                     case "players":
                             player.getPacketDispatcher().sendMessage("There are currently "+Game.playerRepository.values().size()+" player(s) online.");
                             break;
+                }
+		if(args.length != 1){
+                    secondWord = args[1].toLowerCase();
+                    switch (firstWord) {
                     case "gfx":
                             int gfxId = Integer.parseInt(secondWord);
                             player.setGraphic(Graphic.lowGraphic(gfxId, 0));
@@ -54,6 +55,8 @@ public class CommandPacket implements PacketHandler {
                             NPCAdvocate.addNpc(npc);
                             break;
                     }
+                }
+		
 	}
 
 }
