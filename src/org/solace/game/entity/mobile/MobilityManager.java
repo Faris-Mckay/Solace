@@ -109,9 +109,9 @@ public class MobilityManager {
 			if (running() && !movementSteps.isEmpty()) {
 				runningDirection(generateDirection());
 			}
-			int diffX = mobile.getLocation().getY()
+			int diffX = mobile.getLocation().getX()
 					- mobile.getCachedRegion().regionX() * 8;
-			int diffY = mobile.getLocation().getX()
+			int diffY = mobile.getLocation().getY()
 					- mobile.getCachedRegion().regionY() * 8;
 			boolean changed = diffX < 16 || diffX >= 88 || diffY < 16 || diffY >= 88;
 			((Player) mobile).getUpdater().setMapRegionChanging(changed);
