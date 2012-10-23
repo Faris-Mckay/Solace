@@ -1,10 +1,14 @@
 package org.solace.event;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * Consumes the rest of the activity of the main thread
+ * listening and executing tasks which are designed to function
+ * on a global basis.
+ * 
  * @author Faris
  */
 public final class CoreEventExecutor {
@@ -37,33 +41,29 @@ public final class CoreEventExecutor {
      */
     public void removeEvent(Event event){
         event.stop();
-        events.remove(event);
     }
-    
-    /**
-     * Used to idle the event manager when no events current need running
-     */
-    private boolean idle = true;
     
     /**
      * the main loop of the event manager, executes the events, and then sleeps till next cycle
      * @throws InterruptedException 
      */
     public void execute() throws InterruptedException{
-        while(!idle){
+        while(true){
             long time = System.currentTimeMillis();
-            if(events.isEmpty()){
-                return;
-            }
-            for(Event event : events){
-                if(event.isShouldEnd()){
-                    removeEvent(event);
-                }
-                if(event.cyclesPassed < event.getExecuteInterval()){
-                    event.cyclesPassed++;
-                } else {
-                    event.cyclesPassed = 0;
-                    event.execute();
+            if(!events.isEmpty()){
+                Iterator<Event> it = events.iterator();
+                while(it.hasNext()) {
+                Event event = it.next();
+                    if(event.isShouldEnd()){
+                        removeEvent(event);
+                        it.remove();
+                    }
+                    if(event.cyclesPassed < event.getExecuteInterval()){
+                        event.cyclesPassed++;
+                    } else {
+                        event.cyclesPassed = 0;
+                        event.execute();
+                    }
                 }
             }
             long elapsedTime = (System.currentTimeMillis() - time);

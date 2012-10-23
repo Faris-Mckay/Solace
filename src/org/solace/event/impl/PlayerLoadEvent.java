@@ -15,7 +15,7 @@ import org.solace.util.Constants;
 public class PlayerLoadEvent extends Event {
     
     public PlayerLoadEvent(Player player){
-        super(EventType.Standalone, 0 , false);
+        super(EventType.INDEPENDANT, 0 , false);
         this.player = player;
     }
     

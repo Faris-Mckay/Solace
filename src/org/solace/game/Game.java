@@ -41,8 +41,7 @@ public class Game {
         /**
          * Initializes the game loop handles
          */
-	public static void submitTasks() {
-		Server.logger.info("Task update handlers intitializing...");
+	public static void submitTasks() throws InterruptedException {
 		TaskExecuter.get().schedule(new EntityUpdateTask());
                 TaskExecuter.get().schedule(new LogicUpdateTask());
 	}

@@ -1,6 +1,7 @@
 package org.solace.event;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.solace.game.entity.mobile.player.Player;
 
@@ -33,7 +34,6 @@ public final class CycleEventExecutor {
      */
     public void removeEvent(Event event){
         event.stop();
-        events.remove(event);
     }
     
     /**
@@ -48,16 +48,19 @@ public final class CycleEventExecutor {
         if(events.isEmpty()){
             return;
         }
-        for(Event event : events){
-                if(event.isShouldEnd()){
-                    removeEvent(event);
-                }
-                if(event.cyclesPassed < event.getExecuteInterval()){
-                    event.cyclesPassed++;
-                } else {
-                    event.cyclesPassed = 0;
-                    event.execute();
-                }
+        Iterator<Event> it = events.iterator();
+        while(it.hasNext()) {
+            Event event = it.next();
+            if(event.isShouldEnd()){
+                removeEvent(event);
+                it.remove();
             }
+            if(event.cyclesPassed < event.getExecuteInterval()){
+                event.cyclesPassed++;
+            } else {
+                event.cyclesPassed = 0;
+                event.execute();
+            }
+        }
     }
 }

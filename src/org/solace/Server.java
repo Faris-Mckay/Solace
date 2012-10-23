@@ -33,6 +33,9 @@ public class Server {
 
 		// logic loading
 		XStreamUtil.loadAllXmlData();
+                
+                // memory management aid
+                EngineCleanTask.init();
 	}
 
 	private void constructNetwork() throws IOException {
@@ -62,9 +65,11 @@ public class Server {
 		}
 	}
 
-	private void start() {
-		EngineCleanTask.init();
-		Game.submitTasks();
+	private void start() throws InterruptedException {
+                Server.logger.info("Task update handlers intitializing...");
 		logger.info("Solace listening on port: " + Constants.SERVER_LISTEN_PORT);
+                
+                // The main game engine tasks
+                Game.submitTasks();
 	}
 }

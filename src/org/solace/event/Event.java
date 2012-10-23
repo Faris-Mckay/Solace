@@ -1,14 +1,14 @@
 package org.solace.event;
 
+import org.solace.game.entity.mobile.player.Player;
+
 /**
  *
  * @author Faris
  */
 public abstract class Event {
     
-    public int cyclesPassed = 0;
-    
-    private int executeInterval;
+    public int executeInterval,cyclesPassed = 0;
     private boolean shouldEnd, instant;
     private EventType eventType;
     
@@ -32,7 +32,7 @@ public abstract class Event {
      * Optional to be called upon event ending
      */
     public void stop(){
-        //DEFAULT STOP METHOD, MUST OVERRIDE TO GAIN USAGE
+        setShouldEnd(true);
     }
 
     /**
@@ -70,18 +70,34 @@ public abstract class Event {
         return instant;
     }
     
+    /**
+     * Method for passing an method into its respective container
+     * @param event is the unique event
+     * @param owner is the submitter
+     */
+    public static void submit(Event event, Player owner){
+        switch(event.getEventType()){
+            case INDEPENDANT:
+                CoreEventExecutor.getSingleton().submitEvent(event);
+                break;
+            case DEPENDANT:
+                owner.getPlayerEvents().submitEvent(event);
+                break;
+        }
+    }
+    
     public enum EventType{
         /**
          * The event creates its own engine during runtime
          * for use with global events, such as mini games
          */
-        Standalone,
+        INDEPENDANT,
         
         /**
          * The event runs on the individual players game cycle
          * for use with individual tasks such as skilling
          */
-        Core
+        DEPENDANT
     }
 
 }

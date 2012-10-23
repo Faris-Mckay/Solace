@@ -18,7 +18,7 @@ import org.solace.util.Constants;
 public class PlayerSaveEvent extends Event {
     
     public PlayerSaveEvent(Player player){
-        super(EventType.Standalone, 0 , false);
+        super(EventType.INDEPENDANT, 0 , false);
         this.player = player;
     }
     

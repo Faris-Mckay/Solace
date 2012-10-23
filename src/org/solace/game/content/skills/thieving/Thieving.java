@@ -3,6 +3,8 @@ package org.solace.game.content.skills.thieving;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
+import org.solace.event.Event;
+import org.solace.event.Event.EventType;
 
 import org.solace.game.content.combat.DelayedAttack;
 import org.solace.game.content.combat.SendDelayedHit;
@@ -41,23 +43,25 @@ public class Thieving extends Skill {
 				player.setAnimation(Animation.create(881));
 				player.getUpdateFlags().flag(UpdateFlag.ANIMATION);
 				final boolean succeed = ((Math.random() * player.getSkills().getPlayerLevel()[Skill.THIEVING]) > (Math.random() * levelRequired));
-				TaskExecuter.get().schedule(new Task(3) {
-					@Override
-					public void execute() {
-						if (succeed) {
-							player.getInventory().add( new Item(getItemToAdd(), amount));
-							player.getSkills().addSkillExp(Skill.THIEVING, expAmount);
-							player.getPacketDispatcher().sendMessage("You successfully pick the " + npcName + "'s pocket.");
-						} else {
-							SendDelayedHit.sendDelayedHit(npc, player, new DelayedAttack(3, 1, 1));
-							player.setGraphic(Graphic.highGraphic(80, 0));
-							player.getUpdateFlags().flag(UpdateFlag.GRAPHICS);
-							npc.getUpdateFlags().sendForceMessage(forcedText);
-							player.getPacketDispatcher().sendMessage("You failed to pickpocket the " + npcName + "'s pocket.");
-						}
-						this.stop();
-					}
-				});
+                                
+                               Event newEvent = new Event(EventType.DEPENDANT, 3, false){
+                                   @Override
+                                   public void execute(){
+                                       if (succeed) {
+                                                player.getInventory().add( new Item(getItemToAdd(), amount));
+                                                player.getSkills().addSkillExp(Skill.THIEVING, expAmount);
+                                                player.getPacketDispatcher().sendMessage("You successfully pick the " + npcName + "'s pocket.");
+                                        } else {
+                                                SendDelayedHit.sendDelayedHit(npc, player, new DelayedAttack(3, 1, 1));
+                                                player.setGraphic(Graphic.highGraphic(80, 0));
+                                                player.getUpdateFlags().flag(UpdateFlag.GRAPHICS);
+                                                npc.getUpdateFlags().sendForceMessage(forcedText);
+                                                player.getPacketDispatcher().sendMessage("You failed to pickpocket the " + npcName + "'s pocket.");
+                                        }
+                                        this.stop();
+                                   }
+                               };
+                               Event.submit(newEvent, player);
 			} else {
 				player.getPacketDispatcher().sendMessage("Doesnt exist.");
 			}
