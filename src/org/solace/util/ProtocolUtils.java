@@ -3,9 +3,9 @@ package org.solace.util;
 import java.nio.ByteBuffer;
 import org.solace.game.map.Location;
 
-
 /**
  * RuneScape protocol utilities.
+ * 
  * @author Faris
  */
 public class ProtocolUtils {
@@ -14,7 +14,9 @@ public class ProtocolUtils {
 	 * Reads RuneScape protocol string from the buffer. RuneScape protocol
 	 * strings are split by character 10 while by default strings tend to be
 	 * split by character 0.
-	 * @param buffer the byte buffer to read string from
+	 * 
+	 * @param buffer
+	 *            the byte buffer to read string from
 	 * @return the RuneScape protocol string
 	 */
 	public static String getRSString(ByteBuffer buffer) {
@@ -50,7 +52,7 @@ public class ProtocolUtils {
 			l /= 37L;
 		return l;
 	}
-	
+
 	public static int getDistance(Location a, Location b) {
 		int deltaX = b.getX() - a.getX();
 		int deltaY = b.getY() - a.getY();
@@ -104,12 +106,15 @@ public class ProtocolUtils {
 	 * @return the formatted string
 	 */
 	public static String formatString(String string) {
-		String result = "";
-		for (String part : string.toLowerCase().split(" ")) {
-			result += part.substring(0, 1).toUpperCase() + part.substring(1)
-					+ " ";
+		if (!string.isEmpty()) {
+			String result = "";
+			for (String part : string.toLowerCase().split(" ")) {
+				result += part.substring(0, 1).toUpperCase()
+						+ part.substring(1) + " ";
+			}
+			return result.trim();
 		}
-		return result.trim();
+		return "";
 	}
 
 	/**

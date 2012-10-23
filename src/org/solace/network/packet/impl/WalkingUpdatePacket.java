@@ -1,12 +1,11 @@
 package org.solace.network.packet.impl;
 
-import org.solace.network.packet.Packet;
-import org.solace.network.packet.PacketHandler;
-import org.solace.game.entity.UpdateFlags.UpdateFlag;
-import org.solace.game.entity.mobile.Mobile.WelfareStatus;
+import org.solace.game.content.combat.Combat;
 import org.solace.game.entity.mobile.MobilityManager;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.map.Location;
+import org.solace.network.packet.Packet;
+import org.solace.network.packet.PacketHandler;
 
 /**
  *
@@ -23,7 +22,8 @@ public class WalkingUpdatePacket implements PacketHandler {
         if (packet.opcode() == 248) {
 			packet.length(packet.length() - 14);
 		}
-
+        player.getPacketDispatcher().sendCloseInterface();
+        Combat.resetCombat(player);
 		MobilityManager queue = player.getMobilityManager();
 		queue.prepare();
 		int steps = (packet.length() - 5) / 2;

@@ -14,6 +14,7 @@ import org.solace.game.Game;
 
 /**
  * RuneScape login procedure decoder.
+ * 
  * @author Faris
  * @author Klept0
  */
@@ -115,13 +116,12 @@ public class PlayerLoginDecipher implements NIODecoder {
 			/*
 			 * Version of the client, in this case 317.
 			 */
-			@SuppressWarnings("unused")
 			int clientVersion = buffer.getShort();
-                        if(clientVersion != 317){
-                            System.out.println("Invalid Client revision.");
-                            channelContext.channel().close();
-                            break;
-                        }
+			if (clientVersion != 317) {
+				System.out.println("Invalid Client revision.");
+				channelContext.channel().close();
+				break;
+			}
 
 			/*
 			 * Client memory version, indicates if client is on low or high
@@ -185,13 +185,19 @@ public class PlayerLoginDecipher implements NIODecoder {
 			/*
 			 * The user identify.
 			 */
-			String username = ProtocolUtils.formatString(ProtocolUtils.getRSString(buffer));
+			String username = ProtocolUtils.formatString(ProtocolUtils
+					.getRSString(buffer));
 			String password = ProtocolUtils.getRSString(buffer);
+
+			if (username.isEmpty() || password.isEmpty()) {
+				channelContext.channel().close();
+				return;
+			}
 			/*
 			 * Create the player object for this channel.
 			 */
 			Player player = new Player(username, password, channelContext);
-			boolean loaded = PlayerLoadEvent.loadGame(player);
+			boolean loaded = new PlayerLoadEvent(player).load();
 
 			/*
 			 * Generate response opcode.
@@ -199,7 +205,7 @@ public class PlayerLoginDecipher implements NIODecoder {
 			int response = 2;
 
 			if (!loaded) {
-                                    System.out.println("IGNORE FOR NOW, NO LOADING AVAILABLE");
+				System.out.println("IGNORE FOR NOW, NO LOADING AVAILABLE");
 				/*
 				 * Invalid username or password.
 				 */

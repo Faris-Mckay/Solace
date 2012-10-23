@@ -4,12 +4,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.solace.game.Game;
+import org.solace.game.entity.UpdateFlags.UpdateFlag;
+import org.solace.game.item.ItemDefinition;
+import org.solace.game.item.container.Equipment;
 import org.solace.network.packet.PacketBuilder;
 import org.solace.util.ProtocolUtils;
-import org.solace.game.Game;
-import org.solace.game.content.skills.Skill;
-import org.solace.game.content.skills.SkillHandler;
-import org.solace.game.entity.UpdateFlags.UpdateFlag;
 
 /**
  * 
@@ -34,8 +34,7 @@ public class PlayerUpdating {
 	}
 
 	private void populateRegion(PacketBuilder out, PacketBuilder block) {
-		master.getLocation().getRegion().playersWithinRegion().clear();
-		for(Player player : Game.playerRepository.values()) {
+		for (Player player : Game.playerRepository.values()) {
 			if (getMaster().getUpdater().localPlayers.size() >= 255) {
 				break;
 			}
@@ -94,7 +93,8 @@ public class PlayerUpdating {
 		out.sendTo(master.channelContext().channel());
 	}
 
-	public void updateGivenPlayer(PacketBuilder out, Player player, boolean force) {
+	public void updateGivenPlayer(PacketBuilder out, Player player,
+			boolean force) {
 		if (!player.getUpdateFlags().isUpdateRequired() && !force) {
 			return;
 		}
@@ -111,23 +111,24 @@ public class PlayerUpdating {
 		if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
 			mask |= UpdateFlag.FORCED_CHAT.getMask();
 		}
-		if (player.getUpdateFlags().get(UpdateFlag.CHAT) && player != getMaster()) {
+		if (player.getUpdateFlags().get(UpdateFlag.CHAT)
+				&& player != getMaster()) {
 			mask |= UpdateFlag.CHAT.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			out.putLEShort(player.getInteractingEntityIndex());
+			mask |= 0x1;
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
 			mask |= UpdateFlag.APPEARANCE.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
-			 mask |= UpdateFlag.FACE_COORDINATE.getMask();
+			mask |= UpdateFlag.FACE_COORDINATE.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
-			 mask |= UpdateFlag.HIT.getMask();
+			mask |= UpdateFlag.HIT.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
-			 mask |= UpdateFlag.HIT_2.getMask();
+			mask |= UpdateFlag.HIT_2.getMask();
 		}
 		if (mask >= 0x100) {
 			mask |= 0x40;
@@ -145,7 +146,7 @@ public class PlayerUpdating {
 			out.putBits(2, 3); // Player Teleported
 			out.putBits(2, master.getLocation().getH()); // current height
 			out.putBits(1, teleporting); // teleporting);
-			out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update												// required
+			out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update														// required
 			out.putBits(7, master.getLocation().localY());
 			out.putBits(7, master.getLocation().localX());
 		} else {
@@ -160,14 +161,17 @@ public class PlayerUpdating {
 				if (master.getMobilityManager().runningDirection() == -1) {
 					out.putBits(1, 1); // this is update required...
 					out.putBits(2, 1); // walking
-					out.putBits(3, master.getMobilityManager().walkingDirection()); // Direction
+					out.putBits(3, master.getMobilityManager()
+							.walkingDirection()); // Direction
 					out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
 																				// block
 				} else {
 					out.putBits(1, 1); // updating required
 					out.putBits(2, 2); // running - 2 seconds
-					out.putBits(3, master.getMobilityManager().walkingDirection()); // Walking
-					out.putBits(3, master.getMobilityManager().runningDirection()); // Running
+					out.putBits(3, master.getMobilityManager()
+							.walkingDirection()); // Walking
+					out.putBits(3, master.getMobilityManager()
+							.runningDirection()); // Running
 					out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
 																				// block
 				}
@@ -209,7 +213,8 @@ public class PlayerUpdating {
 		out.putBits(5, xPos); // The relative coordinates.
 	}
 
-	private void checkRequiredUpdates(PacketBuilder out, Player player, boolean force) {
+	private void checkRequiredUpdates(PacketBuilder out, Player player,
+			boolean force) {
 		if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
 			appendGraphicMask(player, out);
 		}
@@ -217,30 +222,31 @@ public class PlayerUpdating {
 			appendAnimationMask(player, out);
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
-			 out.putString(player.getUpdateFlags().getForceChatMessage());
+			out.putString(player.getUpdateFlags().getForceChatMessage());
 		}
-		if (player.getUpdateFlags().get(UpdateFlag.CHAT) && player != getMaster()) {
+		if (player.getUpdateFlags().get(UpdateFlag.CHAT)
+				&& player != getMaster()) {
 			updatePlayerChat(out, player);
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
 			updatePlayerAppearance(out, player);
 		}
-                if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
+		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
 			out.putLEShort(player.getInteractingEntityIndex());
 		}
-                if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
+		if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
 			out.putLEShortA(player.getUpdateFlags().getFaceLocation().getX() * 2 + 1);
 			out.putLEShort(player.getUpdateFlags().getFaceLocation().getY() * 2 + 1);
 		}
-                if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
+		if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
 			updateHit(out, player);
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
 			updatingHit2(out, player);
 		}
 	}
-        
-        /**
+
+	/**
 	 * Updates the hit mask
 	 * 
 	 * @param out
@@ -249,58 +255,22 @@ public class PlayerUpdating {
 	 *            The player instance
 	 */
 	public void updateHit(PacketBuilder out, Player player) {
-		out.putByte(hitDamage);
-		out.putByteA(player.getUpdateFlags().getHitType());
-		out.putByteC(player.getSkillHandler().getPlayerLevel()[SkillHandler.HITPOINTS]);
-		out.putByte(player.getSkillHandler().getLevelForXP(player.getSkillHandler().getPlayerExp()[Skill.HITPOINTS]));
+		out.putByte(player.getUpdateFlags().getDamage());
+		out.putByteA(player.getUpdateFlags().getHitmask());
+		out.putByteC(player.getSkills().getPlayerLevel()[3]);
+		out.putByte(player.getSkills().getLevelForXP(player.getSkills().getPlayerExp()[3]));
 	}
 
 	private void updatingHit2(PacketBuilder out, Player player) {
-		out.putByte(getDamage2());
-		out.putByteS(player.getUpdateFlags().getHitType2());
-		out.putByte(player.getSkillHandler().getPlayerLevel()[SkillHandler.HITPOINTS]);
-		out.putByteC(player.getSkillHandler().getLevelForXP((int) player.getSkillHandler().getPlayerExp()[Skill.HITPOINTS]));
-	}
-        
-        /**
-	 * Sets the hit update flag
-	 * @param status The status of the flag
-	 * @param type The type of the hit
-	 * @param mask The mask of the hit
-	 * @return A required update
-	 */
-	public void hitUpdateRequired(boolean status, int type, int damage) {
-		master.getUpdateFlags().set(UpdateFlag.HIT, true);
-		master.getUpdateFlags().setHitType(type);
-		master.getUpdater().hitDamage = damage;
-		master.getUpdateFlags().set(UpdateFlag.UPDATE_REQUIRED, true);
-	}
-
-	public void hitUpdateRequired2(boolean status, int type, int damage) {
-		master.getUpdateFlags().set(UpdateFlag.HIT_2, true);
-		master.getUpdateFlags().setHitType2(type);
-		master.getUpdater().damage2 = damage;
-		master.getUpdateFlags().set(UpdateFlag.UPDATE_REQUIRED, true);
-	}
-        
-        private int hitDamage;
-
-	public void setDamage(int damage) {
-		hitDamage = damage;
-	}
-        
-        public int getDamage2() {
-		return damage2;
-	}
-
-	private int damage2;
-
-	public void setDamage2(int damage) {
-		this.damage2 = damage;
+		out.putByte(player.getUpdateFlags().getDamage());
+		out.putByteS(player.getUpdateFlags().getHitmask());
+		out.putByte(player.getSkills().getPlayerLevel()[3]);
+		out.putByteC(player.getSkills().getLevelForXP(player.getSkills().getPlayerExp()[3]));
 	}
 
 	public void updatePlayerChat(PacketBuilder out, Player player) {
-		int effects = ((player.getUpdater().chatTextColor & 0xff) << 8) + (player.getUpdater().chatTextEffects & 0xff);
+		int effects = ((player.getUpdater().chatTextColor & 0xff) << 8)
+				+ (player.getUpdater().chatTextEffects & 0xff);
 		out.putLEShort(effects);
 		out.putByte(player.getAuthentication().getPlayerRights());
 		out.putByteC(player.getUpdater().chatText.length);
@@ -310,19 +280,84 @@ public class PlayerUpdating {
 	public void updatePlayerAppearance(PacketBuilder out, Player player) {
 		PacketBuilder props = PacketBuilder.allocate(128);
 		props.putByte(player.getAuthentication().playerGender());
+		props.putByte(player.getPrayerIcon());
 		props.putByte(player.getPlayerHeadIcon());
-		props.putByte(-1);// TODO: Player Skull
-		props.putByte(0); // Player Hat
-		props.putByte(0); // Player Cape
-		props.putByte(0); // Player Amulet
-		props.putByte(0); // Player Weapon
-		props.putShort(0x100 + player.getAuthentication().playerTorso()); // Body
-		props.putByte(0); // Player Shield
-		props.putShort(0x100 + player.getAuthentication().playerArms()); // Arms
-		props.putShort(0x100 + player.getAuthentication().playerLegs()); // Legs
-		props.putShort(0x100 + player.getAuthentication().playerHead()); // Head
-		props.putShort(0x100 + player.getAuthentication().playerHands()); // Hands
-		props.putShort(0x100 + player.getAuthentication().playerFeet()); // Feet
+		int[] equip = new int[player.getEquipment().capacity()];
+		for (int i = 0; i < player.getEquipment().capacity(); i++) {
+			equip[i] = player.getEquipment().items()[i].getIndex();
+		}
+
+		if (equip[Equipment.HAT_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.HAT_SLOT]);
+		} else {
+			props.putByte(0); // Player Hat
+		}
+
+		if (equip[Equipment.CAPE_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.CAPE_SLOT]);
+		} else {
+			props.putByte(0); // Player Cape
+		}
+
+		if (equip[Equipment.AMULET_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.AMULET_SLOT]);
+		} else {
+			props.putByte(0); // Player Amulet
+		}
+
+		if (equip[Equipment.WEAPON_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.WEAPON_SLOT]);
+		} else {
+			props.putByte(0); // Player Weapon
+		}
+
+		if (equip[Equipment.BODY_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.BODY_SLOT]);
+		} else {
+			props.putShort(0x100 + player.getAuthentication().playerTorso()); // Player
+																				// Body
+		}
+
+		if (equip[Equipment.SHIELD_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.SHIELD_SLOT]);
+		} else {
+			props.putByte(0); // Player Shield
+		}
+
+		if (ItemDefinition.fullBody(equip[Equipment.BODY_SLOT])) {
+			props.putByte(0);
+		} else {
+			props.putShort(0x100 + player.getAuthentication().playerArms()); // Player
+																				// Arms
+		}
+
+		if (equip[Equipment.LEGS_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.LEGS_SLOT]);
+		} else {
+			props.putShort(0x100 + player.getAuthentication().playerLegs()); // Player
+																				// Legs
+		}
+
+		if (ItemDefinition.fullHat(equip[Equipment.HAT_SLOT])) {
+			props.putByte(0);
+		} else {
+			props.putShort(0x100 + player.getAuthentication().playerHead()); // Player
+																				// Head
+		}
+
+		if (equip[Equipment.HANDS_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.HANDS_SLOT]);
+		} else {
+			props.putShort(0x100 + player.getAuthentication().playerHands()); // Player
+																				// Hands
+		}
+
+		if (equip[Equipment.FEET_SLOT] > -1) {
+			props.putShort(0x200 + equip[Equipment.FEET_SLOT]);
+		} else {
+			props.putShort(0x100 + player.getAuthentication().playerFeet()); // Player
+																				// Feet
+		}
 		if (player.getAuthentication().getPlayerAppearanceIndex(0) == 0) {
 			props.putShort(0x100 + player.getAuthentication().playerJaw());
 		} else {
@@ -343,9 +378,8 @@ public class PlayerUpdating {
 		/**
 		 * Sends player name as long
 		 */
-		props.putLong(ProtocolUtils.getLongString(player.getAuthentication()
-				.getUsername()));
-		props.putByte(3); // send combat level
+		props.putLong(ProtocolUtils.getLongString(player.getAuthentication().getUsername()));
+		props.putByte(player.getSkills().calculateCombatLevel()); // send combat level
 		props.putShort(0); // games room title crap
 		out.putByteC(props.buffer().position());
 		out.put(props.buffer());
@@ -360,8 +394,7 @@ public class PlayerUpdating {
 	public void appendGraphicMask(Player player, PacketBuilder out) {
 		if (player.getGraphic() != null) {
 			out.putLEShort(player.getGraphic().getId());
-			out.putShort(player.getGraphic().getDelay());
-			out.putShort(player.getGraphic().getHeight() * (2 ^ 16));
+			out.putIntTest(player.getGraphic().getValue());
 		}
 	}
 
@@ -415,7 +448,7 @@ public class PlayerUpdating {
 		setTeleporting(false);
 		setMapRegionChanging(false);
 		master.getUpdateFlags().reset();
-                getMaster().getMobilityManager().walkingDirection(-1).runningDirection(-1);
+		getMaster().getMobilityManager().walkingDirection(-1).runningDirection(-1);
 	}
 
 }

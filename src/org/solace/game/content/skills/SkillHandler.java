@@ -24,6 +24,8 @@ public class SkillHandler {
 	 * The maximum amount of skills
 	 */
 	public static final int MAXIMUM_SKILLS = 21;
+	
+	private static final int MAXIMUM_EXPERIENCE = 200000000;
 
 	/**
 	 * Holds the players levels
@@ -49,37 +51,34 @@ public class SkillHandler {
 	/**
 	 * Handles all of the frames for the level up interfaces
 	 */
-	private static final int[][] LEVEL_UP_DATA ={ 
-		{ 6248, 6249, 6247 }, // ATTACK
-		{ 6254, 6255, 6253 }, // DEFENCE
-		{ 6207, 6208, 6206 }, // STRENGTH
-		{ 6217, 6218, 6216 }, // HITPOINTS
-		{ 5453, 6114, 4443 }, // RANGED
-		{ 6243, 6244, 6242 }, // PRAYER
-		{ 6212, 6213, 6211 }, // MAGIC
-		{ 6227, 6228, 6226 }, // COOKING
-		{ 4273, 4274, 4272 }, // WOODCUTTING
-		{ 6232, 6233, 6231 }, // FLETCHING
-		{ 6259, 6260, 6258 }, // FISHING
-		{ 4283, 4284, 4282 }, // FIREMAKING
-		{ 6264, 6265, 6263 }, // CRAFTING
-		{ 6222, 6223, 6221 }, // SMITHING
-		{ 4417, 4438, 4416 }, // MINING
-		{ 6238, 6239, 6237 }, // HERBLORE
-		{ 4278, 4279, 4277 }, // AGILITY
-		{ 4263, 4264, 4261 }, // THIEVING
-		{ 12123, 12124, 12122 }, // SLAYER
-		{ -1, -1, -1 }, // FARMING
-		{ 4268, 4269, 4267 }, // RUNECRAFTING
+	private static final int[][] LEVEL_UP_DATA = { { 6248, 6249, 6247 }, // ATTACK
+			{ 6254, 6255, 6253 }, // DEFENCE
+			{ 6207, 6208, 6206 }, // STRENGTH
+			{ 6217, 6218, 6216 }, // HITPOINTS
+			{ 5453, 6114, 4443 }, // RANGED
+			{ 6243, 6244, 6242 }, // PRAYER
+			{ 6212, 6213, 6211 }, // MAGIC
+			{ 6227, 6228, 6226 }, // COOKING
+			{ 4273, 4274, 4272 }, // WOODCUTTING
+			{ 6232, 6233, 6231 }, // FLETCHING
+			{ 6259, 6260, 6258 }, // FISHING
+			{ 4283, 4284, 4282 }, // FIREMAKING
+			{ 6264, 6265, 6263 }, // CRAFTING
+			{ 6222, 6223, 6221 }, // SMITHING
+			{ 4417, 4438, 4416 }, // MINING
+			{ 6238, 6239, 6237 }, // HERBLORE
+			{ 4278, 4279, 4277 }, // AGILITY
+			{ 4263, 4264, 4261 }, // THIEVING
+			{ 12123, 12124, 12122 }, // SLAYER
+			{ -1, -1, -1 }, // FARMING
+			{ 4268, 4269, 4267 }, // RUNECRAFTING
 	};
-	
-	private static final String[] SKILL_NAMES = { 
-		"Attack", "Defence", "Strength", "Hitpoints",
-		"Ranged", "Prayer", "Magic", "Cooking", "Woodcutting",
-		"Fletching", "Fishing", "Firemaking", "Crafting", "Smithing",
-		"Mining", "Herblore", "Agility", "Thieving", "Slayer",
-		"Farming", "Runecrafting", 
-	};
+
+	private static final String[] SKILL_NAMES = { "Attack", "Defence",
+			"Strength", "Hitpoints", "Ranged", "Prayer", "Magic", "Cooking",
+			"Woodcutting", "Fletching", "Fishing", "Firemaking", "Crafting",
+			"Smithing", "Mining", "Herblore", "Agility", "Thieving", "Slayer",
+			"Farming", "Runecrafting", };
 
 	/**
 	 * Mainly used to send the strings to the skill frames for newer clients.
@@ -87,24 +86,30 @@ public class SkillHandler {
 	 */
 	@SuppressWarnings("unused")
 	private static final int[][] REFRESH_DATA = { {} };
-	
+
 	public void handleLevelUpData(int skillId) {
 		/**
 		 * The level up messages to be displayed
 		 */
-		String displayCongratulations = "@bla@Congratulations, you just advanced a " + SKILL_NAMES[skillId] + " level!";
-		String levelUpMessage = "@dbl@Your " + SKILL_NAMES[skillId] + " is now level " + getPlayerLevel()[skillId] + ".";
-		
+		String displayCongratulations = "@bla@Congratulations, you just advanced a "
+				+ SKILL_NAMES[skillId] + " level!";
+		String levelUpMessage = "@dbl@Your " + SKILL_NAMES[skillId]
+				+ " is now level " + getPlayerLevel()[skillId] + ".";
+
 		/**
 		 * Sends the information to the client
 		 */
-		player.getPacketDispatcher().sendString(LEVEL_UP_DATA[skillId][0], displayCongratulations);
-		player.getPacketDispatcher().sendString(LEVEL_UP_DATA[skillId][1], levelUpMessage);
-		player.getPacketDispatcher().sendChatInterface(LEVEL_UP_DATA[skillId][2]);
+		player.getPacketDispatcher().sendString(LEVEL_UP_DATA[skillId][0],
+				displayCongratulations);
+		player.getPacketDispatcher().sendString(LEVEL_UP_DATA[skillId][1],
+				levelUpMessage);
+		player.getPacketDispatcher().sendChatInterface(
+				LEVEL_UP_DATA[skillId][2]);
 	}
-	
+
 	/**
 	 * Refreshes a certain skill id
+	 * 
 	 * @param skillId
 	 */
 	public void refreshSkill(int skillId) {
@@ -120,17 +125,42 @@ public class SkillHandler {
 	 *            The amount of experience to add
 	 */
 	public void addSkillExp(int skill, int amount) {
-		if ((getPlayerExp()[skill] + amount) >= 2000000) {
-			getPlayerExp()[skill] = 2000000;
+		int oldLevel = getLevelForXP(getPlayerExp()[skill]);
+		if ((getPlayerExp()[skill] + amount) >= MAXIMUM_EXPERIENCE) {
+			getPlayerExp()[skill] = MAXIMUM_EXPERIENCE;
 		} else {
 			getPlayerExp()[skill] += amount;
 		}
-		int nextLevel = getLevelForXP(getPlayerExp()[skill] + 1);
-		if (getPlayerExp()[skill] == nextLevel) {
-			// handle level up method
+		int newLevel = getLevelForXP(getPlayerExp()[skill]);
+		int levelDifference = newLevel - oldLevel;
+		if (levelDifference > 0) {
+			playerLevel[skill] += levelDifference;
+			handleLevelUpData(skill);
+			player.setGraphic(Graphic.highGraphic(199, 0));
+			player.getUpdateFlags().flag(UpdateFlag.GRAPHICS);
 		}
-		player.setGraphic(Graphic.highGraphic(199, 0));
-		player.getUpdateFlags().flag(UpdateFlag.GRAPHICS);
+		refreshSkill(skill);
+	}
+
+	public int calculateCombatLevel() {
+		final int attack = getLevelForXP(playerExp[ATTACK]);
+		final int defence = getLevelForXP(playerExp[DEFENCE]);
+		final int strength = getLevelForXP(playerExp[STRENGTH]);
+		final int hp = getLevelForXP(playerExp[HITPOINTS]);
+		final int prayer = getLevelForXP(playerExp[PRAYER]);
+		final int ranged = getLevelForXP(playerExp[RANGED]);
+		final int magic = getLevelForXP(playerExp[MAGIC]);
+		double level = defence + hp + (prayer / 2);
+		double magiclvl = (level + (1.3 * (1.5 * magic))) / 4;
+		double rangelvl = (level + (1.3 * (1.5 * ranged))) / 4;
+		double meleelvl = (level + (1.3 * (attack + strength))) / 4;
+		if (meleelvl >= rangelvl && meleelvl >= magiclvl) {
+			return (int) meleelvl;
+		} else if (rangelvl >= meleelvl && rangelvl >= magiclvl) {
+			return (int) rangelvl;
+		} else {
+			return (int) magiclvl;
+		}
 	}
 
 	/**
@@ -171,7 +201,7 @@ public class SkillHandler {
 					* Math.pow(2.0, (double) lvl / 7.0));
 			output = (int) Math.floor(points / 4);
 			if (output >= skillExp) {
-				return lvl;
+				return lvl + 1;
 			}
 		}
 		return 0;

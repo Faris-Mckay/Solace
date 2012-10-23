@@ -1,11 +1,16 @@
 package org.solace.network.packet;
 
 import java.nio.ByteBuffer;
+
 import net.burtlebutle.bob.rand.isaac.ISAAC;
 
 /**
  * Data packet builder.
- * @author Faris
+ * 
+ * Helper class to build outgoing {@link Packet}s under RuneScape protocol
+ * standards.
+ * 
+ * @author kLeptO <http://www.rune-server.org/members/klepto/>
  */
 public class PacketBuilder extends Packet {
 
@@ -144,9 +149,21 @@ public class PacketBuilder extends Packet {
 	 * @param value
 	 *            the signed integer
 	 */
-	public PacketBuilder putMESmallInt(int value) {
+	public PacketBuilder putInt1(int value) {
 		putByte((byte) (value >> 8)).putByte((byte) value)
 				.putByte((byte) (value >> 24)).putByte((byte) (value >> 16));
+		return this;
+	}
+
+	public PacketBuilder putInt(int value) {
+		putByte((byte) (value >> 24)).putByte((byte) value >> 16)
+				.putByte((byte) (value >> 8)).putByte((byte) (value));
+		return this;
+	}
+
+	public PacketBuilder putLEInt(int value) {
+		putByte((byte) (value)).putByte((byte) value >> 8)
+				.putByte((byte) (value >> 16)).putByte((byte) (value >> 24));
 		return this;
 	}
 
@@ -157,7 +174,13 @@ public class PacketBuilder extends Packet {
 	 *            The signed integer
 	 * @return The packet builder
 	 */
-	public PacketBuilder putInt(int value) {
+	public PacketBuilder putInt2(int value) {
+		putByte(value >> 16).putByte(value >> 24).putByte(value)
+				.putByte(value >> 8);
+		return this;
+	}
+
+	public PacketBuilder putIntTest(int value) {
 		putByte(value >> 8).putByte(value >> 16).putByte(value)
 				.putByte(value >> 24);
 		return this;
@@ -213,6 +236,14 @@ public class PacketBuilder extends Packet {
 	 */
 	public PacketBuilder putString(String value) {
 		put(value.getBytes()).putByte(10);
+		return this;
+	}
+
+	public PacketBuilder putString2(String value) {
+		for (byte values : value.getBytes()) {
+			putByte(values);
+		}
+		putByte(10);
 		return this;
 	}
 

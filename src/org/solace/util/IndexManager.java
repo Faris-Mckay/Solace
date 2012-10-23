@@ -21,6 +21,10 @@ public class IndexManager {
         indexStore[index] = null;
     }
     
+    /**
+     * Sets the parsed index to null for recycling
+     * @param index NPCs old index
+     */
     public static void freeNpcIndex(int index) {
     	npcIndexStore[index] = null;
     }
@@ -39,11 +43,15 @@ public class IndexManager {
         return null;
     }
     
+    /**
+     * Loops through available index
+     * @returns first unassigned index
+     */
     public static Integer getNpcIndex() {
     	for (int i = 1; i < npcIndexStore.length; i++) {
-    		if (indexStore[i] == null) {
-    			indexStore[i] = i;
-    			return indexStore[i];
+    		if (npcIndexStore[i] == null) {
+    			npcIndexStore[i] = i;
+    			return npcIndexStore[i];
     		}
     	}
     	return null;

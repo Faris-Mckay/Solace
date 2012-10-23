@@ -1,0 +1,36 @@
+<list>
+
+	<dialog>
+		<dialogueId>1</dialogueId>
+		<nextDialogue>2</nextDialogue>
+		<emoticon>591</emoticon>
+		<playerChat>false</playerChat>
+		<dialogues>
+			<string>Testing?</string>
+			<string>Testing string 2?</string>
+		</dialogues>
+	</dialog>
+	
+	<dialog>
+		<dialogueId>2</dialogueId>
+		<nextDialogue>0</nextDialogue>
+		<emoticon>605</emoticon>
+		<playerChat>true</playerChat>
+		<dialogues>
+			<string>Testing yo momma</string>
+			<string>for crabs</string>
+		</dialogues>
+	</dialog>
+	
+		<dialog>
+		<dialogueId>3</dialogueId>
+		<nextDialogue>0</nextDialogue>
+		<emoticon>591</emoticon>
+		<playerChat>false</playerChat>
+		<dialogues>
+			<string>Hello there playername, how are you doing today?</string>
+		</dialogues>
+	</dialog>
+	
+	
+</list>

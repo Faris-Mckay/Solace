@@ -1,7 +1,6 @@
 package org.solace.game.content.music;
  
 import org.solace.game.entity.mobile.player.Player;
-import org.solace.game.map.Location;
 
 /**
  * 

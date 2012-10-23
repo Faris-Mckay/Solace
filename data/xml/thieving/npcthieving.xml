@@ -1,0 +1,12 @@
+<list>
+	<thieving>
+		<npcId>1</npcId>
+		<levelRequired>1</levelRequired>
+		<items>
+		<int>995</int>
+		</items>
+		<amount>1000</amount>
+		<experience>150</experience>
+		<forcedText>What are you doing in my pockets?</forcedText>
+	</thieving>
+</list>

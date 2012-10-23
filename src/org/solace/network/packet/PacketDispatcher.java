@@ -1,10 +1,10 @@
 package org.solace.network.packet;
 
-import org.solace.util.ProtocolUtils;
+import org.solace.game.content.skills.SkillHandler;
+import org.solace.game.entity.GroundItem;
+import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.item.Item;
 import org.solace.game.item.container.Container;
-import org.solace.game.entity.mobile.player.Player;
-import org.solace.game.content.skills.SkillHandler;
 import org.solace.game.map.Location;
 
 /**
@@ -54,7 +54,9 @@ public class PacketDispatcher {
 		return this;
 	}
 
-	public PacketDispatcher sendProjectile(Location position, int offsetX, int offsetY, int id, int startHeight, int endHeight, int speed, int lockon) {
+	public PacketDispatcher sendProjectile(Location position, int offsetX,
+			int offsetY, int id, int startHeight, int endHeight, int speed,
+			int lockon) {
 		PacketBuilder out = PacketBuilder.allocate(32);
 		sendCoordinates2(position);
 		out.createFrame(117, player.channelContext().encryption());
@@ -158,20 +160,18 @@ public class PacketDispatcher {
 		PacketBuilder out = PacketBuilder.allocate(2048);
 		out.createSizedFrame(196, player.channelContext().encryption());
 		out.putLong(name);
-		out.putInt(player.getPrivateMessaging().getPrivateMessageId());
+		out.putInt2(player.getPrivateMessaging().getPrivateMessageId());
 		out.putByte(rights);
 		out.writeBytes(message, messageSize);
 		out.finishSizedFrame();
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
-	
+
 	private void setSidebarInterfaces() {
-		int[] data = { 
-				2423, 3917, 638, 3213, 1644, 5608, 1151, -1, 5065,
-				5715, 2449, 904, 147, 962 
-		};
-		//TODO: player magic book
+		int[] data = { 2423, 3917, 638, 3213, 1644, 5608, 1151, -1, 5065, 5715,
+				2449, 904, 147, 962 };
+		// TODO: player magic book
 		for (int i = 0; i < data.length; i++) {
 			sendSidebar(i, data[i]);
 		}
@@ -191,10 +191,6 @@ public class PacketDispatcher {
 		sendPlayerMenuOption(3, "Attack");
 		sendPlayerMenuOption(4, "Trade With");
 		sendPlayerMenuOption(5, "Follow");
-		// sendItemContainer(player.getInventory(),
-		// Inventory.INVENTORY_INTERFACE);
-		// sendItemContainer(player.getEquipment(),
-		// Equipment.EQUIPMENT_INTERFACE);
 		player.handleLoginData();
 		sendLoginConfig();
 		return this;
@@ -203,7 +199,7 @@ public class PacketDispatcher {
 	public PacketDispatcher sendLoginConfig() {
 		// sendConfig(152, player.isAutoRetaliating() ? 1 : 0);
 		// sendConfig(173, player.isAutoRetaliating() ? 1 : 0);
-		// sendConfig(173, player.movementQueue().running() ? 1 : 0);
+		sendConfig(173, player.getMobilityManager().running() ? 1 : 0);
 		return this;
 	}
 
@@ -223,7 +219,7 @@ public class PacketDispatcher {
 		out.putShortA(player.getLocation().getRegion().regionX() + 6);
 		out.putShort(player.getLocation().getRegion().regionY() + 6);
 		out.sendTo(player.channelContext().channel());
-		player.region(player.getLocation().copy().getRegion());
+		player.cacheRegion(player.getLocation().copy());
 		return this;
 	}
 
@@ -256,7 +252,6 @@ public class PacketDispatcher {
 	 * 
 	 * @param stringIndex
 	 *            the string index
-	 * 
 	 * @param string
 	 *            the string
 	 */
@@ -277,14 +272,12 @@ public class PacketDispatcher {
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
-        
 
 	/**
 	 * Sends interface set to the client.
 	 * 
 	 * @param interfaceIndex
 	 *            the game window interface
-	 * 
 	 * @param sidebarInterfaceIndex
 	 *            the sidebar interface
 	 */
@@ -318,7 +311,6 @@ public class PacketDispatcher {
 	 * 
 	 * @param menuIndex
 	 *            the menu index
-	 * 
 	 * @param menuName
 	 *            the menu option name
 	 */
@@ -337,7 +329,6 @@ public class PacketDispatcher {
 	 * 
 	 * @param sidebarId
 	 *            the sidebar index
-	 * 
 	 * @param interfaceId
 	 *            the interface index
 	 */
@@ -374,7 +365,6 @@ public class PacketDispatcher {
 	 * 
 	 * @param configIndex
 	 *            the configuration index
-	 * 
 	 * @param state
 	 *            the configuration state
 	 */
@@ -387,43 +377,37 @@ public class PacketDispatcher {
 		return this;
 	}
 
+	public PacketDispatcher sendEntityLocation(Location location) {
+		PacketBuilder out = PacketBuilder.allocate(3);
+		out.createFrame(85, player.channelContext().encryption());
+		out.putByteC(location.getY() - 8 * player.getCachedRegion().regionY());
+		out.putByteC(location.getX() - 8 * player.getCachedRegion().regionX());
+		out.sendTo(player.channelContext().channel());
+		return this;
+	}
+
+	public PacketDispatcher sendGroundItem(GroundItem groundItem) {
+		sendEntityLocation(groundItem.getLocation());
+		PacketBuilder out = PacketBuilder.allocate(6);
+		out.createFrame(44, player.channelContext().encryption());
+		out.putLEShortA(groundItem.item().getIndex());
+		out.putShort(groundItem.item().getAmount());
+		out.putByte(0);
+		out.sendTo(player.channelContext().channel());
+		return this;
+	}
+
+	public PacketDispatcher sendRemoveGroundItem(GroundItem groundItem) {
+		sendEntityLocation(groundItem.getLocation());
+		PacketBuilder out = PacketBuilder.allocate(4);
+		out.createFrame(156, player.channelContext().encryption());
+		out.putByteS(0);
+		out.putShort(groundItem.item().getIndex());
+		out.sendTo(player.channelContext().channel());
+		return this;
+	}
+
 	/*
-	 * public PacketDispatcher sendItemContainer(ItemContainer container,int
-	 * interfaceIndex) { PacketBuilder out = PacketBuilder.allocate(5 +
-	 * (container.capacity() * 7)); out.createShortSizedFrame(53,
-	 * player.channelContext().encryption()); out.putShort(interfaceIndex);
-	 * out.putShort(container.capacity()); for (Item item : container.items()) {
-	 * if (item.amount() > 254) { out.putByte(255);
-	 * out.putMESmallInt(item.amount()); } else { out.putByte(item.amount()); }
-	 * out.putLEShortA(item.getId() + 1); } out.finishShortSizedFrame();
-	 * out.sendTo(player.channelContext().channel()); return this; }
-	 * 
-	 * 
-	 * public PacketDispatcher sendEntityLocation(Location location) {
-	 * PacketBuilder out = PacketBuilder.allocate(3); out.createFrame(85,
-	 * player.channelContext().encryption()); out.putByteC(location.getY() - 8 *
-	 * player.cachedRegion().regionY()); out.putByteC(location.getX() - 8 *
-	 * player.cachedRegion().regionX());
-	 * out.sendTo(player.channelContext().channel()); return this; }
-	 * 
-	 * 
-	 * public PacketDispatcher sendGroundItem(GroundItem groundItem) {
-	 * sendEntityLocation(groundItem.getLocation()); PacketBuilder out =
-	 * PacketBuilder.allocate(6); out.createFrame(44,
-	 * player.channelContext().encryption());
-	 * out.putLEShortA(groundItem.item().getId());
-	 * out.putShort(groundItem.item().amount()); out.putByte(0);
-	 * out.sendTo(player.channelContext().channel()); return this; }
-	 * 
-	 * 
-	 * public PacketDispatcher sendRemoveGroundItem(GroundItem groundItem) {
-	 * sendEntityLocation(groundItem.getLocation()); PacketBuilder out =
-	 * PacketBuilder.allocate(4); out.createFrame(156,
-	 * player.channelContext().encryption()); out.putByteS(0);
-	 * out.putShort(groundItem.item().getId());
-	 * out.sendTo(player.channelContext().channel()); return this; }
-	 * 
-	 * 
 	 * public PacketDispatcher sendObject(Object object, final boolean
 	 * expiredObject) { sendEntityLocation(object.objectLocation); PacketBuilder
 	 * out = PacketBuilder.allocate(6); out.createFrame(151,
@@ -431,7 +415,6 @@ public class PacketDispatcher {
 	 * out.putLEShort(expiredObject ? object.replacementId : object.objectId);
 	 * out.putByteS((10 << 2) + (0 & 3));
 	 * out.sendTo(player.channelContext().channel()); return this; }
-	 * 
 	 * 
 	 * public PacketDispatcher sendRemoveObject(Object object) {
 	 * sendEntityLocation(object.objectLocation); PacketBuilder out =
@@ -445,7 +428,7 @@ public class PacketDispatcher {
 		PacketBuilder out = PacketBuilder.allocate(16);
 		out.createFrame(134, player.channelContext().encryption());
 		out.putByte(skill);
-		out.putMESmallInt((int) player.getSkills().getPlayerExp()[skill]);
+		out.putInt1((int) player.getSkills().getPlayerExp()[skill]);
 		out.putByte(player.getSkills().getPlayerLevel()[skill]);
 		out.sendTo(player.channelContext().channel());
 		return this;
@@ -471,7 +454,6 @@ public class PacketDispatcher {
 	 * 
 	 * @param container
 	 *            the item container
-	 * 
 	 * @param interfaceIndex
 	 *            the interface index
 	 */
@@ -485,7 +467,7 @@ public class PacketDispatcher {
 		for (Item item : container.items()) {
 			if (item.getAmount() > 254) {
 				out.putByte(255);
-				out.putInt(item.getAmount());
+				out.putInt2(item.getAmount());
 			} else {
 				out.putByte(item.getAmount());
 			}

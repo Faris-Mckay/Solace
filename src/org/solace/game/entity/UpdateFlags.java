@@ -10,19 +10,19 @@ import org.solace.game.map.Location;
  * 
  */
 public class UpdateFlags {
-    
-        private String forceChatMessage;
+
+	private String forceChatMessage;
 
 	/**
 	 * The bitset (flag data).
 	 */
 	private BitSet flags = new BitSet();
-        private Location faceLocation;
-        private int hitType, hitType2;
+	private Location faceLocation;
+	private int hitType, hitType2;
 
-        public String getForceChatMessage() {
-            return forceChatMessage;
-        }
+	public String getForceChatMessage() {
+		return forceChatMessage;
+	}
 
 	/**
 	 * Represents a single type of update flag.
@@ -41,26 +41,11 @@ public class UpdateFlags {
 		 * Chat update.
 		 */
 		CHAT(0x80),
-
-		/**
-		 * Teleporting update
-		 */
-		TELEPORTING(0), // not a real mask...
-
-		/**
-		 * Is update required
-		 */
-
-		UPDATE_REQUIRED(0), // not a real mask...
-
-		/**
-		 * Map region chaging update
-		 */
-		REGION_CHANGING(0), // not a real mask...
+		
 		/**
 		 * Graphics update.
 		 */
-		GRAPHICS(0x100), 
+		GRAPHICS(0x100),
 
 		/**
 		 * Animation update.
@@ -101,13 +86,13 @@ public class UpdateFlags {
 		 * Update flag used to signify force movement.
 		 */
 		FORCE_MOVEMENT(0x400);
-		
+
 		private final int mask;
-		
+
 		UpdateFlag(int mask) {
 			this.mask = mask;
 		}
-		
+
 		public int getMask() {
 			return mask;
 		}
@@ -122,7 +107,6 @@ public class UpdateFlags {
 	 * The hitmask to the attack
 	 */
 	private int hitMask = -1;
-        
 
 	/**
 	 * Checks if an update required.
@@ -145,18 +129,6 @@ public class UpdateFlags {
 	}
 
 	/**
-	 * Sets a flag.
-	 * 
-	 * @param flag
-	 *            The flag.
-	 * @param value
-	 *            The value.
-	 */
-	public void set(UpdateFlag flag, boolean value) {
-		flags.set(flag.ordinal(), value);
-	}
-
-	/**
 	 * Gets the value of a flag.
 	 * 
 	 * @param flag
@@ -166,7 +138,6 @@ public class UpdateFlags {
 	public boolean get(UpdateFlag flag) {
 		return flags.get(flag.ordinal());
 	}
-        
 
 	/**
 	 * Resest all update flags.
@@ -201,8 +172,8 @@ public class UpdateFlags {
 	public void setHitMask(int mask) {
 		this.hitMask = mask;
 	}
-        
-        public void setHitType(int hitType) {
+
+	public void setHitType(int hitType) {
 		this.hitType = hitType;
 	}
 
@@ -226,26 +197,24 @@ public class UpdateFlags {
 	public int getHitmask() {
 		return hitMask;
 	}
-        
-        /**
+
+	/**
 	 * Sends a forced message string
 	 * 
 	 * @param forceChatMessage
 	 */
 	public void sendForceMessage(String forceChatMessage) {
 		this.forceChatMessage = forceChatMessage;
-                set(UpdateFlag.FORCED_CHAT, true);
-		set(UpdateFlag.UPDATE_REQUIRED, true);
+		flag(UpdateFlag.FORCED_CHAT);
 	}
-        
-        /**
+
+	/**
 	 * sets the face update to face an entity
 	 * 
 	 * @param entityFaceIndex
 	 */
 	public void faceEntity() {
-		set(UpdateFlag.FACE_ENTITY, true);
-		set(UpdateFlag.UPDATE_REQUIRED, true);
+		flag(UpdateFlag.FACE_ENTITY);
 	}
 
 	/**
@@ -255,12 +224,11 @@ public class UpdateFlags {
 	 */
 	public void sendFaceToDirection(Location face) {
 		this.faceLocation = face;
-		set(UpdateFlag.FACE_COORDINATE, true); 
-		set(UpdateFlag.UPDATE_REQUIRED, true);
+		flag(UpdateFlag.FACE_COORDINATE);
 	}
-        
-        public Location getFaceLocation(){
-            return faceLocation;
-        }
+
+	public Location getFaceLocation() {
+		return faceLocation;
+	}
 
 }

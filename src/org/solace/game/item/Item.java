@@ -52,5 +52,14 @@ public class Item {
 	public int getAmount() {
 		return amount;
 	}
+	
+	/**
+	 * Gets the copy of this item.
+	 * 
+	 * @return the item object clone
+	 */
+	public Item copy() {
+		return new Item(index, amount);
+	}
 
 }

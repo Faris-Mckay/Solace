@@ -1,10 +1,12 @@
 package org.solace.game.item.container;
 
 import org.solace.game.item.Item;
+import org.solace.game.item.ItemDefinition;
 import org.solace.game.entity.mobile.player.Player;
 
 /**
  * Item container implementation.
+ * 
  * @author Faris
  */
 public abstract class Container {
@@ -14,6 +16,7 @@ public abstract class Container {
 
 	/**
 	 * Creates a new item container for specified player.
+	 * 
 	 * @param player
 	 *            the player reference
 	 */
@@ -23,6 +26,7 @@ public abstract class Container {
 
 	/**
 	 * Gets an item by id.
+	 * 
 	 * @param id
 	 *            The id.
 	 * @return The item, or <code>null</code> if it could not be found.
@@ -41,6 +45,7 @@ public abstract class Container {
 
 	/**
 	 * Adds item to this item container.
+	 * 
 	 * @param item
 	 *            the item object
 	 * 
@@ -56,6 +61,7 @@ public abstract class Container {
 
 	/**
 	 * Adds item to this item container.
+	 * 
 	 * @param index
 	 *            the item index
 	 * @param amount
@@ -81,15 +87,37 @@ public abstract class Container {
 	 * @return amount of items that were not added or 0 if all items were added
 	 */
 	public int add(int index, int amount, boolean refresh) {
-		int notAdded = amount;
-		for (; amount > 0; amount--) {
-			int slot = emptySlot();
+		int notAdded = 0;
+		if (ItemDefinition.get(index).stackable() || stack()) {
+			int slot = itemSlot(index);
+			if (slot == -1) {
+				slot = emptySlot();
+			}
 			if (slot != -1) {
-				items[slot] = items[slot].setIndex(index).setAmount(1);
-				notAdded--;
+				long totalAmount = (long) items[slot].getAmount()
+						+ (long) amount;
+				if (totalAmount > Integer.MAX_VALUE) {
+					notAdded = (int) totalAmount - Integer.MAX_VALUE;
+					totalAmount = Integer.MAX_VALUE;
+					noSpace();
+				} else {
+					notAdded -= amount;
+				}
+				items[slot].setIndex(index);
+				items[slot].setAmount((int) totalAmount);
 			} else {
 				noSpace();
-				break;
+			}
+		} else {
+			for (; amount > 0; amount--) {
+				int slot = emptySlot();
+				if (slot != -1) {
+					items[slot] = items[slot].setIndex(index).setAmount(1);
+					notAdded--;
+				} else {
+					noSpace();
+					break;
+				}
 			}
 		}
 		if (refresh) {
@@ -139,6 +167,7 @@ public abstract class Container {
 
 	/**
 	 * Deletes item to from item container.
+	 * 
 	 * @param index
 	 *            the item index
 	 * @param amount
@@ -150,15 +179,28 @@ public abstract class Container {
 	 */
 	public int delete(int index, int amount, boolean refresh) {
 		int notDeleted = amount;
-
-		for (; amount > 0; amount--) {
+		if (ItemDefinition.get(index).stackable() || stack()) {
 			int slot = itemSlot(index);
 			if (slot != -1) {
-				items[slot].setIndex(-1);
-				items[slot].setAmount(0);
-				notDeleted--;
+				items[slot].setAmount(items[slot].getAmount() - amount);
+				notDeleted -= items[slot].getAmount() - amount;
+				if (items[slot].getAmount() < 1) {
+					items[slot].setIndex(-1);
+					notDeleted = 0;
+				}
 			} else {
-				break;
+				return notDeleted;
+			}
+		} else {
+			for (; amount > 0; amount--) {
+				int slot = itemSlot(index);
+				if (slot != -1) {
+					items[slot].setIndex(-1);
+					items[slot].setAmount(0);
+					notDeleted--;
+				} else {
+					break;
+				}
 			}
 		}
 		if (refresh) {

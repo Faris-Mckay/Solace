@@ -7,27 +7,27 @@ import org.solace.Server;
 import org.solace.util.XStreamUtil;
 
 /**
- *
+ * 
  * @author Faris
  */
 public class NPCDefinition {
-    
-    private static NPCDefinition[] definitions = null;
+
+	private static NPCDefinition[] definitions = null;
 
 	@SuppressWarnings("unchecked")
 	public static void init() throws IOException {
-		List<NPCDefinition> defs = (List<NPCDefinition>) XStreamUtil.getXStream().fromXML(new FileInputStream("./data/npcs/npcDefinition.xml"));
+            Server.logger.info("Loading npc definitions...");
+		List<NPCDefinition> defs = (List<NPCDefinition>) XStreamUtil.getXStream().fromXML(new FileInputStream("./data/xml/npcs/npcDefinition.xml"));
 		definitions = new NPCDefinition[6230];
 		for (NPCDefinition def : defs) {
 			definitions[def.getId()] = def;
 		}
-                Server.logger.info("Loaded "+defs.size()+" npc definitions");
 	}
-        
-        public static NPCDefinition forId(int id) {
-            
+
+	public static NPCDefinition forId(int id) {
+
 		NPCDefinition d = definitions[id];
-                
+
 		if (d == null) {
 			d = produceDefinition(id);
 		}
@@ -36,7 +36,10 @@ public class NPCDefinition {
 
 	private int id;
 	private String name, examine;
-	private int respawn = 0, combat = 0, hitpoints = 1, maxHit = 0, size = 1, attackSpeed = 4000, attackAnim = 422, defenceAnim = 404, deathAnim = 2304, attackBonus = 20, defenceMelee = 20, defenceRange = 20, defenceMage = 20;
+	private int respawn = 0, combat = 0, hitpoints = 1, maxHit = 0, size = 1,
+			attackSpeed = 4000, attackAnim = 422, defenceAnim = 404,
+			deathAnim = 2304, attackBonus = 20, defenceMelee = 20,
+			defenceRange = 20, defenceMage = 20;
 
 	private boolean attackable = false;
 	private boolean aggressive = false;
@@ -129,5 +132,9 @@ public class NPCDefinition {
 
 	public int getDefenceMage() {
 		return defenceMage;
+	}
+	
+	public static NPCDefinition[] getDefinitions() {
+		return definitions;
 	}
 }

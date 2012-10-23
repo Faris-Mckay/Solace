@@ -9,13 +9,22 @@ import java.util.List;
  */
 public final class CoreEventExecutor {
     
-    private static List<Event> events = new ArrayList<Event>();
+    public static CoreEventExecutor getSingleton(){
+        return coreEventExecutor;
+    }
+    
+    private static final CoreEventExecutor coreEventExecutor = new CoreEventExecutor();
+    
+    /**
+     * Stores the global event objects for execution
+     */
+    private List<Event> events = new ArrayList<Event>();
     
     /**
      * Submits an event into the executory cycle
      * @param event 
      */
-    public static void submitEvent(Event event){
+    public void submitEvent(Event event){
         if(event.isInstant())
             event.execute();
         events.add(event);
@@ -44,7 +53,7 @@ public final class CoreEventExecutor {
         while(!idle){
             long time = System.currentTimeMillis();
             if(events.isEmpty()){
-                idle = true;
+                return;
             }
             for(Event event : events){
                 if(event.isShouldEnd()){

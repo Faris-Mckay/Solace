@@ -1,9 +1,10 @@
 package org.solace.network.packet.impl;
 
+import org.solace.game.content.Consumables;
+import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.item.container.Equipment;
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
-import org.solace.game.item.container.impl.Equipment;
-import org.solace.game.entity.mobile.player.Player;
 
 public class ItemActionPacket implements PacketHandler {
 
@@ -25,9 +26,11 @@ public class ItemActionPacket implements PacketHandler {
 		int interfaceIndex = packet.getUShortA();
 		int itemSlot = packet.getUShortA();
 		int itemIndex = packet.getUShortA();
-
+		Consumables.eatFood(player, itemIndex, itemSlot);
 		switch (interfaceIndex) {
-
+		case Equipment.EQUIPMENT_INTERFACE:
+			player.getEquipment().unequip(itemIndex, itemSlot);
+			break;
 		}
 	}
 

@@ -1,6 +1,8 @@
 package org.solace.event.impl;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.solace.Server;
 import org.solace.event.Event;
 import org.solace.game.Game;
@@ -17,17 +19,19 @@ public class PlayerLogoutEvent extends Event {
 
 	@Override
 	public void execute() {
-            try {
-                if (player.channelContext().channel() == null){
-                    Game.getSingleton().deregister(player);
-                    return;
-                }
-                player.channelContext().channel().close();  
+            if (player.channelContext().channel() == null){
                 Game.getSingleton().deregister(player);
-                Server.logger.info("[Deregistry]: connection terminated for player: "+player.getAuthentication().getUsername());
-            } catch (IOException e) {
-                Server.logger.warning("Logout event failed to execute for player "+player.getAuthentication().getUsername());
+                return;
             }
+            new PlayerSaveEvent(player).execute();
+            player.getPacketDispatcher().sendLogout();
+            try {
+                player.channelContext().channel().close();
+            } catch (IOException ex) {
+                Logger.getLogger(PlayerLogoutEvent.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            Game.getSingleton().deregister(player);
+            Server.logger.info("[Deregistry]: connection terminated for player: "+player.getAuthentication().getUsername());
 	}
 
 }

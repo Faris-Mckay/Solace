@@ -15,19 +15,7 @@ public class Region {
     }
     
     private Location location;
-    private List<Player> playersInRegion = new LinkedList<Player>();
     
-    public List playersWithinRegion(){
-        return playersInRegion;
-    }
-    
-    public void addPlayerToRegion(Player player){
-        playersInRegion.add(player);
-    }
-    
-    public void clearRegionContents(){
-        playersInRegion.clear();
-    }
     
     private Location getLocation(){
         return location;

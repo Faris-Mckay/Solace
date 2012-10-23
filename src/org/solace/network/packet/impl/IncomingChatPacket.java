@@ -1,10 +1,9 @@
 package org.solace.network.packet.impl;
 
-import org.solace.network.packet.Packet;
-import org.solace.network.packet.PacketHandler;
-import org.solace.util.ProtocolUtils;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.entity.mobile.player.Player;
+import org.solace.network.packet.Packet;
+import org.solace.network.packet.PacketHandler;
 
 /**
  *

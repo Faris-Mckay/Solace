@@ -8,9 +8,9 @@ import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.map.Location;
 
-
 /**
  * Entity movement manager.
+ * 
  * @author Faris
  */
 public class MobilityManager {
@@ -23,7 +23,9 @@ public class MobilityManager {
 
 	/**
 	 * Creates a new movement manager for entity.
-	 * @param entity the entity instance
+	 * 
+	 * @param entity
+	 *            the entity instance
 	 * @return a new movement manager
 	 */
 	public MobilityManager(Mobile mobile) {
@@ -33,7 +35,9 @@ public class MobilityManager {
 
 	/**
 	 * Adds movement destination to the queue.
-	 * @param destination the movement destination   
+	 * 
+	 * @param destination
+	 *            the movement destination
 	 */
 	public MobilityManager queueDestination(Location destination) {
 		Location lastStep = movementSteps.peekLast();
@@ -43,7 +47,7 @@ public class MobilityManager {
 		for (int i = 0; i < stepsAmount; i++) {
 			if (diffX < 0) {
 				diffX++;
-			} else if (diffX > 0) { 
+			} else if (diffX > 0) {
 				diffX--;
 			}
 			if (diffY < 0) {
@@ -55,7 +59,7 @@ public class MobilityManager {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * Adds movement point to the queue.
 	 * 
@@ -74,39 +78,45 @@ public class MobilityManager {
 		}
 		return this;
 	}
-        
-        /**
+
+	/**
 	 * Checks if the direction represented by the two delta values can connect
 	 * two points together in a single direction.
-	 * @param deltaX The difference in X coordinates.
-	 * @param deltaY The difference in X coordinates.
+	 * 
+	 * @param deltaX
+	 *            The difference in X coordinates.
+	 * @param deltaY
+	 *            The difference in X coordinates.
 	 * @return {@code true} if so, {@code false} if not.
 	 */
 	public static boolean isConnectable(int deltaX, int deltaY) {
-		return Math.abs(deltaX) == Math.abs(deltaY) || deltaX == 0 || deltaY == 0;
+		return Math.abs(deltaX) == Math.abs(deltaY) || deltaX == 0
+				|| deltaY == 0;
 	}
 
 	/**
 	 * Processes entity movement.
 	 */
 	public void processMovement() {
-                if(mobile.getStatus() == WelfareStatus.DEAD){
-                    return;
-                }
-                if (movementSteps.isEmpty()) {
-                    walkingDirection(-1).runningDirection(-1);
-                    return;
-                }
-                if (mobile instanceof Player) {
-                walkingDirection(generateDirection());
-                if (running() && !movementSteps.isEmpty()) {
-                        runningDirection(generateDirection());
-                }
-			int diffX = mobile.getLocation().getY() - mobile.cachedRegion().regionX() * 8;
-			int diffY = mobile.getLocation().getX() - mobile.cachedRegion().regionY() * 8;
+		if (mobile.getStatus() == WelfareStatus.DEAD) {
+			return;
+		}
+		if (mobile instanceof Player) {
+			if (movementSteps.isEmpty()) {
+				return;
+			}
+			walkingDirection(generateDirection());
+			if (running() && !movementSteps.isEmpty()) {
+				runningDirection(generateDirection());
+			}
+			int diffX = mobile.getLocation().getY()
+					- mobile.getCachedRegion().regionX() * 8;
+			int diffY = mobile.getLocation().getX()
+					- mobile.getCachedRegion().regionY() * 8;
 			boolean changed = diffX < 16 || diffX >= 88 || diffY < 16 || diffY >= 88;
 			((Player) mobile).getUpdater().setMapRegionChanging(changed);
-		} else if (mobile instanceof NPC) {
+		}
+		if (mobile instanceof NPC) {
 			final int random = (int) (Math.floor(Math.random() * 7));
 			switch (mobile.getMoveStatus()) {
 			case STATIONARY:
@@ -115,8 +125,10 @@ public class MobilityManager {
 			case MOBILE:
 				mobile.getLocation().lastX = mobile.getLocation().getX();
 				mobile.getLocation().lastY = mobile.getLocation().getY();
-				int distanceX = Math.abs(mobile.getLocation().getX()- mobile.getTargettedLocation().getX());
-				int distanceY = Math.abs(mobile.getLocation().getY()- mobile.getTargettedLocation().getY());
+				int distanceX = Math.abs(mobile.getLocation().getX()
+						- mobile.getTargettedLocation().getX());
+				int distanceY = Math.abs(mobile.getLocation().getY()
+						- mobile.getTargettedLocation().getY());
 				int offsetX = ProtocolUtils.DIRECTION_DELTA_X[random];
 				int offsetY = ProtocolUtils.DIRECTION_DELTA_Y[random];
 				Location newLocation = new Location((mobile.getLocation()
@@ -127,7 +139,8 @@ public class MobilityManager {
 						walkingDirection(generateDirection());
 					}
 				} else {
-					if (((int) (Math.random() * 10)) > 1) {
+					int randomValue = ProtocolUtils.random(10);
+					if (randomValue > 1) {
 						walkingDirection(-1);
 					} else {
 						if (distanceX > mobile.getMaximumWalkingDistance()
@@ -173,19 +186,20 @@ public class MobilityManager {
 		movementSteps.add(mobile.getLocation());
 		return this;
 	}
-        
-        /**
-         * Gives the player a position to travel to
-         * @param directionX
-         * @param directionY 
-         */
+
+	/**
+	 * Gives the player a position to travel to
+	 * 
+	 * @param directionX
+	 * @param directionY
+	 */
 	public void walkTo(final int directionX, final int directionY) {
 		Location entityLocation = mobile().getLocation();
 		int newX = (entityLocation.getX() + directionX);
 		int newY = (entityLocation.getY() + directionY);
 		prepare();
 		queueDestination(new Location(newX, newY));
-		finish();   
+		finish();
 	}
 
 	/**

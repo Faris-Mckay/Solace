@@ -1,0 +1,18 @@
+<list>
+
+	<weapon>
+	<itemId>4151</itemId>
+	<runIndex>1832</runIndex>
+	<walkIndex>1660</walkIndex>
+	<standIndex>1661</standIndex>
+	<attackAnimation>
+	<int>1658</int>
+	<int>1658</int>
+	<int>1568</int>
+	<int>1658</int>
+	</attackAnimation>
+	<blockAnimation>1659</blockAnimation>
+	<hitDelay>4</hitDelay>
+	</weapon>
+
+</list>
