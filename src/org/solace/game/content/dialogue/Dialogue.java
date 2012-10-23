@@ -26,51 +26,6 @@ public class Dialogue {
 					setPlayerChat(def[i].isPlayerChat());
 					String[] dialogues = def[i].getDialogues();
                                         sendNpcChat(dialogues[i].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-					if (!isPlayerChat()) {
-                                            
-						switch (def[i].getDialogues().length) {
-                                               /*     
-						case 1:
-							sendNpcChat(dialogues[0].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;
-						case 2:
-							sendNpcChat(dialogues[0].replaceAll("playername", player.getAuthentication().getUsername()),
-                                                                    dialogues[1].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;
-						case 3:
-							sendNpcChat(dialogues[0],
-									dialogues[1].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[2].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;
-						case 4:
-							sendNpcChat(dialogues[0].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[1].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[2].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[3].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;*/
-						}
-					} else {
-						switch (dialogues.length) {
-						/*case 1:
-							sendPlayerChat(dialogues[0].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;
-						case 2:
-							sendPlayerChat(dialogues[0].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[1].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;
-						case 3:
-							sendPlayerChat(dialogues[0].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[1].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[2].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;
-						case 4:
-							sendPlayerChat(dialogues[0].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[1].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[2].replaceAll("playername", player.getAuthentication().getUsername()),
-									dialogues[3].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
-							break;*/
-						}
-					}
 					setDialogueId(def[i].getNextDialogue());
 				}
 			}

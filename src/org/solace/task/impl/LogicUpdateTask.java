@@ -1,7 +1,5 @@
 package org.solace.task.impl;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.solace.event.CoreEventExecutor;
 import org.solace.game.entity.GroundItemHandler;
 import org.solace.task.Task;
@@ -18,6 +16,7 @@ public class LogicUpdateTask extends Task {
 
     @Override
     public void execute() {
+        
         
         /**
          * Handles the cycle for the ground item lifetime

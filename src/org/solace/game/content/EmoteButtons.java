@@ -8,7 +8,10 @@ import org.solace.util.Constants;
  * @author Faris
  */
 public class EmoteButtons {
-  
+    
+    /**
+     * Stores the emotes animation id
+     */
     private static final int
             YES = 855,
             NO = 856, 
@@ -47,7 +50,7 @@ public class EmoteButtons {
 
     public static boolean unlocked[] = {false, false, false, false, false, false, false, false, false, false};
     public static int unlockedId[] = { 2155, 25103, 25106, 2154, 52071, 52072, 59062, 72032, 72033, 72254};
-
+    
     public static final String UNLOCK_ERROR_MESSAGE[] = {
             "the Mime random event.",
             "the Mime random event.",

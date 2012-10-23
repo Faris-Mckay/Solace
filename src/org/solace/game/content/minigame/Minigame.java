@@ -6,7 +6,11 @@ import org.solace.game.map.Boundary;
 import org.solace.game.map.Location;
 
 /**
- *
+ * This is only and idea of how your mini game should look
+ * your are not expected to follow this design, but if you can
+ * you probably should.
+ * Use the INDEPENDANT event type to execute mini game logic
+ * 
  * @author Faris
  */
 public interface Minigame {

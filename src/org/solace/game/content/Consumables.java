@@ -66,23 +66,23 @@ public class Consumables {
             try {
                 Food food = Food.forID(itemId);
                 if (food != null) {
-                        if (System.currentTimeMillis() - player.foodDelay > 1400) {
-                                if (player.getInventory().contains(food.getItemId())) {
-                                    player.getPacketDispatcher().sendMessage("You eat the " + food.getName() + ".");
-                                    player.setAnimation(Animation.create(829, 0));
-                                    player.getUpdateFlags().flag(UpdateFlag.ANIMATION);
-                                    player.getInventory().delete(food.getItemId(), slot, 1);
-                                    int maxLevel = player.getSkills().getLevelForXP(player.getSkills().getPlayerExp()[Skill.HITPOINTS]) ;
-                                    if (player.getSkills().getPlayerLevel()[Skill.HITPOINTS]+ food.getHealAmount() > maxLevel) {
-                                            player.getSkills().getPlayerLevel()[Skill.HITPOINTS] = maxLevel;
-                                    } else {
-                                            player.getSkills().getPlayerLevel()[Skill.HITPOINTS] += food.getHealAmount();
-                                    }
-                                    player.getSkills().refreshSkill(Skill.HITPOINTS);
-                                    player.getPacketDispatcher().sendMessage("It heals some health...");
-                                    player.foodDelay = System.currentTimeMillis();
-                                }
+                    if (System.currentTimeMillis() - player.foodDelay > 1400) {
+                        if (player.getInventory().contains(food.getItemId())) {
+                            player.getPacketDispatcher().sendMessage("You eat the " + food.getName() + ".");
+                            player.setAnimation(Animation.create(829, 0));
+                            player.getUpdateFlags().flag(UpdateFlag.ANIMATION);
+                            player.getInventory().delete(food.getItemId(), slot, 1);
+                            int maxLevel = player.getSkills().getLevelForXP(player.getSkills().getPlayerExp()[Skill.HITPOINTS]) ;
+                            if (player.getSkills().getPlayerLevel()[Skill.HITPOINTS]+ food.getHealAmount() > maxLevel) {
+                                    player.getSkills().getPlayerLevel()[Skill.HITPOINTS] = maxLevel;
+                            } else {
+                                    player.getSkills().getPlayerLevel()[Skill.HITPOINTS] += food.getHealAmount();
+                            }
+                            player.getSkills().refreshSkill(Skill.HITPOINTS);
+                            player.getPacketDispatcher().sendMessage("It heals some health...");
+                            player.foodDelay = System.currentTimeMillis();
                         }
+                    }
                 }
             } catch (Exception e) {
                     e.printStackTrace();

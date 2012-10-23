@@ -26,7 +26,6 @@ public class PlayerLoginEvent extends Event {
         player.getPacketDispatcher().sendMessage("Current players: "+(Game.playerRepository.size() + Game.registryQueue.size()));
         player.getEquipment().refreshItems();
         player.getInventory().refreshItems();
-    
     }
 
 
