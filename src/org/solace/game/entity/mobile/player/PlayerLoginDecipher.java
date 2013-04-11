@@ -3,7 +3,7 @@ package org.solace.game.entity.mobile.player;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import net.burtlebutle.bob.rand.isaac.ISAAC;
-import org.solace.event.impl.PlayerLoadEvent;
+import org.solace.event.impl.PlayerLoadService;
 import org.solace.network.NIODecoder;
 import org.solace.network.RSChannelContext;
 import org.solace.network.packet.PacketBuilder;
@@ -118,9 +118,9 @@ public class PlayerLoginDecipher implements NIODecoder {
 			 */
 			int clientVersion = buffer.getShort();
 			if (clientVersion != 317) {
-				System.out.println("Invalid Client revision.");
-				channelContext.channel().close();
-				break;
+				//System.out.println("Invalid Client revision.");
+				//channelContext.channel().close();
+				//break;
 			}
 
 			/*
@@ -197,7 +197,7 @@ public class PlayerLoginDecipher implements NIODecoder {
 			 * Create the player object for this channel.
 			 */
 			Player player = new Player(username, password, channelContext);
-			boolean loaded = new PlayerLoadEvent(player).load();
+			boolean loaded = new PlayerLoadService(player).load();
 
 			/*
 			 * Generate response opcode.

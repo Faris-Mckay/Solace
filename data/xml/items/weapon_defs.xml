@@ -1,18 +1,908 @@
 <list>
 
-	<weapon>
-	<itemId>4151</itemId>
-	<runIndex>1832</runIndex>
-	<walkIndex>1660</walkIndex>
-	<standIndex>1661</standIndex>
-	<attackAnimation>
-	<int>1658</int>
-	<int>1658</int>
-	<int>1568</int>
-	<int>1658</int>
-	</attackAnimation>
-	<blockAnimation>1659</blockAnimation>
-	<hitDelay>4</hitDelay>
-	</weapon>
+  <!-- Flowers -->
 
+  <weaponData>
+    <id>
+      <int>2460</int>
+      <int>2462</int>
+      <int>2464</int>
+      <int>2466</int>
+      <int>2468</int>
+      <int>2470</int>
+      <int>2472</int>
+      <int>2474</int>
+      <int>2476</int>
+	  <int>4037</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>422</int> 
+      <int>422</int> 
+      <int>423</int> 
+      <int>422</int> 
+    </attackEmotes>
+	<speed>3000</speed>
+	<blockEmote>410</blockEmote>
+	<interfaceId>425</interfaceId>
+  </weaponData>  
+  
+  <!-- Staffs -->
+
+  <weaponData>
+    <id>
+      <int>6908</int>
+      <int>6910</int>
+      <int>6912</int>
+      <int>6914</int>
+      <int>4710</int>
+      <int>2417</int>
+      <int>2415</int>
+      <int>1381</int>
+      <int>1383</int>
+      <int>1385</int>
+      <int>1387</int>
+    </id>
+    <equipEmotes>
+      <int>813</int>
+      <int>1205</int>
+      <int>1210</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>400</int> 
+      <int>400</int> 
+      <int>406</int> 
+      <int>400</int> 
+    </attackEmotes>
+	<speed>3000</speed>
+	<blockEmote>1429</blockEmote>
+	<interfaceId>328</interfaceId>
+  </weaponData>
+  
+  <!-- Staff of light -->
+
+  <weaponData>
+    <id>
+	  <int>15486</int>
+    </id>
+    <equipEmotes>
+      <int>813</int>
+      <int>1205</int>
+      <int>1210</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>400</int> 
+      <int>400</int> 
+      <int>406</int> 
+      <int>400</int> 
+    </attackEmotes>
+	<speed>3000</speed>
+	<blockEmote>1429</blockEmote>
+	<interfaceId>2423</interfaceId>
+  </weaponData>    
+  
+  <!-- Ancient staff -->
+
+  <weaponData>
+    <id>
+      <int>4675</int>
+    </id>
+    <equipEmotes>
+      <int>813</int>
+      <int>1205</int>
+      <int>1210</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>400</int> 
+      <int>400</int> 
+      <int>406</int> 
+      <int>400</int> 
+    </attackEmotes>
+	<speed>3000</speed>
+	<blockEmote>1429</blockEmote>
+	<interfaceId>328</interfaceId>
+  </weaponData>  
+  
+  <!-- Godswords -->
+
+  <weaponData>
+    <id>
+      <int>11694</int>
+      <int>11696</int>
+      <int>11698</int>
+      <int>11700</int>
+    </id>
+    <equipEmotes>
+      <int>7047</int>
+      <int>7046</int>
+      <int>7039</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>7041</int> 
+      <int>7041</int> 
+      <int>7048</int> 
+      <int>7049</int> 
+    </attackEmotes>
+	<speed>3600</speed>
+	<blockEmote>7050</blockEmote>
+	<interfaceId>2423</interfaceId>
+  </weaponData>  
+  
+    <!-- Saradomin sword -->
+
+  <weaponData>
+    <id>
+	  <int>11730</int>
+    </id>
+    <equipEmotes>
+      <int>7047</int>
+      <int>7046</int>
+      <int>7039</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>7041</int> 
+      <int>7041</int> 
+      <int>7048</int> 
+      <int>7049</int> 
+    </attackEmotes>
+	<speed>2400</speed>
+	<blockEmote>7050</blockEmote>
+	<interfaceId>2423</interfaceId>
+  </weaponData> 
+
+  <!-- Whip -->
+  
+  <weaponData>
+    <id>
+      <int>4151</int>
+    </id>
+    <equipEmotes>
+  		<int>1832</int> stand
+  		<int>1660</int> 
+  		<int>1661</int> 
+    </equipEmotes>
+    <attackEmotes>
+      <int>1658</int> 
+      <int>1658</int> 
+      <int>1658</int> 
+      <int>1658</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>2400</speed>
+	<interfaceId>12290</interfaceId>
+  </weaponData>
+
+  <!-- Great axe -->
+  
+  <weaponData>
+    <id>
+      <int>4718</int>
+    </id>
+    <equipEmotes>
+      <int>2065</int>
+      <int>2064</int>
+      <int>2563</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>2066</int> 
+      <int>2067</int> 
+      <int>2066</int> 
+      <int>2066</int> 
+    </attackEmotes>
+	<blockEmote>424</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>1698</interfaceId>
+  </weaponData> 
+
+  <!-- Guthan's warspear -->
+  
+  <weaponData>
+    <id>
+      <int>4726</int>
+    </id>
+    <equipEmotes>
+      <int>1832</int>
+      <int>1146</int>
+      <int>809</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>2080</int> 
+      <int>2080</int> 
+      <int>2081</int> 
+      <int>2080</int> 
+    </attackEmotes>
+	<blockEmote>415</blockEmote>
+	<speed>3000</speed>
+	<interfaceId>4679</interfaceId>
+  </weaponData>    
+  
+  <!-- Torag's hammers -->
+  
+  <weaponData>
+    <id>
+      <int>4747</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>2068</int> 
+      <int>2068</int> 
+      <int>2068</int> 
+      <int>2068</int> 
+    </attackEmotes>
+	<blockEmote>424</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>12290</interfaceId>
+  </weaponData>    
+  
+  <!-- Verac's flail -->
+  
+  <weaponData>
+    <id>
+      <int>4755</int>
+    </id>
+    <equipEmotes>
+      <int>2061</int>
+      <int>2060</int>
+      <int>1831</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>2062</int> 
+      <int>2062</int> 
+      <int>2062</int> 
+      <int>2062</int> 
+    </attackEmotes>
+	<blockEmote>424</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>3796</interfaceId>
+  </weaponData>     
+
+   <!-- DDS -->
+  
+  <weaponData>
+    <id>
+      <int>5698</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>402</int> 
+      <int>401</int> 
+      <int>401</int> 
+      <int>401</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>2400</speed>
+	<interfaceId>2276</interfaceId>
+  </weaponData> 
+  
+  <!-- Dragon claws -->
+  
+  <weaponData>
+    <id>
+      <int>14484</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>393</int> 
+      <int>393</int> 
+      <int>393</int> 
+      <int>393</int> 
+    </attackEmotes>
+	<blockEmote>1666</blockEmote>
+	<speed>2400</speed>
+	<interfaceId>7762</interfaceId>
+  </weaponData>    
+  
+   <!-- Granite maul -->
+  
+  <weaponData>
+    <id>
+      <int>4153</int>
+    </id>
+    <equipEmotes>
+      <int>1662</int>
+      <int>1663</int>
+      <int>1664</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>1665</int> 
+      <int>1665</int> 
+      <int>1665</int> 
+      <int>1665</int> 
+    </attackEmotes>
+	<blockEmote>1666</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>425</interfaceId>
+  </weaponData>   
+ 
+  <!-- Scimmys -->
+  
+  <weaponData>
+    <id>
+      <int>1321</int>
+      <int>1323</int>
+      <int>1325</int>
+      <int>1327</int>
+      <int>1329</int>
+      <int>1331</int>
+      <int>1333</int>
+      <int>4587</int>
+      <int>11037</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>451</int> 
+      <int>451</int> 
+      <int>412</int> 
+      <int>451</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>2400</speed>
+	<interfaceId>2423</interfaceId>
+  </weaponData>
+  
+    <!-- Longswords -->	
+	
+    <weaponData>
+    <id>
+      <int>1291</int>
+      <int>1293</int>
+      <int>1295</int>
+      <int>1297</int>
+      <int>1299</int>
+      <int>1301</int>
+      <int>1303</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>451</int> 
+      <int>451</int> 
+      <int>412</int> 
+      <int>451</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>2400</speed>
+	<interfaceId>2423</interfaceId>
+  </weaponData>
+
+  <!-- Vesta's longswords -->	
+	
+    <weaponData>
+    <id>
+      <int>13899</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>451</int> 
+      <int>451</int> 
+      <int>412</int> 
+      <int>451</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>3000</speed>
+	<interfaceId>2423</interfaceId>
+  </weaponData> 
+
+  <!-- Obby ring -->
+
+  <weaponData>
+    <id>
+	  <int>6522</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>2614</int> 
+      <int>2614</int> 
+      <int>2614</int> 
+      <int>2614</int> 
+    </attackEmotes>
+	<speed>1800</speed>
+	<blockEmote>424</blockEmote>
+	<interfaceId>4446</interfaceId>
+  </weaponData>    
+  
+  <!-- Obby Maul -->
+
+  <weaponData>
+    <id>
+	  <int>6528</int>
+    </id>
+    <equipEmotes>
+      <int>0x811</int>
+      <int>2064</int>
+      <int>1664</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>2661</int> 
+      <int>2661</int> 
+      <int>2661</int> 
+      <int>2661</int> 
+    </attackEmotes>
+	<speed>3600</speed>
+	<blockEmote>1666</blockEmote>
+	<interfaceId>425</interfaceId>
+  </weaponData>     
+  
+  <!-- Crossbows -->
+
+  <weaponData>
+    <id>
+	  <int>9185</int>
+    </id>
+    <equipEmotes>
+      <int>4591</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>4230</int> 
+      <int>4230</int> 
+      <int>4230</int> 
+      <int>4230</int> 
+    </attackEmotes>
+	<speed>3600</speed>
+	<blockEmote>424</blockEmote>
+	<interfaceId>1764</interfaceId>
+  </weaponData>        
+  
+  <!-- Longbows -->
+
+  <weaponData>
+    <id>
+	  <int>839</int>
+	  <int>845</int>
+	  <int>847</int>
+	  <int>851</int>
+	  <int>855</int>
+	  <int>859</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>426</int> 
+      <int>426</int> 
+      <int>426</int> 
+      <int>426</int> 
+    </attackEmotes>
+	<speed>3600</speed>
+	<blockEmote>424</blockEmote>
+	<interfaceId>1764</interfaceId>
+  </weaponData>      
+  
+  <!-- Shortbows -->
+
+  <weaponData>
+    <id>
+	  <int>841</int>
+	  <int>843</int>
+	  <int>849</int>
+	  <int>853</int>
+	  <int>857</int>
+	  <int>861</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>426</int> 
+      <int>426</int> 
+      <int>426</int> 
+      <int>426</int> 
+    </attackEmotes>
+	<speed>1800</speed>
+	<blockEmote>424</blockEmote>
+	<interfaceId>1764</interfaceId>
+  </weaponData>      
+  
+  <!-- Karil's bow -->
+
+  <weaponData>
+    <id>
+	  <int>4734</int>
+    </id>
+    <equipEmotes>
+      <int>2074</int>
+      <int>2076</int>
+      <int>2077</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>2075</int> 
+      <int>2075</int> 
+      <int>2075</int> 
+      <int>2075</int> 
+    </attackEmotes>
+	<speed>1800</speed>
+	<blockEmote>424</blockEmote>
+	<interfaceId>1749</interfaceId>
+  </weaponData>    
+  
+  <!-- Crystal Bow -->
+
+  <weaponData>
+    <id>
+	  <int>4212</int>
+	  <int>4214</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>426</int> 
+      <int>426</int> 
+      <int>426</int> 
+      <int>426</int> 
+    </attackEmotes>
+	<speed>3000</speed>
+	<blockEmote>410</blockEmote>
+	<interfaceId>1749</interfaceId>
+  </weaponData>  
+
+  <!-- Javelins -->
+
+  <weaponData>
+    <id>
+	  <int>825</int>
+	  <int>826</int>
+	  <int>827</int>
+	  <int>828</int>
+	  <int>829</int>
+	  <int>830</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>0x326</int> 
+      <int>0x326</int> 
+      <int>0x326</int> 
+      <int>0x326</int> 
+    </attackEmotes>
+	<speed>3000</speed>
+	<blockEmote>410</blockEmote>
+	<interfaceId>4705</interfaceId>
+  </weaponData>      
+  
+  <!-- Knives and Darts -->	
+	
+  <weaponData>
+    <id>
+      <int>863</int>
+      <int>864</int>
+      <int>865</int>
+      <int>866</int>
+      <int>867</int>
+      <int>868</int>
+      <int>869</int>
+      <int>806</int>
+      <int>807</int>
+      <int>808</int>
+      <int>809</int>
+      <int>810</int>
+      <int>811</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>0x326</int> 
+      <int>0x326</int> 
+      <int>0x326</int> 
+      <int>0x326</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>1200</speed>
+	<interfaceId>4446</interfaceId>
+  </weaponData>  
+  
+ <!-- Dragon long -->	
+	
+ <weaponData>
+    <id>
+      <int>1305</int>
+    </id>
+    <equipEmotes>
+      <int>809</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>451</int> 
+      <int>451</int> 
+      <int>412</int> 
+      <int>451</int> 
+    </attackEmotes>
+	<blockEmote>809</blockEmote>
+	<speed>2400</speed>
+	<interfaceId>2423</interfaceId>
+  </weaponData>  
+  
+  <!-- Maces -->	
+	
+    <weaponData>
+    <id>
+      <int>1434</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>390</int> 
+      <int>390</int> 
+      <int>390</int> 
+      <int>390</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>3000</speed>
+	<interfaceId>3796</interfaceId>
+  </weaponData>   
+  
+  <!-- Statius warhammer -->	
+	
+    <weaponData>
+    <id>
+      <int>13902</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>390</int> 
+      <int>390</int> 
+      <int>390</int> 
+      <int>390</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>3796</interfaceId>
+  </weaponData>     
+  
+  <!-- Axes -->
+  
+  <weaponData>
+    <id>
+      <int>1351</int>
+      <int>1349</int>
+      <int>1353</int>
+      <int>1355</int>
+      <int>1357</int>
+      <int>1359</int>
+      <int>6739</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>395</int> 
+      <int>395</int> 
+      <int>395</int> 
+      <int>395</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>3000</speed>
+	<interfaceId>1698</interfaceId>
+  </weaponData>   
+  
+  <!-- Pickaxes -->
+  
+  <weaponData>
+    <id>
+      <int>1267</int>
+      <int>1265</int>
+      <int>1269</int>
+      <int>1271</int>
+      <int>1273</int>
+      <int>1275</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>401</int> 
+      <int>401</int> 
+      <int>401</int> 
+      <int>401</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>2400</speed>
+	<interfaceId>1698</interfaceId>
+  </weaponData>   
+    
+  
+  <!-- Battleaxes -->
+  
+  <weaponData>
+    <id>
+      <int>1375</int>
+      <int>1363</int>
+      <int>1365</int>
+      <int>1367</int>
+      <int>1369</int>
+      <int>1371</int>
+      <int>1373</int>
+      <int>1377</int>
+    </id>
+    <equipEmotes>
+      <int>0x328</int>
+      <int>0x333</int>
+      <int>0x338</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>395</int> 
+      <int>395</int> 
+      <int>395</int> 
+      <int>395</int> 
+    </attackEmotes>
+	<blockEmote>403</blockEmote>
+	<speed>3000</speed>
+	<interfaceId>1698</interfaceId>
+  </weaponData> 
+  
+  <!-- 2 Handers -->
+  
+  <weaponData>
+    <id>
+      <int>1307</int>
+      <int>1309</int>
+      <int>1311</int>
+      <int>1313</int>
+      <int>1315</int>
+      <int>1317</int>
+      <int>1319</int>
+	  <int>7158</int>
+    </id>
+    <equipEmotes>
+      <int>7047</int>
+      <int>7046</int>
+      <int>7039</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>7041</int> 
+      <int>7041</int> 
+      <int>7048</int> 
+      <int>7049</int> 
+    </attackEmotes>
+	<blockEmote>410</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>4705</interfaceId>
+  </weaponData>
+  
+  <!-- Hallys -->
+  
+  <weaponData>
+    <id>
+      <int>3204</int>
+    </id>
+    <equipEmotes>
+      <int>809</int>
+      <int>1146</int>
+      <int>1210</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>412</int> 
+      <int>440</int> 
+      <int>412</int> 
+      <int>412</int> 
+    </attackEmotes>
+	<blockEmote>410</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>8460</interfaceId>
+  </weaponData>  
+  
+    <!-- Spear -->
+  
+  <weaponData>
+    <id>
+      <int>1249</int>
+    </id>
+    <equipEmotes>
+      <int>809</int>
+      <int>1146</int>
+      <int>1210</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>412</int> 
+      <int>440</int> 
+      <int>412</int> 
+      <int>412</int> 
+    </attackEmotes>
+	<blockEmote>410</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>4679</interfaceId>
+  </weaponData>      
+  
+    <!-- Barrelchest Anchor -->
+  
+  <weaponData>
+    <id>
+      <int>10887</int>
+    </id>
+    <equipEmotes>
+      <int>5869</int>
+      <int>5867</int>
+      <int>5868</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>5865</int> 
+      <int>5865</int> 
+      <int>5865</int> 
+      <int>5865</int> 
+    </attackEmotes>
+	<blockEmote>5866</blockEmote>
+	<speed>3600</speed>
+	<interfaceId>3796</interfaceId>
+  </weaponData>       
+  
+   <!-- Castle wars banner -->
+
+  <weaponData>
+    <id>
+	  <int>4037</int>
+	  <int>4039</int>
+    </id>
+    <equipEmotes>
+      <int>809</int>
+      <int>1146</int>
+      <int>1210</int>
+    </equipEmotes>
+    <attackEmotes>
+      <int>422</int> 
+      <int>422</int> 
+      <int>423</int> 
+      <int>422</int> 
+    </attackEmotes>
+	<speed>3000</speed>
+	<blockEmote>410</blockEmote>
+	<interfaceId>425</interfaceId>
+  </weaponData>  
+  
 </list>

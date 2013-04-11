@@ -11,6 +11,10 @@ public class PlayerSettings {
 	private int volume = 4;
 
 	private int sound = 4;
+	
+	private boolean autoRetaliating;
+	
+	private boolean autoCasting;
 
 	public int getBrightness() {
 		return brightness;
@@ -35,9 +39,37 @@ public class PlayerSettings {
 	public void setSound(int sound) {
 		this.sound = sound;
 	}
+	
+	public boolean isAutoRetaliating() {
+		return autoRetaliating;
+	}
+
+	public void setAutoRetaliating(boolean auto) {
+		this.autoRetaliating = auto;
+	}
+	
+	public boolean isAutoCasting() {
+		return autoCasting;
+	}
+	
+	public void setAutoCasting(boolean auto) {
+		this.autoCasting = auto;
+	}
 
 	public static void handleButtons(Player player, int buttonId) {
 		switch (buttonId) {
+		/*
+		 * Auto retaliate on
+		 */
+		case 150:
+			player.getSettings().setAutoRetaliating(true);
+			break;
+		/*
+		 * Auto retaliate off
+		 */
+		case 151:
+			player.getSettings().setAutoRetaliating(false);
+			break;
 		/*
 		 * Run toggle off
 		 */

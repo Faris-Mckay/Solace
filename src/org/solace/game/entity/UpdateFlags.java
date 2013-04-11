@@ -1,6 +1,7 @@
 package org.solace.game.entity;
 
 import java.util.BitSet;
+
 import org.solace.game.map.Location;
 
 /**
@@ -18,7 +19,7 @@ public class UpdateFlags {
 	 */
 	private BitSet flags = new BitSet();
 	private Location faceLocation;
-	private int hitType, hitType2;
+	private int faceIndex;
 
 	public String getForceChatMessage() {
 		return forceChatMessage;
@@ -41,7 +42,7 @@ public class UpdateFlags {
 		 * Chat update.
 		 */
 		CHAT(0x80),
-		
+
 		/**
 		 * Graphics update.
 		 */
@@ -104,9 +105,19 @@ public class UpdateFlags {
 	private int damage = -1;
 
 	/**
-	 * The hitmask to the attack
+	 * The second hitmask damage
 	 */
-	private int hitMask = -1;
+	private int damage2 = -1;
+
+	/**
+	 * The hit type to the attack
+	 */
+	private int hitType = -1;
+	
+	/**
+	 * The hit type for hitmask 2
+	 */
+	private int hitType2 = -1;
 
 	/**
 	 * Checks if an update required.
@@ -156,6 +167,13 @@ public class UpdateFlags {
 	}
 
 	/**
+	 * Gets the second hitmask damage
+	 */
+	public int getDamage2() {
+		return damage2;
+	}
+
+	/**
 	 * Sets the damage to the opposing entity
 	 * 
 	 * @param damage
@@ -165,16 +183,21 @@ public class UpdateFlags {
 	}
 
 	/**
-	 * Sets the hitmask to send
+	 * Sets the damage to the opposing entity
+	 * 
+	 * @param damage
+	 */
+	public void setDamage2(int damage) {
+		this.damage2 = damage;
+	}
+
+	/**
+	 * Sets the hit type to send
 	 * 
 	 * @param mask
 	 */
-	public void setHitMask(int mask) {
-		this.hitMask = mask;
-	}
-
-	public void setHitType(int hitType) {
-		this.hitType = hitType;
+	public void setHitType(int mask) {
+		this.hitType = mask;
 	}
 
 	public int getHitType() {
@@ -187,15 +210,6 @@ public class UpdateFlags {
 
 	public int getHitType2() {
 		return hitType2;
-	}
-
-	/**
-	 * Gets the hitmask
-	 * 
-	 * @return
-	 */
-	public int getHitmask() {
-		return hitMask;
 	}
 
 	/**
@@ -213,8 +227,13 @@ public class UpdateFlags {
 	 * 
 	 * @param entityFaceIndex
 	 */
-	public void faceEntity() {
+	public void faceEntity(int index) {
+		faceIndex = index;
 		flag(UpdateFlag.FACE_ENTITY);
+	}
+
+	public int getFaceIndex() {
+		return faceIndex;
 	}
 
 	/**

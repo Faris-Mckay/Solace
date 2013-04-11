@@ -1,7 +1,8 @@
 package org.solace.network.packet.impl;
 
-import org.solace.game.entity.GroundItem;
-import org.solace.game.entity.GroundItemHandler;
+import org.solace.game.content.combat.Combat;
+import org.solace.game.entity.grounded.GroundItem;
+import org.solace.game.entity.grounded.GroundItemHandler;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.item.Item;
 import org.solace.network.packet.Packet;
@@ -22,6 +23,7 @@ public class DropItemPacket implements PacketHandler {
 		Item item = player.getInventory().items()[itemSlot];
 		
 		if (item.getIndex() > -1) {
+			Combat.resetCombat(player);
 			/*
 			 * Define ground item.
 			 */

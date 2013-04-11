@@ -24,11 +24,12 @@ public class NPCAdvocate {
 		npc.setIndex(npcIndex);
 	}
 
-	public void removeNpc(NPC givenNpc) {
+	public static void removeNpc(NPC givenNpc) {
 		for (NPC npc : Game.npcRepository.values()) {
 			if (npc == givenNpc) {
 				npc.setIndex(npc.getIndex());
 				Game.npcRepository.remove(givenNpc);
+				npc = null;
 			}
 		}
 	}

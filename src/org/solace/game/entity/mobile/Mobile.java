@@ -1,15 +1,16 @@
 package org.solace.game.entity.mobile;
 
-import org.solace.game.content.combat.Calculations;
-import org.solace.game.content.combat.DelayedAttack;
+import java.util.HashMap;
+
+import org.solace.game.content.combat.impl.Hit;
+import org.solace.game.content.combat.melee.MeleeCalculations;
 import org.solace.game.entity.Entity;
 import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.item.Item;
 import org.solace.game.item.WeaponDefinitions;
+import org.solace.game.item.WeaponDefinitions.WeaponLoader;
 import org.solace.game.map.Location;
-import org.solace.game.map.Region;
-import org.solace.util.ProtocolUtils;
 
 /**
  * 
@@ -225,6 +226,28 @@ public abstract class Mobile extends Entity {
 	public void setHitDelay(int delay) {
 		this.hitDelay = delay;
 	}
+	
+	private final HashMap<String, Object> attribute = new HashMap<String, Object>();
+
+	/**
+	 * Gets the associated attribute
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Object getAttribute(String name) {
+		return attribute.get(name);
+	}
+
+	/**
+	 * Adds an attribute
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	public void addAttribute(String name, Object value) {
+		attribute.put(name, value);
+	}
 
 	public enum WelfareStatus {
 		/**
@@ -254,6 +277,13 @@ public abstract class Mobile extends Entity {
 		 */
 		MOBILE,
 	}
+	
+	public enum AttackStyle {
+		ACCURATE,
+		AGGRESSIVE,
+		CONTROLLED,
+		DEFENSIVE,
+	}
 
 	/**
 	 * The different combat styles
@@ -264,7 +294,45 @@ public abstract class Mobile extends Entity {
 	public enum AttackTypes {
 		MELEE, MAGIC, RANGED
 	}
-
+	
+	/**
+	 * Determines the mobile entities current attack style
+	 */
+	public AttackStyle attackStyle = AttackStyle.ACCURATE;
+	
+	/**
+	 * Returns the mobile entities current attack style
+	 * @return
+	 */
+	public AttackStyle getAttackStyle() {
+		return attackStyle;
+	}
+	
+	/**
+	 * Sets the attack style
+	 * @param style
+	 */
+	public void setAttackStyle(AttackStyle style) {
+		this.attackStyle = style;
+	}
+	
+	/**
+	 * Gets the attack style as a variable
+	 * @return
+	 */
+	public byte getAttackStyleValue() {
+		switch (getAttackStyle()) {
+		case ACCURATE:
+			return 0;
+		case AGGRESSIVE:
+			return 1;
+		case CONTROLLED:
+			return 2;
+		case DEFENSIVE:
+			return 3;
+		}
+		return 0;
+	}
 	/**
 	 * Defines the entities current attack type
 	 */
@@ -288,37 +356,51 @@ public abstract class Mobile extends Entity {
 		this.attackTypes = attack;
 	}
 
+	/**
+	 * Returns whether the entity is in combat
+	 * @return
+	 */
 	public boolean isInCombat() {
 		return inCombat;
 	}
 
+	/**
+	 * Sets the entity in or out of combat
+	 * @param combat
+	 */
 	public void setInCombat(boolean combat) {
 		this.inCombat = combat;
 	}
 
+	/**
+	 * Grabs the attack speed of the entity
+	 * @return
+	 */
 	public int grabAttackSpeed() {
 		if (this instanceof Player) {
 			Player player = (Player) this;
 			Item item = player.getEquipment().get(3);
-			for (WeaponDefinitions weapon : WeaponDefinitions.getDefinitions()) {
-				if (weapon.getItemId() == item.getIndex()) {
-					return weapon.getHitDelay();
+			if (item != null) {
+				WeaponDefinitions weapon = WeaponLoader.getWeapon(item.getIndex());
+				if (weapon != null) {
+					return weapon.getAttackSpeed() / 600;
 				}
 			}
 		} else if (this instanceof NPC) {
-			@SuppressWarnings("unused")
-			NPC npc = (NPC) this;
 			return 4;
 		}
 		return 4;
 	}
 
+	/**
+	 * Grabs the entitys attack bonus
+	 * @return
+	 */
 	public int grabAttackBonus() {
 		int bonus = 0;
 		if (this instanceof Player) {
 			Player player = (Player) this;
-			bonus = ProtocolUtils.random(Calculations
-					.calculateMeleeAttack(player));
+			bonus = MeleeCalculations.calculateMeleeAttack(player);
 		} else if (this instanceof NPC) {
 			NPC npc = (NPC) this;
 			bonus = npc.getDefinition().getAttackBonus();
@@ -326,12 +408,15 @@ public abstract class Mobile extends Entity {
 		return bonus;
 	}
 
+	/**
+	 * Gets the entities defence bonus
+	 * @return
+	 */
 	public int grabDefenceBonus() {
 		int bonus = 0;
 		if (this instanceof Player) {
 			Player player = (Player) this;
-			bonus = ProtocolUtils.random(Calculations
-					.calculateMeleeDefence(player));
+			bonus = MeleeCalculations.calculateMeleeDefence(player);
 		} else if (this instanceof NPC) {
 			NPC npc = (NPC) this;
 			bonus = npc.getDefinition().getDefenceMelee();
@@ -339,13 +424,24 @@ public abstract class Mobile extends Entity {
 		return bonus;
 	}
 
+	/**
+	 * Gets the entities attack animation
+	 * @return
+	 */
 	public int grabAttackAnimation() {
 		if (this instanceof Player) {
 			Player player = (Player) this;
 			Item item = player.getEquipment().get(3);
-			for (WeaponDefinitions weapon : WeaponDefinitions.getDefinitions()) {
-				if (weapon.getItemId() == item.getIndex()) {
-					return weapon.getAttackAnimation()[0];
+			if (item != null) {
+				WeaponDefinitions weapon = WeaponLoader.getWeapon(item.getIndex());
+				if (weapon != null) {
+					return weapon.getAttackEmote(getAttackStyleValue()); // 0 = fightype
+				} else {
+					if (getAttackStyleValue() != 1) {
+						return 422;
+					} else {
+						return 423;
+					}
 				}
 			}
 		} else if (this instanceof NPC) {
@@ -355,31 +451,46 @@ public abstract class Mobile extends Entity {
 		return 422;
 	}
 
+	/**
+	 * Gets the entities block animation
+	 * @return
+	 */
 	public int getBlockAnimation() {
-		int anim = 425;
 		if (this instanceof Player) {
 			Player player = (Player) this;
 			Item item = player.getEquipment().get(3);
 			if (item != null) {
-				for (WeaponDefinitions weapon : WeaponDefinitions
-						.getDefinitions()) {
-					if (weapon.getItemId() == item.getIndex()) {
-						return weapon.getBlockAnimation();
-					}
-				}
+				WeaponDefinitions weapon = WeaponLoader.getWeapon(item.getIndex());
+				if (weapon != null) {
+					return weapon.getBlockEmote();
+				} 
 			}
 		} else if (this instanceof NPC) {
 			NPC n = (NPC) this;
-			anim = n.getDefinition().getDefenceAnimation();
+			return n.getDefinition().getDefenceAnimation();
 		}
-		return anim;
+		return 424;
 	}
-
+	
+	public int getWildernessLevel() {
+		if (!inWild()) {
+			return 0;
+		} else {
+			int modY = getLocation().getY() > 6400 ?  getLocation().getY() - 6400 :  getLocation().getY();
+			return (modY - 3520) / 8 + 1;
+		}
+	}
+	
+	public boolean inWild() {
+		return ( getLocation().inArea( getLocation(), new Location(2942, 3520), new Location(3391, 3965)))
+				|| ( getLocation().inArea( getLocation(), new Location(2942, 9919), new Location(3391, 10365)));
+	}
+	
 	/**
 	 * A method to hit the extended entity
 	 * 
 	 * @param attack
 	 */
-	public abstract void hit(DelayedAttack attack);
+	public abstract void hit(Hit attack);
 
 }

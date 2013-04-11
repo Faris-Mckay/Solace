@@ -2,72 +2,86 @@ package org.solace.game.item;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.solace.Server;
+import java.util.Map;
+
 import org.solace.util.XStreamUtil;
 
 /**
  * 
- * @author Arithrium
+ * @author Anthony (Ultimate)
+ * 
  */
 public class WeaponDefinitions {
 
-	private int itemId;
+	private int[] id;
 
-	private int runIndex;
+	private int[] equipEmotes = new int[3];
+	private int[] attackEmotes = new int[4];
+	private int blockEmote;
 
-	private int walkIndex;
+	private int speed;
+	private int interfaceId;
 
-	private int standIndex;
-
-	private int[] attackAnimation;
-
-	private int blockAnimation;
-	
-	private int hitDelay;
-
-	public int getItemId() {
-		return itemId;
+	public int[] getId() {
+		return id;
 	}
 
-	public int getRunIndex() {
-		return runIndex;
+	public int getStandEmote() {
+		return equipEmotes[0];
 	}
 
-	public int getWalkIndex() {
-		return walkIndex;
+	public int getWalkEmote() {
+		return equipEmotes[1];
 	}
 
-	public int getStandIndex() {
-		return standIndex;
+	public int getRunEmote() {
+		return equipEmotes[2];
 	}
 
-	public int[] getAttackAnimation() {
-		return attackAnimation;
+	public int getAttackEmote(int fightStyle) {
+		return attackEmotes[fightStyle];
 	}
 
-	public int getBlockAnimation() {
-		return blockAnimation;
-	}
-	
-	public int getHitDelay() {
-		return hitDelay;
+	public int getBlockEmote() {
+		return blockEmote;
 	}
 
-	private static WeaponDefinitions[] def = null;
-	
-	public static WeaponDefinitions[] getDefinitions() {
-		return def;
+	public int getAttackSpeed() {
+		return speed;
 	}
 
-	public static void load() throws FileNotFoundException {
-		Server.logger.info("Loading weapon definitions...");
-		@SuppressWarnings("unchecked")
-		List<WeaponDefinitions> XMLlist = (List<WeaponDefinitions>) XStreamUtil.getXStream().fromXML(new FileInputStream("./data/xml/items/weapon_defs.xml"));
-		def = new WeaponDefinitions[XMLlist.size()];
-		for (int i = 0; i < def.length; i++) {
-			def[i] = XMLlist.get(i);
+	public int getInterfaceId() {
+		return interfaceId;
+	}
+
+	public static class WeaponLoader {
+
+		private static Map<Integer, WeaponDefinitions> weapons;
+
+		public static WeaponDefinitions getWeapon(int id) {
+			return weapons.get(id);
 		}
+		
+		public static Map<Integer, WeaponDefinitions> getWeapons() {
+			return weapons;
+		}
+
+		public static void loadWeapons() throws FileNotFoundException {
+			weapons = new HashMap<Integer, WeaponDefinitions>();
+			@SuppressWarnings("unchecked")
+			List<WeaponDefinitions> loaded = (ArrayList<WeaponDefinitions>) XStreamUtil
+					.getXStream().fromXML(
+							new FileInputStream("./data/xml/items/weapon_defs.xml"));
+			for (WeaponDefinitions weapon : loaded) {
+				for (int id : weapon.getId()) {
+					weapons.put(id, weapon);
+				}
+			}
+		}
+
 	}
 
 }

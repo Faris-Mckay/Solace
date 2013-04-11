@@ -1,8 +1,5 @@
 package org.solace.game.map;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.solace.game.entity.mobile.player.Player;
 
 /**
  *

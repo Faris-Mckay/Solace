@@ -1,5 +1,6 @@
 package org.solace.game.entity;
 
+import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.map.Location;
 
 /**
@@ -27,6 +28,8 @@ public abstract class Entity {
 	 * Creates an instance of the animation class
 	 */
 	private Animation animation;
+	
+	private long combatDelay;
 
 	/**
 	 * Constructs a new entity
@@ -72,6 +75,7 @@ public abstract class Entity {
 	 */
 	public void setGraphic(Graphic graphic) {
 		this.graphic = graphic;
+		getUpdateFlags().flag(UpdateFlag.GRAPHICS);
 	}
 
 	/**
@@ -90,11 +94,20 @@ public abstract class Entity {
 	 */
 	public void setAnimation(Animation animation) {
 		this.animation = animation;
+		getUpdateFlags().flag(UpdateFlag.ANIMATION);
 	}
-        
-        /**
-         * The update action, must be performed by all entity types
-         */
-        public abstract void update();
+	
+	public long getCombatDelay() {
+		return combatDelay;
+	}
+	
+	public void setCombatDelay(long delay) {
+		this.combatDelay = delay;
+	}
+
+	/**
+	 * The update action, must be performed by all entity types
+	 */
+	public abstract void update();
 
 }

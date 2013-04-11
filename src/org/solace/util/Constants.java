@@ -21,5 +21,7 @@ public class Constants {
     public static final int ITEM_UPPER_LIMIT = 25000;
     
     public static final String PLAYER_SAVE_DIRECTORY = "./data/saves/";
+    
+    public static final int SERVER_CYCLE_RATE = 600;
 
 }

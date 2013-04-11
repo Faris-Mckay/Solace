@@ -1,0 +1,62 @@
+<map>
+	<entry>
+		<int>1265</int>
+		<pickaxe>
+			<itemId>1265</itemId>
+			<levelRequired>1</levelRequired>
+			<miningBonus>1</miningBonus>
+			<miningAnimation>625</miningAnimation>
+		</pickaxe>
+	</entry>
+	
+	<entry>
+		<int>1267</int>
+		<pickaxe>
+			<itemId>1267</itemId>
+			<levelRequired>1</levelRequired>
+			<miningBonus>2</miningBonus>
+			<miningAnimation>626</miningAnimation>
+		</pickaxe>
+	</entry>
+	
+	<entry>
+		<int>1269</int>
+		<pickaxe>
+			<itemId>1269</itemId>
+			<levelRequired>6</levelRequired>
+			<miningBonus>3</miningBonus>
+			<miningAnimation>627</miningAnimation>
+		</pickaxe>
+	</entry>
+	
+	<entry>
+		<int>1273</int>
+		<pickaxe>
+			<itemId>1273</itemId>
+			<levelRequired>21</levelRequired>
+			<miningBonus>4</miningBonus>
+			<miningAnimation>629</miningAnimation>
+		</pickaxe>
+	</entry>
+	
+	<entry>
+		<int>1271</int>
+		<pickaxe>
+			<itemId>1271</itemId>
+			<levelRequired>31</levelRequired>
+			<miningBonus>5</miningBonus>
+			<miningAnimation>628</miningAnimation>
+		</pickaxe>
+	</entry>
+	
+	<entry>
+		<int>1275</int>
+		<pickaxe>
+			<itemId>1275</itemId>
+			<levelRequired>41</levelRequired>
+			<miningBonus>6</miningBonus>
+			<miningAnimation>624</miningAnimation>
+		</pickaxe>
+	</entry>
+
+</map>

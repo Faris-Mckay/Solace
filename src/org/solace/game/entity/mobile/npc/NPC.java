@@ -1,11 +1,11 @@
 package org.solace.game.entity.mobile.npc;
 
+import org.solace.Server;
+import org.solace.event.impl.NpcDeathService;
 import org.solace.game.content.combat.Combat;
-import org.solace.game.content.combat.DelayedAttack;
+import org.solace.game.content.combat.impl.Hit;
 import org.solace.game.entity.mobile.Mobile;
 import org.solace.game.map.Location;
-import org.solace.task.TaskExecuter;
-import org.solace.event.impl.NpcDeathEvent;
 
 /**
  * Represents a single NPC mobile
@@ -24,6 +24,7 @@ public class NPC extends Mobile {
 		this.npcId = npcId;
 		setHitpoints(definition.getHitpoints());
 		isVisible = true;
+		handleNpcAttributes();
 	}
 
 	private NPCDefinition definition;
@@ -43,6 +44,8 @@ public class NPC extends Mobile {
 	 */
 	private int hitpoints;
 
+	private boolean spawnedNpc;
+
 	@Override
 	public void update() {
 		getMobilityManager().processMovement();
@@ -50,7 +53,11 @@ public class NPC extends Mobile {
 			Combat.handleCombatTick(this);
 		}
 	}
-
+	
+	private void handleNpcAttributes() {
+		addAttribute("FROZEN", Boolean.FALSE);
+		addAttribute("IMMUNE", Boolean.FALSE);
+	}
 
 	/**
 	 * Returns whether the npc is visible or not
@@ -91,17 +98,33 @@ public class NPC extends Mobile {
 		return definition;
 	}
 
+	public boolean isNpcSpawned() {
+		return spawnedNpc;
+	}
+
+	public void setNpcSpawned(boolean spawned) {
+		this.spawnedNpc = spawned;
+	}
+
 	@Override
-	public void hit(DelayedAttack hit) {
-		int damage = hit.getDamage();
-		if ((getHitpoints() - damage) <= 0) {
-			damage = getHitpoints();
-		}
-		setHitpoints(getHitpoints() - damage);
-		getUpdateFlags().setDamage(damage);
-		getUpdateFlags().setHitMask(hit.getHitmask());
-		if (getHitpoints() <= 0) {
-			TaskExecuter.get().schedule(new NpcDeathEvent(this));
+	public void hit(Hit hit) {
+		if (getStatus() != WelfareStatus.DEAD) {
+			int damage = hit.getDamage();
+			if ((getHitpoints() - damage) <= 0) {
+				damage = getHitpoints();
+			}
+			setHitpoints(getHitpoints() - damage);
+			if (hit.getHitmask() == 1) {
+				getUpdateFlags().setDamage(damage);
+				getUpdateFlags().setHitType(hit.getHitType());
+			} else if (hit.getHitmask() == 2) {
+				getUpdateFlags().setDamage2(damage);
+				getUpdateFlags().setHitType2(hit.getHitType());
+			}
+			if (getHitpoints() <= 0) {
+				setStatus(WelfareStatus.DEAD);
+				Server.getService().schedule(new NpcDeathService(this));
+			}
 		}
 	}
 

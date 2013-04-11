@@ -1,8 +1,11 @@
 package org.solace.network.packet;
 
+import org.solace.Server;
+import org.solace.event.Event;
 import org.solace.game.content.skills.SkillHandler;
-import org.solace.game.entity.GroundItem;
+import org.solace.game.entity.grounded.GroundItem;
 import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.entity.object.GameObject;
 import org.solace.game.item.Item;
 import org.solace.game.item.container.Container;
 import org.solace.game.map.Location;
@@ -44,10 +47,8 @@ public class PacketDispatcher {
 	public PacketDispatcher sendCoordinates2(Location position) {
 		PacketBuilder out = PacketBuilder.allocate(3);
 		out.createFrame(85, player.channelContext().encryption());
-		int y = position.getY() - player.getLocation().getRegion().regionY()
-				* 8 - 2;
-		int x = position.getX() - player.getLocation().getRegion().regionX()
-				* 8 - 3;
+		int y = position.getY() - player.getCachedRegion().regionY() * 8 - 2;
+		int x = position.getX() - player.getCachedRegion().regionX() * 8 - 3;
 		out.putByteC(y);
 		out.putByteC(x);
 		out.sendTo(player.channelContext().channel());
@@ -80,6 +81,21 @@ public class PacketDispatcher {
 		out.createFrame(200, player.channelContext().encryption());
 		out.putShort(animId);
 		out.putShort(interfaceId);
+		out.sendTo(player.channelContext().channel());
+		return this;
+	}
+
+	/**
+	 * Displays a walkable interface for the player
+	 * 
+	 * @param id
+	 *            The id of the interface to send
+	 * @return
+	 */
+	public PacketDispatcher sendWalkableInterface(int id) {
+		PacketBuilder out = PacketBuilder.allocate(5);
+		out.createFrame(208, player.channelContext().encryption());
+		out.putLEShort(id);
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
@@ -187,6 +203,14 @@ public class PacketDispatcher {
 			player.getSkills().refreshSkill(i);
 		}
 		player.getPrivateMessaging().updateFriendsListStatus();
+		Server.getService().schedule(new Event(3) {
+			@Override
+			public void execute() {
+				player.getPrivateMessaging().refresh(false);
+				this.stop();
+			}
+		});
+		player.getPrivateMessaging().refresh(false);
 		setSidebarInterfaces();
 		sendPlayerMenuOption(3, "Attack");
 		sendPlayerMenuOption(4, "Trade With");
@@ -197,8 +221,7 @@ public class PacketDispatcher {
 	}
 
 	public PacketDispatcher sendLoginConfig() {
-		// sendConfig(152, player.isAutoRetaliating() ? 1 : 0);
-		// sendConfig(173, player.isAutoRetaliating() ? 1 : 0);
+		sendConfig(152, player.getSettings().isAutoRetaliating() ? 1 : 0);
 		sendConfig(173, player.getMobilityManager().running() ? 1 : 0);
 		return this;
 	}
@@ -216,8 +239,8 @@ public class PacketDispatcher {
 	public PacketDispatcher sendMapRegion() {
 		PacketBuilder out = PacketBuilder.allocate(5);
 		out.createFrame(73, player.channelContext().encryption());
-		out.putShortA(player.getLocation().getRegion().regionX() + 6);
-		out.putShort(player.getLocation().getRegion().regionY() + 6);
+		out.putShortA(player.getLocation().regionX() + 6);
+		out.putShort(player.getLocation().regionY() + 6);
 		out.sendTo(player.channelContext().channel());
 		player.cacheRegion(player.getLocation().copy());
 		return this;
@@ -268,7 +291,7 @@ public class PacketDispatcher {
 	public PacketDispatcher sendCloseInterface() {
 		PacketBuilder out = PacketBuilder.allocate(1);
 		out.createFrame(219, player.channelContext().encryption());
-		// player.getDialogue().setNewDialogue(-1);
+		player.getDialogue().setDialogueId(-1);
 		out.sendTo(player.channelContext().channel());
 		return this;
 	}
@@ -407,30 +430,36 @@ public class PacketDispatcher {
 		return this;
 	}
 
-	/*
-	 * public PacketDispatcher sendObject(Object object, final boolean
-	 * expiredObject) { sendEntityLocation(object.objectLocation); PacketBuilder
-	 * out = PacketBuilder.allocate(6); out.createFrame(151,
-	 * player.channelContext().encryption()); out.putByteS(0);
-	 * out.putLEShort(expiredObject ? object.replacementId : object.objectId);
-	 * out.putByteS((10 << 2) + (0 & 3));
-	 * out.sendTo(player.channelContext().channel()); return this; }
-	 * 
-	 * public PacketDispatcher sendRemoveObject(Object object) {
-	 * sendEntityLocation(object.objectLocation); PacketBuilder out =
-	 * PacketBuilder.allocate(4); out.createFrame(101,
-	 * player.channelContext().encryption()); out.putByteC((10 << 2) + (0 & 3));
-	 * out.putByte(0); out.sendTo(player.channelContext().channel()); return
-	 * this; }
-	 */
+	public PacketDispatcher sendObject(GameObject object,
+			final boolean expiredObject) {
+		sendEntityLocation(object.getLocation());
+		PacketBuilder out = PacketBuilder.allocate(6);
+		out.createFrame(151, player.channelContext().encryption());
+		out.putByteS(0);
+		out.putLEShort(expiredObject ? object.getReplacementId() : object
+				.getObjectId());
+		out.putByteS((10 << 2) + (0 & 3));
+		out.sendTo(player.channelContext().channel());
+		return this;
+	}
+
+	public PacketDispatcher sendRemoveObject(GameObject object) {
+		sendEntityLocation(object.getLocation());
+		PacketBuilder out = PacketBuilder.allocate(4);
+			out.createFrame(101, player.channelContext().encryption());
+			out.putByteC((10 << 2) + (0 & 3));
+			out.putByte(0);
+			out.sendTo(player.channelContext().channel());
+		return this;
+	}
 
 	public PacketDispatcher sendSkill(final int skill) {
-		PacketBuilder out = PacketBuilder.allocate(16);
-		out.createFrame(134, player.channelContext().encryption());
-		out.putByte(skill);
-		out.putInt1((int) player.getSkills().getPlayerExp()[skill]);
-		out.putByte(player.getSkills().getPlayerLevel()[skill]);
-		out.sendTo(player.channelContext().channel());
+		PacketBuilder out = PacketBuilder.allocate(60);
+			out.createFrame(134, player.channelContext().encryption());
+			out.putByte(skill);
+			out.putInt1((int) player.getSkills().getPlayerExp()[skill]);
+			out.putByte(player.getSkills().getPlayerLevel()[skill]);
+			out.sendTo(player.channelContext().channel());
 		return this;
 	}
 

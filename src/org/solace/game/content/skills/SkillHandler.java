@@ -1,7 +1,6 @@
 package org.solace.game.content.skills;
 
 import org.solace.game.entity.Graphic;
-import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.entity.mobile.player.Player;
 
 public class SkillHandler {
@@ -18,13 +17,19 @@ public class SkillHandler {
 	 */
 	public SkillHandler(Player player) {
 		this.player = player;
+		for (int i = 0; i < getPlayerLevel().length; i++) {
+			getPlayerLevel()[i] = 1;
+			getPlayerExp()[i] = 0;
+		}
+		getPlayerLevel()[3] = 10;
+		getPlayerExp()[3] = 1155;
 	}
 
 	/**
 	 * The maximum amount of skills
 	 */
-	public static final int MAXIMUM_SKILLS = 21;
-	
+	public static final int MAXIMUM_SKILLS = 22;
+
 	private static final int MAXIMUM_EXPERIENCE = 200000000;
 
 	/**
@@ -36,6 +41,8 @@ public class SkillHandler {
 	 * Holds the players experience
 	 */
 	private int[] playerExp = new int[MAXIMUM_SKILLS];
+
+	private int skillRenewalTimer = 100;
 
 	/**
 	 * The current skill constants
@@ -74,7 +81,7 @@ public class SkillHandler {
 			{ 4268, 4269, 4267 }, // RUNECRAFTING
 	};
 
-	private static final String[] SKILL_NAMES = { "Attack", "Defence",
+	public static final String[] SKILL_NAMES = { "Attack", "Defence",
 			"Strength", "Hitpoints", "Ranged", "Prayer", "Magic", "Cooking",
 			"Woodcutting", "Fletching", "Fishing", "Firemaking", "Crafting",
 			"Smithing", "Mining", "Herblore", "Agility", "Thieving", "Slayer",
@@ -85,7 +92,32 @@ public class SkillHandler {
 	 * Not needed on older clients
 	 */
 	@SuppressWarnings("unused")
-	private static final int[][] REFRESH_DATA = { {} };
+	private static final int[][] REFRESH_DATA = {
+		{ ATTACK, 4004, 4005, 4044, 4045, 18792, 18790 },
+		{ DEFENCE, 4008, 4009, 4056, 4057, 18817, 18815 },
+		{ STRENGTH, 4006, 4007, 4050, 4051, 18798, 18796 },
+		{ HITPOINTS, 4016, 4017, 18853, 18854, 18859, 18857 },
+		{ RANGED, 4010, 4011, 4062, 4063, 18822, 18820 },
+		{ PRAYER, 4012, 4013, 4068, 4069, 18827, 18825 },
+		{ MAGIC, 4014, 4015, 18832, 18833, 18838, 18836 },
+		{ COOKING, 4034, 4035, 19042, 19043, 19048, 19046 },
+		{ WOODCUTTING, 4038, 4039, 19084, 19085, 19090, 19088 },
+		{ FLETCHING, 4026, 4027, 18958, 18959, 18964, 18962 },
+		{ FISHING, 4032, 4033, 19021, 19022, 19027, 19025 },
+		{ FIREMAKING, 4036, 4037, 19063, 19064, 19069, 19067 },
+		{ CRAFTING, 4024, 4025, 18937, 18938, 18943, 18941 },
+		{ SMITHING, 4030, 4031, 19422, 19423, 19428, 19426 },
+		{ MINING, 4028, 4029, 18979, 18980, 18985, 18983 },
+		{ HERBLORE, 4020, 4021, 18895, 18896, 18901, 18899 },
+		{ AGILITY, 4018, 4019, 18874, 18875, 18880, 18878 },
+		{ THIEVING, 4022, 4023, 18916, 18917, 18922, 18920 },
+		{ SLAYER, 18809, 18810, 19126, 19127, 19132, 19130 },
+		{ FARMING, 18811, 18812, 19275, 19276, 19281, 19279 },
+		{ RUNECRAFTING, 18807, 18808, 19105, 19106, 19111, 19109 },
+		{ SUMMONING, 19178, 19179, 19232, 19233, 19238, 19236 },
+		{ HUNTER, 19176, 19177, 19211, 19212, 19217, 19215 },
+		{ CONSTRUCTION, 19174, 19175, 19190, 19191, 19196, 19194 },
+		{ DUNGEONEERING, 19180, 19181, 19253, 19254, 19259, 19257 }, };
 
 	public void handleLevelUpData(int skillId) {
 		/**
@@ -112,8 +144,12 @@ public class SkillHandler {
 	 * 
 	 * @param skillId
 	 */
-	public void refreshSkill(int skillId) {
-		player.getPacketDispatcher().sendSkill(skillId);
+	public void refreshSkill(int i) {
+		try {
+			player.getPacketDispatcher().sendSkill(i);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -121,15 +157,15 @@ public class SkillHandler {
 	 * 
 	 * @param skill
 	 *            The skill to add experience too
-	 * @param amount
+	 * @param experience
 	 *            The amount of experience to add
 	 */
-	public void addSkillExp(int skill, int amount) {
+	public void addSkillExp(int skill, double experience) {
 		int oldLevel = getLevelForXP(getPlayerExp()[skill]);
-		if ((getPlayerExp()[skill] + amount) >= MAXIMUM_EXPERIENCE) {
+		if ((getPlayerExp()[skill] + experience) >= MAXIMUM_EXPERIENCE) {
 			getPlayerExp()[skill] = MAXIMUM_EXPERIENCE;
 		} else {
-			getPlayerExp()[skill] += amount;
+			getPlayerExp()[skill] += experience;
 		}
 		int newLevel = getLevelForXP(getPlayerExp()[skill]);
 		int levelDifference = newLevel - oldLevel;
@@ -137,7 +173,6 @@ public class SkillHandler {
 			playerLevel[skill] += levelDifference;
 			handleLevelUpData(skill);
 			player.setGraphic(Graphic.highGraphic(199, 0));
-			player.getUpdateFlags().flag(UpdateFlag.GRAPHICS);
 		}
 		refreshSkill(skill);
 	}
@@ -201,10 +236,50 @@ public class SkillHandler {
 					* Math.pow(2.0, (double) lvl / 7.0));
 			output = (int) Math.floor(points / 4);
 			if (output >= skillExp) {
-				return lvl + 1;
+				return lvl;
 			}
 		}
 		return 0;
+	}
+
+	public void handleSkillRestoring() {
+		if (skillRenewalTimer > 0) {
+			skillRenewalTimer--;
+		} 
+		if (skillRenewalTimer == 50) {
+			if (player.getSpecialAmount() < 100) {
+				if ((player.getSpecialAmount() + 10) > 100) {
+					player.setSpecialAmount(100);
+				} else {
+					player.setSpecialAmount(player.getSpecialAmount() + 10);
+				}
+				player.getEquipment().sendWeapon(player);
+				player.getEquipment().updateSpecialBar(player);
+			}
+		} else if (skillRenewalTimer <= 0) {
+			for (int i = 0; i < MAXIMUM_SKILLS; i++) {
+				if (getPlayerLevel()[i] != getLevelForXP(getPlayerExp()[i])) {
+					if (getPlayerLevel()[i] != 5) {
+						if (getPlayerLevel()[i] > getLevelForXP(getPlayerExp()[i])) {
+							getPlayerLevel()[i] -= 1;
+						} else {
+							getPlayerLevel()[i] += 1;
+						}
+						refreshSkill(i);
+					}
+				}
+			}
+			if (player.getSpecialAmount() < 100) {
+				if ((player.getSpecialAmount() + 10) > 100) {
+					player.setSpecialAmount(100);
+				} else {
+					player.setSpecialAmount(player.getSpecialAmount() + 10);
+				}
+				player.getEquipment().sendWeapon(player);
+				player.getEquipment().updateSpecialBar(player);
+			}
+			skillRenewalTimer = 100;
+		}
 	}
 
 	/**

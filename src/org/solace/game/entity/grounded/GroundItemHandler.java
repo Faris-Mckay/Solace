@@ -1,6 +1,6 @@
-package org.solace.game.entity;
+package org.solace.game.entity.grounded;
 
-import org.solace.game.entity.GroundItem;
+import org.solace.game.entity.grounded.GroundItem;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.solace.game.Game;

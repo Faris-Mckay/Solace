@@ -1,5 +1,11 @@
 package org.solace.game.content.skills.thieving;
 
+/**
+ * Represents the thieving definitions
+ * 
+ * @author D
+ * 
+ */
 public class ThievingData {
 	
 	/**

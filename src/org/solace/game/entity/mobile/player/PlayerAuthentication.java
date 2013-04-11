@@ -31,22 +31,22 @@ public class PlayerAuthentication {
 	public void setPlayerRights(PrivilegeRank rank) {
 		this.playerRights = rank;
 	}
-        
-        public void setPlayerRights(int rank) {
-		switch(rank){
-                    case 0:
-                        this.playerRights = PrivilegeRank.STANDARD;
-                        break;
-                    case 1:
-                        this.playerRights = PrivilegeRank.MODERATOR;
-                        break;
-                    case 2:
-                        this.playerRights = PrivilegeRank.ADMINISTRATOR;
-                        break;
-                    case 3:
-                        this.playerRights = PrivilegeRank.OWNER;
-                        break;
-                }
+
+	public void setPlayerRights(int rank) {
+		switch (rank) {
+		case 0:
+			this.playerRights = PrivilegeRank.STANDARD;
+			break;
+		case 1:
+			this.playerRights = PrivilegeRank.MODERATOR;
+			break;
+		case 2:
+			this.playerRights = PrivilegeRank.ADMINISTRATOR;
+			break;
+		case 3:
+			this.playerRights = PrivilegeRank.OWNER;
+			break;
+		}
 	}
 
 	public int getPlayerRights() {

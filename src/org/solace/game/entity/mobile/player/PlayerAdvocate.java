@@ -2,7 +2,6 @@ package org.solace.game.entity.mobile.player;
 
 import org.solace.game.entity.Animation;
 import org.solace.game.entity.Graphic;
-import org.solace.game.entity.UpdateFlags;
 
 /**
  *
@@ -26,7 +25,6 @@ public class PlayerAdvocate {
      */
     public void queueAnim(int animId){
         player.setAnimation(Animation.create(animId));
-        player.getUpdateFlags().flag(UpdateFlags.UpdateFlag.ANIMATION);
     }
     
     /**
@@ -47,7 +45,6 @@ public class PlayerAdvocate {
         } else {
             player.setGraphic(Graphic.lowGraphic(gfx, 0)); 
         }
-        player.getUpdateFlags().flag(UpdateFlags.UpdateFlag.GRAPHICS);
     }
     
     /**

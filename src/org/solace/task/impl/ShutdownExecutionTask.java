@@ -18,7 +18,7 @@ public class ShutdownExecutionTask extends Thread {
             if (player == null){
                 continue;
             }
-            new PlayerSaveEvent(player).execute();
+            Server.getEventManager().dispatchEvent(new PlayerSaveEvent(player));
         }
     }
 

@@ -1,6 +1,7 @@
 package org.solace.network.packet.impl;
 
 import org.solace.game.content.Consumables;
+import org.solace.game.content.skills.prayer.Prayer;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
@@ -53,6 +54,7 @@ public class UseItemPacketHandler implements PacketHandler {
 		}
 		if (player == null)
 			return;
+		Prayer.buryBones(player, itemId, slot);
 		Consumables.eatFood(player, itemId, slot);
 	}
 

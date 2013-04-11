@@ -6,11 +6,11 @@ import org.solace.game.content.skills.thieving.Thieving;
 import org.solace.game.entity.mobile.Mobile.AttackTypes;
 import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.item.container.impl.Equipment;
 import org.solace.game.map.Location;
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
 import org.solace.task.Task;
-import org.solace.task.TaskExecuter;
 
 /**
  * 
@@ -59,8 +59,18 @@ public class NPCInteractionPacket implements PacketHandler {
 	}
 
 	private void handleMagicOnNpc(Player player, Packet packet) {
-		// TODO Auto-generated method stub
-
+		int npcIndex = packet.getLEShortA();
+		final int spellId = packet.getUShortA();
+		NPC npc = Game.npcRepository.get(npcIndex);
+		if (npc == null) {
+			return;
+		}
+		player.setSpellId(spellId);
+		player.setInteractingEntityIndex(npc.getIndex());
+		player.setInteractingEntity(npc);
+		player.setAttackType(AttackTypes.MAGIC);
+		player.getUpdateFlags().faceEntity(npc.getIndex());
+		Combat.handleCombatStyle(player);
 	}
 
 	private void handleFourthClick(Player player, Packet packet) {
@@ -79,17 +89,17 @@ public class NPCInteractionPacket implements PacketHandler {
 		if (npc == null) {
 			return;
 		}
-		// CombatDefault.resetEntityCombat(player);
+		Combat.resetCombat(player);
 		player.setInteractingEntity(npc);
 		player.setInteractingEntityIndex(npc.getIndex());
 		final Location location = npc.getLocation();
-		player.walkToAction(new Task(true) {
+		player.walkToAction(new Task(1, true) {
 			boolean arrived = false;
 
 			@Override
 			public void execute() {
 				if (arrived) {
-					player.getUpdateFlags().sendFaceToDirection(location);
+					player.getUpdateFlags().faceEntity(npc.getIndex());
 					switch (npc.getNpcId()) {
 					default:
 						player.getPacketDispatcher().sendMessage(
@@ -104,7 +114,7 @@ public class NPCInteractionPacket implements PacketHandler {
 				}
 			}
 		});
-		TaskExecuter.get().schedule(player.walkToAction());
+		Game.submit(player.walkToAction());
 
 	}
 
@@ -117,7 +127,7 @@ public class NPCInteractionPacket implements PacketHandler {
 		Combat.resetCombat(player);
 		player.setInteractingEntity(npc);
 		final Location location = npc.getLocation();
-		player.walkToAction(new Task(true) {
+		player.walkToAction(new Task(1, true) {
 			boolean arrived = false;
 
 			@Override
@@ -141,7 +151,7 @@ public class NPCInteractionPacket implements PacketHandler {
 				}
 			}
 		});
-		TaskExecuter.get().schedule(player.walkToAction());
+		Game.submit(player.walkToAction());
 	}
 
 	private void handleNpcAttack(Player player, Packet packet) {
@@ -150,9 +160,12 @@ public class NPCInteractionPacket implements PacketHandler {
 		if (npc == null) {
 			return;
 		}
+		player.getUpdateFlags().faceEntity(npc.getIndex());
 		player.getPacketDispatcher().sendMessage(
 				"Index: " + npc.getIndex() + " Id: " + npc.getNpcId());
-		player.setAttackType(AttackTypes.MELEE);
+		player.setAttackType(Equipment.isUsingRanged(player) ? AttackTypes.RANGED
+				: player.getSpellId() != 0 ? AttackTypes.MAGIC
+						: AttackTypes.MELEE);
 		player.setInteractingEntity(npc);
 		player.setInteractingEntityIndex(npc.getIndex());
 		player.setInCombat(true);

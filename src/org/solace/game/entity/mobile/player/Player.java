@@ -1,27 +1,28 @@
 package org.solace.game.entity.mobile.player;
 
-import org.solace.event.CycleEventExecutor;
+import org.solace.Server;
 import org.solace.event.impl.PlayerLoginEvent;
 import org.solace.event.impl.PlayerLogoutEvent;
-import org.solace.game.content.dialogue.Dialogue;
+import org.solace.event.impl.PlayerDeathService;
 import org.solace.game.content.PrivateMessaging;
 import org.solace.game.content.combat.Combat;
-import org.solace.game.content.combat.DelayedAttack;
 import org.solace.game.content.combat.PrayerHandler;
 import org.solace.game.content.combat.PrayerHandler.Prayer;
+import org.solace.game.content.combat.impl.Hit;
+import org.solace.game.content.dialogue.Dialogue;
 import org.solace.game.content.music.MusicHandler;
 import org.solace.game.content.skills.SkillHandler;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.entity.mobile.Mobile;
 import org.solace.game.entity.mobile.npc.NPCUpdating;
-import org.solace.game.item.container.Equipment;
-import org.solace.game.item.container.Inventory;
+import org.solace.game.item.container.impl.Banking;
+import org.solace.game.item.container.impl.Equipment;
+import org.solace.game.item.container.impl.Inventory;
 import org.solace.game.map.Location;
 import org.solace.network.RSChannelContext;
+import org.solace.network.packet.PacketBuilder;
 import org.solace.network.packet.PacketDispatcher;
 import org.solace.task.Task;
-import org.solace.task.TaskExecuter;
-import org.solace.event.impl.PlayerDeathEvent;
 
 /**
  * 
@@ -48,25 +49,47 @@ public class Player extends Mobile {
 	private PrayerHandler prayerHandler = new PrayerHandler();
 	private Dialogue dialogue = new Dialogue(this);
 	private PlayerSettings settings = new PlayerSettings();
-        private CycleEventExecutor playerEvents = new CycleEventExecutor(this);
+	private Banking banking = new Banking(this);
+
+	/*
+	 * Cached details.
+	 */
+	/**
+	 * The cached update block.
+	 */
+	private PacketBuilder cachedUpdateBlock;
+
+	/**
+	 * Initialises the attributes
+	 */
+	public void appendLoginAttributes() {
+		addAttribute("NO_THIEVE", Boolean.FALSE);
+		addAttribute("STUNNED", Boolean.FALSE);
+		addAttribute("TELEPORTING", Boolean.FALSE);
+		addAttribute("FROZEN", Boolean.FALSE);
+		addAttribute("IMMUNE", Boolean.FALSE);
+	}
 
 	/**
 	 * Player stored primitives
 	 */
 	private int playerHeadIcon = -1;
+	private boolean buryingBones;
 	private boolean logoutRequired = false;
 	private double prayerPoint = 1.0;
-	private boolean autoRetaliating;
 	private int[] bonuses = new int[12];
+	private int spellId;
+	private int specialAmount = 100;
+	private int specialBarId;
 
-	public Player(String username, String password, RSChannelContext channelContext) {
+	public Player(String username, String password,
+			RSChannelContext channelContext) {
 		super(new Location(3222, 3222));
 		this.authenticator = new PlayerAuthentication(username, password);
 		this.channelContext = channelContext;
-		setDefaultSkills();
 		setDefaultAppearance();
 		getUpdateFlags().flag(UpdateFlag.APPEARANCE);
-                this.getAuthentication().setPlayerRights(PlayerAuthentication.PrivilegeRank.ADMINISTRATOR);
+		this.getAuthentication().setPlayerRights(PlayerAuthentication.PrivilegeRank.STANDARD);
 	}
 
 	/**
@@ -75,19 +98,25 @@ public class Player extends Mobile {
 	 */
 	@Override
 	public void update() {
-            getPlayerEvents().execute();
-            getMobilityManager().processMovement();
-            if (getStatus() != WelfareStatus.DEAD) {
-                    /*
-                     * Combat tick
-                     */
-                    Combat.handleCombatTick(this);
+		getMobilityManager().processMovement();
+		if (getStatus() != WelfareStatus.DEAD) {
+			/*
+			 * Combat tick
+			 */
+			Combat.handleCombatTick(this);
+			if (inWild()) {
+				//System.out.println("Here?");
+				getPacketDispatcher().sendWalkableInterface(197);
+				getPacketDispatcher().sendString(199, "@yel@Level: " + getWildernessLevel());
+			}
 
-                    /*
-                     * Prayer draining 
-                     */
-                    PrayerHandler.handlePrayerDraining(this);
-            }
+			/*
+			 * Prayer draining
+			 */
+			PrayerHandler.handlePrayerDraining(this);
+			
+			getSkills().handleSkillRestoring();
+		}
 	}
 
 	/**
@@ -132,14 +161,18 @@ public class Player extends Mobile {
 	 * Schedules a new login event for this player
 	 */
 	public void handleLoginData() {
-		new PlayerLoginEvent(this).execute();
+		Server.getEventManager().dispatchEvent(new PlayerLoginEvent(this));
 	}
 
 	/**
 	 * Schedules a new logout event event for this player
 	 */
 	public void handleLogoutData() {
-		new PlayerLogoutEvent(this).execute();
+		if (System.currentTimeMillis() - getCombatDelay() > 10000) {
+			Server.getEventManager().dispatchEvent(new PlayerLogoutEvent(this));
+		} else {
+			getPacketDispatcher().sendMessage("You must wait a few seconds before loggout out of combat.");
+		}
 	}
 
 	/**
@@ -161,11 +194,6 @@ public class Player extends Mobile {
 	 */
 	public PlayerUpdating getUpdater() {
 		return updating;
-	}
-
-	public void setFaceEntity(Mobile entity) {
-		super.setInteractingEntityIndex(entity.getIndex());
-		updating.getMaster().getUpdateFlags().faceEntity();
 	}
 
 	/**
@@ -200,6 +228,14 @@ public class Player extends Mobile {
 	 */
 	public Inventory getInventory() {
 		return inventory;
+	}
+	
+	/**
+	 * Returns the bank container
+	 * @return
+	 */
+	public Banking getBanking() {
+		return banking;
 	}
 
 	/**
@@ -260,18 +296,6 @@ public class Player extends Mobile {
 		this.bonuses[id] = bonus;
 	}
 
-	/**
-	 * Sets the defaulted skill values and experience levels
-	 */
-	private void setDefaultSkills() {
-		for (int i = 0; i < getSkills().getPlayerLevel().length; i++) {
-			getSkills().getPlayerLevel()[i] = 1;
-			getSkills().getPlayerExp()[i] = 0;
-		}
-		getSkills().getPlayerLevel()[3] = 10;
-		getSkills().getPlayerExp()[3] = 1154;
-	}
-
 	private void setDefaultAppearance() {
 		/**
 		 * Gender
@@ -318,18 +342,25 @@ public class Player extends Mobile {
 	}
 
 	@Override
-	public void hit(DelayedAttack attack) {
-		int damage = attack.getDamage();
-		if ((getSkills().getPlayerLevel()[3] - damage) <= 0) {
-			damage = getSkills().getPlayerLevel()[3];
-		}
-		getSkills().getPlayerLevel()[3] -= damage;
-		getUpdateFlags().setDamage(damage);
-		getUpdateFlags().setHitMask(attack.getHitmask());
-		getSkills().refreshSkill(3);
+	public void hit(Hit attack) {
+		if (getStatus() != WelfareStatus.DEAD) {
+			int damage = attack.getDamage();
+			if ((getSkills().getPlayerLevel()[3] - damage) <= 0) {
+				damage = getSkills().getPlayerLevel()[3];
+			}
+			getSkills().getPlayerLevel()[3] -= damage;
+			getSkills().refreshSkill(3);
+			if (attack.getHitmask() == 1) {
+				getUpdateFlags().setDamage(damage);
+				getUpdateFlags().setHitType(attack.getHitType());
+			} else if (attack.getHitmask() == 2) {
+				getUpdateFlags().setDamage2(damage);
+				getUpdateFlags().setHitType2(attack.getHitType());
+			}
 
-		if (getSkills().getPlayerLevel()[3] <= 0) {
-			TaskExecuter.get().schedule(new PlayerDeathEvent(this));
+			if (getSkills().getPlayerLevel()[3] <= 0) {
+				Server.getService().schedule(new PlayerDeathService(this));
+			}
 		}
 
 	}
@@ -381,20 +412,89 @@ public class Player extends Mobile {
 	public void setPrayerPoint(double prayerPoint) {
 		this.prayerPoint = prayerPoint;
 	}
-	
-	public boolean isAutoRetaliating() {
-		return autoRetaliating;
-	}
-	
-	public void setAutoRetaliating(boolean auto) {
-		this.autoRetaliating = auto;
+
+	/**
+	 * Returns the players current spell id
+	 */
+	public int getSpellId() {
+		return spellId;
 	}
 
-    /**
-     * @return the playerEvents
-     */
-    public CycleEventExecutor getPlayerEvents() {
-        return playerEvents;
-    }
+	/**
+	 * Sets the players current spell id
+	 */
+	public void setSpellId(int id) {
+		this.spellId = id;
+	}
+
+	/**
+	 * Checks if there is a cached update block for this cycle.
+	 * 
+	 * @return <code>true</code> if so, <code>false</code> if not.
+	 */
+	public boolean hasCachedUpdateBlock() {
+		return cachedUpdateBlock != null;
+	}
+
+	/**
+	 * Sets the cached update block for this cycle.
+	 * 
+	 * @param cachedUpdateBlock
+	 *            The cached update block.
+	 */
+	public void setCachedUpdateBlock(PacketBuilder cachedUpdateBlock) {
+		this.cachedUpdateBlock = cachedUpdateBlock;
+	}
+
+	/**
+	 * Gets the cached update block.
+	 * 
+	 * @return The cached update block.
+	 */
+	public PacketBuilder getCachedUpdateBlock() {
+		return cachedUpdateBlock;
+	}
+
+	/**
+	 * Resets the cached update block.
+	 */
+	public void resetCachedUpdateBlock() {
+		cachedUpdateBlock = null;
+	}
+
+	/**
+	 * returns the players special amount
+	 * 
+	 * @return
+	 */
+	public int getSpecialAmount() {
+		return specialAmount;
+	}
+
+	/**
+	 * Sets the players special amount
+	 * 
+	 * @param amount
+	 *            The amount of special left over
+	 */
+	public void setSpecialAmount(int amount) {
+		this.specialAmount = amount;
+	}
+
+	public int getSpecialBarId() {
+		return specialBarId;
+	}
+
+	public void setSpecialBarId(int id) {
+		this.specialBarId = id;
+	}
+	
+	public boolean isBuryingBones() {
+		return buryingBones;
+	}
+	
+	public void setBuryingBones(boolean burying) {
+		this.buryingBones = burying;
+	}
 
 }

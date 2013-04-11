@@ -2,14 +2,17 @@ package org.solace.network.packet;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+
+import org.solace.Server;
+import org.solace.event.impl.PlayerSaveEvent;
+import org.solace.game.Game;
 import org.solace.network.NIOSelector;
 import org.solace.network.RSChannelContext;
-import org.solace.game.Game;
 
 /**
- * Single data packet implementation.
- * Represents a data packet which is used to decode incoming or encode outgoing
- * data with RuneScape protocol standards.
+ * Single data packet implementation. Represents a data packet which is used to
+ * decode incoming or encode outgoing data with RuneScape protocol standards.
+ * 
  * @author Faris
  */
 public class Packet {
@@ -124,6 +127,24 @@ public class Packet {
 		return buffer.getLong();
 	}
 
+	public long readLong() {
+		long l = (long) readInt() & 0xffffffffL;
+		long l1 = (long) readInt() & 0xffffffffL;
+		return (l << 32) + l1;
+	}
+	
+	public int readUByte() {
+		return buffer.get() & 0xff;
+	}
+
+	public int readInt() {
+		long value = 0;
+		value |= readUByte() << 24;
+		value |= readUByte() << 16;
+		value |= readUByte() << 8;
+		value |= readUByte();
+		return (int) value;
+	}
 
 	/**
 	 * Reads given amount of bytes to the array along with addition to the
@@ -141,7 +162,7 @@ public class Packet {
 		}
 		return bytes;
 	}
-	
+
 	/**
 	 * Reads the amount of bytes into a byte array, starting at the current
 	 * position.
@@ -251,7 +272,11 @@ public class Packet {
 			buffer.flip();
 			channel.write(buffer);
 		} catch (Exception e) {
-			Game.getSingleton().deregister(((RSChannelContext) channel.keyFor(org.solace.network.NIOSelector.selector()).attachment()).player());
+			Server.getEventManager().dispatchEvent(new PlayerSaveEvent(((RSChannelContext) channel.keyFor(
+					NIOSelector.selector()).attachment()).player()));
+			Game.getSingleton().deregister(
+					((RSChannelContext) channel.keyFor(NIOSelector.selector())
+							.attachment()).player());
 		}
 		return this;
 	}
@@ -279,7 +304,7 @@ public class Packet {
 		packet.buffer().flip();
 		return packet;
 	}
-        
-        NIOSelector selector = new NIOSelector();
+
+	NIOSelector selector = new NIOSelector();
 
 }

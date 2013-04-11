@@ -1,0 +1,38 @@
+<list>
+
+	<prayer>
+	<boneId>526</boneId>
+	<experience>4.5</experience>
+	</prayer>
+	
+	<prayer>
+	<boneId>530</boneId>
+	<experience>5</experience>
+	</prayer>
+	
+	<prayer>
+	<boneId>532</boneId>
+	<experience>15</experience>
+	</prayer>
+	
+	<prayer>
+	<boneId>534</boneId>
+	<experience>30</experience>
+	</prayer>
+	
+	<prayer>
+	<boneId>536</boneId>
+	<experience>250</experience>
+	</prayer>
+	
+	<prayer>
+	<boneId>6729</boneId>
+	<experience>125</experience>
+	</prayer>
+	
+	<prayer>
+	<boneId>18830</boneId>
+	<experience>500</experience>
+	</prayer>
+
+</list>

@@ -188,13 +188,16 @@ public class NPCUpdating {
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
 			block.putShort(npc.getGraphic().getId());
-			block.putIntTest(npc.getGraphic().getDelay());
+			block.putInt(npc.getGraphic().getValue());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			block.putShort(npc.getInteractingEntityIndex());
+			block.putShort(npc.getUpdateFlags().getFaceIndex());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
 			block.putString(npc.getUpdateFlags().getForceChatMessage());
+		}
+		if (npc.getUpdateFlags().get(UpdateFlag.HIT_2)) {
+			appendHitMask2(block, npc);
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
 			Location pos = npc.getUpdateFlags().getFaceLocation();
@@ -216,10 +219,22 @@ public class NPCUpdating {
 	 */
 	private void appendHitMask(PacketBuilder block, NPC npc) {
 		block.putByteA(npc.getUpdateFlags().getDamage());
-		block.putByteC(npc.getUpdateFlags().getHitmask());
+		block.putByteC(npc.getUpdateFlags().getHitType());
 		block.putByteA(getCurrentHP(npc.getHitpoints(), npc.getDefinition()
 				.getHitpoints(), 100));
 		block.putByte(100);
+	}
+	
+	/**
+	 * Updates the second hit mask
+	 * @param out
+	 * @param npc
+	 */
+	public void appendHitMask2(PacketBuilder out, NPC npc) {
+		out.putByteC(npc.getUpdateFlags().getDamage2());
+		out.putByteS(npc.getUpdateFlags().getHitType2());
+		out.putByteS(getCurrentHP(npc.getHitpoints(), npc.getDefinition().getHitpoints(), 100));
+		out.putByteC(100);
 	}
 
 	/**

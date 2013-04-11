@@ -1,0 +1,42 @@
+<list>
+
+	<ore>
+		<oreId>
+			<int>2095</int>
+		</oreId>
+		<replacementId>451</replacementId>
+		<itemId>438</itemId>
+		<levelRequired>1</levelRequired>
+		<experience>50</experience>
+		<respawnTimer>15</respawnTimer>
+		<oreName>tin</oreName>
+	</ore>
+
+	<ore>
+		<oreId>
+			<int>2092</int>
+			<int>2093</int>
+			<int>2094</int>
+		</oreId>
+		<replacementId>451</replacementId>
+		<itemId>440</itemId>
+		<levelRequired>15</levelRequired>
+		<experience>50</experience>
+		<respawnTimer>30</respawnTimer>
+		<oreName>iron</oreName>
+	</ore>
+	
+	<ore>
+	<oreId>
+		<int>2090</int>
+		<int>2091</int>
+	</oreId>
+	<replacementId>451</replacementId>
+	<itemId>436</itemId>
+	<levelRequired>1</levelRequired>
+	<experience>50</experience>
+	<respawnTimer>25</respawnTimer>
+	<oreName>copper</oreName>
+</ore>
+
+</list>

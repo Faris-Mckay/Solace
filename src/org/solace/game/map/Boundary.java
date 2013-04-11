@@ -31,11 +31,11 @@ public class Boundary {
     
     /**
      * Standard method for usage of this class
-     * @param c
+     * @param player
      * @return 
      */
-    public boolean withinBoundry(Player c){
-        return (c.getLocation().getX() >= lowestX) & (c.getLocation().getX() <= highestX) & (c.getLocation().getY() >= lowestY) & (c.getLocation().getY() <= highestY);
+    public boolean withinBoundry(Player player){
+        return (player.getLocation().getX() >= lowestX) & (player.getLocation().getX() <= highestX) & (player.getLocation().getY() >= lowestY) & (player.getLocation().getY() <= highestY);
     }
 
 }

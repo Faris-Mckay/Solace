@@ -31,7 +31,7 @@ public class Graphic {
 	}
 
 	public int getValue() {
-		return (height << 16) + delay;
+		return delay | height << 16;
 	}
 
 	public int getHeight() {

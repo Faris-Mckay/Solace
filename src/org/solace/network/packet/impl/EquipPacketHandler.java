@@ -2,7 +2,7 @@ package org.solace.network.packet.impl;
 
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.item.ItemDefinition;
-import org.solace.game.item.container.Inventory;
+import org.solace.game.item.container.impl.Inventory;
 import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketHandler;
 

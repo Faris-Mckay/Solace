@@ -200,7 +200,7 @@ public class Location {
 	 * @return the region x coordinate
 	 */
 	public int regionX() {
-		return (this.x >> 3) - 6;
+		return (x >> 3) - 6;
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class Location {
 	 * @return the region y coordinate
 	 */
 	public int regionY() {
-		return (this.y >> 3) - 6;
+		return (y >> 3) - 6;
 	}
 
 	/**
@@ -257,6 +257,10 @@ public class Location {
 	 */
 	public static boolean isConnectable(int deltaX, int deltaY) {
 		return Math.abs(deltaX) == Math.abs(deltaY) || deltaX == 0 || deltaY == 0;
+	}
+	
+	public boolean inArea(Location entity, Location lowest, Location highest) {
+		return (entity.getX() >= lowest.getX() && entity.getX() <= highest.getX() && entity.getY() >= lowest.getY() && entity.getY() <= highest.getY());
 	}
 
 	/**

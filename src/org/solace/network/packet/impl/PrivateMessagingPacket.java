@@ -7,7 +7,7 @@ import org.solace.game.entity.mobile.player.Player;
 /**
  * Private messaging packet handler.
  * 
- * @author animeking1120
+ * @author Arithium
  */
 public class PrivateMessagingPacket implements PacketHandler {
 
@@ -20,7 +20,7 @@ public class PrivateMessagingPacket implements PacketHandler {
 		 * Add friend packet.
 		 */
 		case ADD_FRIEND_OPCODE:
-			username = packet.getLong();
+			username = packet.readLong();
 			player.getPrivateMessaging().addToFriendsList(username);
 			break;
 
@@ -28,27 +28,27 @@ public class PrivateMessagingPacket implements PacketHandler {
 		 * Add ignore packet.
 		 */
 		case ADD_IGNORE_OPCODE:
-			username = packet.getLong();
-			player.getPrivateMessaging().addToIgnoreList(username);
+			username = packet.readLong();
+			player.getPrivateMessaging().addToIgnoresList(username);
 			break;
 
 		/*
 		 * Remove friend packet.
 		 */
 		case REMOVE_FRIEND_OPCODE:
-			username = packet.getLong();
-			player.getPrivateMessaging().removeFromFriendsList(username);
+			username = packet.readLong();
+			player.getPrivateMessaging().removeFromList(player.getPrivateMessaging().getFriends(), username);
 			break;
 
 		/*
 		 * Remove ignore packet.
 		 */
 		case REMOVE_IGNORE_OPCODE:
-			username = packet.getLong();
-			player.getPrivateMessaging().removeFromIgnoreList(username);
+			username = packet.readLong();
+			player.getPrivateMessaging().removeFromList(player.getPrivateMessaging().getIgnores(), username);
 			break;
 		case SEND_PM_OPCODE:
-			username = packet.getLong();
+			username = packet.readLong();
 			int size = packet.length() - 8;
 			byte[] message = packet.readBytes(size);
 			player.getPrivateMessaging()

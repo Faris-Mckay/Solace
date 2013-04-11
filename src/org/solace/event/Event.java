@@ -1,103 +1,96 @@
 package org.solace.event;
 
-import org.solace.game.entity.mobile.player.Player;
-
 /**
+ * An executable service.
  *
- * @author Faris
+ * @author Thomas Nappo
+ * @author Graham Edgecombe
  */
 public abstract class Event {
-    
-    public int executeInterval,cyclesPassed = 0;
-    private boolean shouldEnd, instant;
-    private EventType eventType;
-    
-    public Event(EventType eventType, int executeInterval, boolean instant){
-        this.eventType = eventType;
-        this.executeInterval = executeInterval;
-        this.instant = instant;
-    }
-    
+
     /**
-     * Optional to be called, can be used to set up your event before execution
-     * is called instantly upon submission
+     * The amount of cycles to pass before the service is executed.
      */
-    public void init(){
-        //DEFAULT INIT METHOD, MUST OVERRIDE TO GAIN USAGE
-    }
-    
-    public abstract void execute();
-    
+    private final int delay;
+
     /**
-     * Optional to be called upon event ending
+     * Gets the service's {@link #delay}.
+     *
+     * @return The amount of cycles to pass before the service is executed.
      */
-    public void stop(){
-        setShouldEnd(true);
+    public int getDelay() {
+        return delay;
+    }
+    /**
+     * The countdown amount of the service. Once this reaches <tt>0</tt> the
+     * service's context is executed.
+     */
+    private int countdown;
+
+    /**
+     * Gets the service's {@link #countdown}.
+     *
+     * @return The countdown amount of the service. Once this reaches <tt>0</tt>
+     * the service's context is executed.
+     */
+    public int getCountdown() {
+        return countdown;
+    }
+    /**
+     * Whether or not the service is running.
+     */
+    protected boolean running = false;
+
+    /**
+     * Gets the service's {@link #running} flag.
+     *
+     * @return <b>true</b> if the service is running.
+     */
+    public boolean isRunning() {
+        return running;
     }
 
     /**
-     * @return the eventType
+     * Constructs a new service.
+     *
+     * @param delay The amount of cycles to pass before the service is executed.
      */
-    public EventType getEventType() {
-        return eventType;
+    public Event(int delay) {
+        this.delay = delay;
+        this.countdown = delay;
+        this.running = true;
     }
 
     /**
-     * @return the shouldEnd
+     * Constructs a new service with a {@link #delay} of <tt>1</tt>.
      */
-    public boolean isShouldEnd() {
-        return shouldEnd;
+    public Event() {
+        this(1);
     }
 
     /**
-     * @param shouldEnd the shouldEnd to set
+     * Stops the service from executing.
      */
-    public void setShouldEnd(boolean shouldEnd) {
-        this.shouldEnd = shouldEnd;
+    public void stop() {
+        running = false;
     }
 
     /**
-     * @return the executeInterval
+     * Updates the countdown and executes the service's context if the service
+     * is ready.
+     *
+     * @return Whether or not the service is still running.
      */
-    public int getExecuteInterval() {
-        return executeInterval;
-    }
-
-    /**
-     * @return the instant
-     */
-    public boolean isInstant() {
-        return instant;
-    }
-    
-    /**
-     * Method for passing an method into its respective container
-     * @param event is the unique event
-     * @param owner is the submitter
-     */
-    public static void submit(Event event, Player owner){
-        switch(event.getEventType()){
-            case INDEPENDANT:
-                CoreEventExecutor.getSingleton().submitEvent(event);
-                break;
-            case DEPENDANT:
-                owner.getPlayerEvents().submitEvent(event);
-                break;
+    public boolean tick() {
+        if (running && --countdown <= 0) {
+            execute();
+            countdown = delay;
         }
-    }
-    
-    public enum EventType{
-        /**
-         * The event creates its own engine during runtime
-         * for use with global events, such as mini games
-         */
-        INDEPENDANT,
-        
-        /**
-         * The event runs on the individual players game cycle
-         * for use with individual tasks such as skilling
-         */
-        DEPENDANT
+        return running;
     }
 
+    /**
+     * Executes the context of the service.
+     */
+    protected abstract void execute();
 }

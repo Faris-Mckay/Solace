@@ -1,5 +1,6 @@
-package org.solace.game.entity;
+package org.solace.game.entity.grounded;
 
+import org.solace.game.entity.Entity;
 import org.solace.game.entity.Entity;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.item.Item;

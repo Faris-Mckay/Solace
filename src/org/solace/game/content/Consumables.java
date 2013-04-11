@@ -2,7 +2,7 @@ package org.solace.game.content;
 
 import org.solace.game.content.skills.Skill;
 import org.solace.game.entity.Animation;
-import org.solace.game.entity.UpdateFlags.UpdateFlag;
+import org.solace.game.entity.mobile.Mobile.WelfareStatus;
 import org.solace.game.entity.mobile.player.Player;
 
 /**
@@ -63,6 +63,10 @@ public class Consumables {
 	 * @param itemId the item id the player is eating
 	 */
 	public static void eatFood(Player player, int itemId, int slot) {
+		if (player.getStatus() == WelfareStatus.DEAD) {
+			// we cannot eat because we are already dead
+			return;
+		}
             try {
                 Food food = Food.forID(itemId);
                 if (food != null) {
@@ -70,7 +74,6 @@ public class Consumables {
                         if (player.getInventory().contains(food.getItemId())) {
                             player.getPacketDispatcher().sendMessage("You eat the " + food.getName() + ".");
                             player.setAnimation(Animation.create(829, 0));
-                            player.getUpdateFlags().flag(UpdateFlag.ANIMATION);
                             player.getInventory().delete(food.getItemId(), slot, 1);
                             int maxLevel = player.getSkills().getLevelForXP(player.getSkills().getPlayerExp()[Skill.HITPOINTS]) ;
                             if (player.getSkills().getPlayerLevel()[Skill.HITPOINTS]+ food.getHealAmount() > maxLevel) {
@@ -79,6 +82,7 @@ public class Consumables {
                                     player.getSkills().getPlayerLevel()[Skill.HITPOINTS] += food.getHealAmount();
                             }
                             player.getSkills().refreshSkill(Skill.HITPOINTS);
+                            player.setHitDelay(player.getHitDelay() + 2);
                             player.getPacketDispatcher().sendMessage("It heals some health...");
                             player.foodDelay = System.currentTimeMillis();
                         }

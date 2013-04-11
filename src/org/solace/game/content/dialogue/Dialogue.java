@@ -10,6 +10,12 @@ import org.solace.game.entity.mobile.npc.NPCDefinition;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.util.XStreamUtil;
 
+/**
+ * Handles sending dialogues to the playre
+ * 
+ * @author Arithium
+ * 
+ */
 public class Dialogue {
 
 	private Player player;
@@ -25,7 +31,86 @@ public class Dialogue {
 					int emoticon = def[i].getEmoticon();
 					setPlayerChat(def[i].isPlayerChat());
 					String[] dialogues = def[i].getDialogues();
-                                        sendNpcChat(dialogues[i].replaceAll("playername", player.getAuthentication().getUsername()), emoticon);
+					if (isPlayerChat()) {
+						switch (dialogues.length) {
+						case 1:
+							sendPlayerChat(dialogues[0].replaceAll(
+									"playername", player.getAuthentication()
+											.getUsername()), emoticon);
+							break;
+						case 2:
+							sendPlayerChat(dialogues[0].replaceAll(
+									"playername", player.getAuthentication()
+											.getUsername()),
+									dialogues[1].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()), emoticon);
+							break;
+						case 3:
+							sendPlayerChat(dialogues[0].replaceAll(
+									"playername", player.getAuthentication()
+											.getUsername()),
+									dialogues[1].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()),
+									dialogues[2].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()), emoticon);
+							break;
+						case 4:
+							sendPlayerChat(dialogues[0].replaceAll(
+									"playername", player.getAuthentication()
+											.getUsername()),
+									dialogues[1].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()),
+									dialogues[2].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()),
+									dialogues[3].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()), emoticon);
+							break;
+						}
+					} else {
+						switch (dialogues.length) {
+						case 1:
+							sendNpcChat(dialogues[0].replaceAll("playername",
+									player.getAuthentication().getUsername()),
+									emoticon);
+							break;
+						case 2:
+							sendNpcChat(dialogues[0].replaceAll("playername",
+									player.getAuthentication().getUsername()),
+									dialogues[1].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()), emoticon);
+							break;
+						case 3:
+							sendNpcChat(dialogues[0].replaceAll("playername",
+									player.getAuthentication().getUsername()),
+									dialogues[1].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()),
+									dialogues[2].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()), emoticon);
+							break;
+						case 4:
+							sendNpcChat(dialogues[0].replaceAll("playername",
+									player.getAuthentication().getUsername()),
+									dialogues[1].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()),
+									dialogues[2].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()),
+									dialogues[3].replaceAll("playername",
+											player.getAuthentication()
+													.getUsername()), emoticon);
+							break;
+						}
+					}
 					setDialogueId(def[i].getNextDialogue());
 				}
 			}
@@ -195,7 +280,8 @@ public class Dialogue {
 	 * NPC dialogue.
 	 */
 	public void sendNpcChat(String line1, int emotion) {
-                String mod = line1.replaceAll("playername", player.getAuthentication().getUsername());
+		String mod = line1.replaceAll("playername", player.getAuthentication()
+				.getUsername());
 		NPC npc = (NPC) player.getInteractingEntity();
 		NPCDefinition def = NPCDefinition.getDefinitions()[npc.getNpcId()];
 		String npcName = def.getName();
@@ -207,8 +293,10 @@ public class Dialogue {
 	}
 
 	public void sendNpcChat(String line1, String line2, int emotion) {
-                String mod = line1.replaceAll("playername", player.getAuthentication().getUsername());
-                String mod2 = line2.replaceAll("playername", player.getAuthentication().getUsername());
+		String mod = line1.replaceAll("playername", player.getAuthentication()
+				.getUsername());
+		String mod2 = line2.replaceAll("playername", player.getAuthentication()
+				.getUsername());
 		NPC npc = (NPC) player.getInteractingEntity();
 		NPCDefinition def = NPCDefinition.getDefinitions()[npc.getNpcId()];
 		String npcName = def.getName();
@@ -392,7 +480,7 @@ public class Dialogue {
 	private static DialogueDefinition[] def = null;
 
 	public static void load() throws FileNotFoundException {
-            Server.logger.info("Loading dialogues...");
+		Server.logger.info("Loading dialogues...");
 		@SuppressWarnings("unchecked")
 		List<DialogueDefinition> XMLlist = (List<DialogueDefinition>) XStreamUtil
 				.getXStream()

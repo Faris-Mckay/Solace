@@ -2,8 +2,8 @@
 	<npc>
 		<npcId>1</npcId>
 		<location>
-			<x>3222</x>
-			<y>3222</y>
+			<x>3213</x>
+			<y>3424</y>
 			<z>0</z>
 		</location>
 		<maximumWalkingDistance>2</maximumWalkingDistance>

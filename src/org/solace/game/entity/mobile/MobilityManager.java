@@ -101,6 +101,9 @@ public class MobilityManager {
 		if (mobile.getStatus() == WelfareStatus.DEAD) {
 			return;
 		}
+		if ((Boolean) mobile.getAttribute("FROZEN")) {
+			return;
+		}
 		if (mobile instanceof Player) {
 			if (movementSteps.isEmpty()) {
 				return;
@@ -113,7 +116,8 @@ public class MobilityManager {
 					- mobile.getCachedRegion().regionX() * 8;
 			int diffY = mobile.getLocation().getY()
 					- mobile.getCachedRegion().regionY() * 8;
-			boolean changed = diffX < 16 || diffX >= 88 || diffY < 16 || diffY >= 88;
+			boolean changed = diffX < 16 || diffX >= 88 || diffY < 16
+					|| diffY >= 88;
 			((Player) mobile).getUpdater().setMapRegionChanging(changed);
 		}
 		if (mobile instanceof NPC) {
@@ -288,6 +292,28 @@ public class MobilityManager {
 	 */
 	public boolean running() {
 		return running;
+	}
+
+	/**
+	 * Stops the player from moving
+	 */
+	public void stopMovement() {
+		walkingDirection(-1).runningDirection(-1);
+		movementSteps.clear();
+	}
+
+	/**
+	 * Teleports the player to the new location
+	 * 
+	 * @param player
+	 * @param location
+	 * @return
+	 */
+	public MobilityManager processTeleport(Player player, Location location) {
+		player.getUpdater().setMapRegionChanging(true);
+		player.getUpdater().setTeleporting(true);
+		player.setLocation(location);
+		return this;
 	}
 
 }

@@ -87,7 +87,7 @@ public interface Minigame {
      * Gets the boundary in which this game takes place.
      * @return The boundary in which this game takes place.
      */
-    public Boundary getBoundary(Location lowestPoint, Location highestPoint);
+    public Boundary getBoundary();
      
     /**
      * returns if this instance of a game is safe or not.
@@ -99,7 +99,7 @@ public interface Minigame {
      * Decides the repercussions of death based on game safety
      * @param safety 
      */
-    public void handleDeath(MinigameSafety safety);
+    public void handleDeath(Player player);
     
     /**
      * Handles the reseting of necessary variables at the end of each mini game

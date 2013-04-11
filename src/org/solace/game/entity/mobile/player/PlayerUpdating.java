@@ -7,7 +7,7 @@ import java.util.List;
 import org.solace.game.Game;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.item.ItemDefinition;
-import org.solace.game.item.container.Equipment;
+import org.solace.game.item.container.impl.Equipment;
 import org.solace.network.packet.PacketBuilder;
 import org.solace.util.ProtocolUtils;
 
@@ -38,13 +38,10 @@ public class PlayerUpdating {
 			if (getMaster().getUpdater().localPlayers.size() >= 255) {
 				break;
 			}
-			if (player == null)
+			if (player == getMaster()
+					|| getMaster().getUpdater().localPlayers.contains(player))
 				continue;
-			if (player == getMaster())
-				continue;
-			if (!getMaster().getUpdater().localPlayers.contains(player)
-					&& getMaster().getLocation().withinDistance(
-							player.getLocation())) {
+			if (getMaster().getLocation().withinDistance(player.getLocation())) {
 				getMaster().getUpdater().localPlayers.add(player);
 				addPlayer(out, player);
 				updateGivenPlayer(block, player, true);
@@ -71,14 +68,16 @@ public class PlayerUpdating {
 			Player player = i.next();
 			if (Game.playerRepository.values().contains(player)
 					&& !player.getUpdater().teleporting
-					&& getMaster().getLocation().withinDistance(
-							player.getLocation())) {
+					&& player.getLocation().withinDistance(
+							getMaster().getLocation())) {
 				updatePlayerMovement(out, player);
-				updateGivenPlayer(block, player, false);
+				if (player.getUpdateFlags().isUpdateRequired()) {
+					updateGivenPlayer(block, player, false);
+				}
 			} else {
+				i.remove();
 				out.putBits(1, 1); // Update Requierd
 				out.putBits(2, 3); // Remove Player
-				i.remove();
 			}
 		}
 		populateRegion(out, block);
@@ -98,10 +97,15 @@ public class PlayerUpdating {
 		if (!player.getUpdateFlags().isUpdateRequired() && !force) {
 			return;
 		}
-		int mask = 0x0;
-		if (player.getUpdateFlags().get(UpdateFlag.FORCE_MOVEMENT)) {
-			mask |= UpdateFlag.FORCE_MOVEMENT.getMask();
+		if (player.hasCachedUpdateBlock() && player != getMaster() && !force) {
+			// out.put(player.getCachedUpdateBlock().buffer());
+			// return;
 		}
+
+		int mask = 0x0;
+		//if (player.getUpdateFlags().get(UpdateFlag.FORCE_MOVEMENT)) {
+		//	mask |= UpdateFlag.FORCE_MOVEMENT.getMask();
+		//}
 		if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
 			mask |= UpdateFlag.GRAPHICS.getMask();
 		}
@@ -116,7 +120,7 @@ public class PlayerUpdating {
 			mask |= UpdateFlag.CHAT.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			mask |= 0x1;
+			mask |= UpdateFlag.FACE_ENTITY.getMask();
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
 			mask |= UpdateFlag.APPEARANCE.getMask();
@@ -146,9 +150,15 @@ public class PlayerUpdating {
 			out.putBits(2, 3); // Player Teleported
 			out.putBits(2, master.getLocation().getH()); // current height
 			out.putBits(1, teleporting); // teleporting);
-			out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update														// required
-			out.putBits(7, master.getLocation().localY());
-			out.putBits(7, master.getLocation().localX());
+			out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update
+																		// required
+			if (master.getCachedRegion() == null) {
+				out.putBits(7, master.getLocation().localY());
+				out.putBits(7, master.getLocation().localX());
+			} else {
+				out.putBits(7, master.getCachedRegion().localY());
+				out.putBits(7, master.getCachedRegion().localX());
+			}
 		} else {
 			if (master.getMobilityManager().walkingDirection() == -1) {
 				if (master.getUpdateFlags().isUpdateRequired()) {
@@ -228,11 +238,11 @@ public class PlayerUpdating {
 				&& player != getMaster()) {
 			updatePlayerChat(out, player);
 		}
+		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
+			out.putLEShort(player.getUpdateFlags().getFaceIndex());
+		}
 		if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
 			updatePlayerAppearance(out, player);
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			out.putLEShort(player.getInteractingEntityIndex());
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
 			out.putLEShortA(player.getUpdateFlags().getFaceLocation().getX() * 2 + 1);
@@ -243,6 +253,13 @@ public class PlayerUpdating {
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
 			updatingHit2(out, player);
+		}
+
+		/*
+		 * Now it is over, cache the block if we can.
+		 */
+		if (player != getMaster() && !force) {
+			player.setCachedUpdateBlock(out);
 		}
 	}
 
@@ -256,16 +273,18 @@ public class PlayerUpdating {
 	 */
 	public void updateHit(PacketBuilder out, Player player) {
 		out.putByte(player.getUpdateFlags().getDamage());
-		out.putByteA(player.getUpdateFlags().getHitmask());
+		out.putByteA(player.getUpdateFlags().getHitType());
 		out.putByteC(player.getSkills().getPlayerLevel()[3]);
-		out.putByte(player.getSkills().getLevelForXP(player.getSkills().getPlayerExp()[3]));
+		out.putByte(player.getSkills().getLevelForXP(
+				player.getSkills().getPlayerExp()[3]));
 	}
 
 	private void updatingHit2(PacketBuilder out, Player player) {
-		out.putByte(player.getUpdateFlags().getDamage());
-		out.putByteS(player.getUpdateFlags().getHitmask());
+		out.putByte(player.getUpdateFlags().getDamage2());
+		out.putByteS(player.getUpdateFlags().getHitType2());
 		out.putByte(player.getSkills().getPlayerLevel()[3]);
-		out.putByteC(player.getSkills().getLevelForXP(player.getSkills().getPlayerExp()[3]));
+		out.putByteC(player.getSkills().getLevelForXP(
+				player.getSkills().getPlayerExp()[3]));
 	}
 
 	public void updatePlayerChat(PacketBuilder out, Player player) {
@@ -282,6 +301,7 @@ public class PlayerUpdating {
 		props.putByte(player.getAuthentication().playerGender());
 		props.putByte(player.getPrayerIcon());
 		props.putByte(player.getPlayerHeadIcon());
+		
 		int[] equip = new int[player.getEquipment().capacity()];
 		for (int i = 0; i < player.getEquipment().capacity(); i++) {
 			equip[i] = player.getEquipment().items()[i].getIndex();
@@ -448,7 +468,9 @@ public class PlayerUpdating {
 		setTeleporting(false);
 		setMapRegionChanging(false);
 		master.getUpdateFlags().reset();
-		getMaster().getMobilityManager().walkingDirection(-1).runningDirection(-1);
+		master.resetCachedUpdateBlock();
+		getMaster().getMobilityManager().walkingDirection(-1)
+				.runningDirection(-1);
 	}
 
 }

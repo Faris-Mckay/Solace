@@ -15,7 +15,8 @@ import org.solace.network.packet.impl.IncomingChatPacket;
 import org.solace.network.packet.impl.ItemActionPacket;
 import org.solace.network.packet.impl.NPCInteractionPacket;
 import org.solace.network.packet.impl.ObjectInteractionPacket;
-import org.solace.network.packet.impl.PlayeInteractionPacket;
+import org.solace.network.packet.impl.PickupGroundItemPacket;
+import org.solace.network.packet.impl.PlayerInteractionPacket;
 import org.solace.network.packet.impl.PrivateMessagingPacket;
 import org.solace.network.packet.impl.RegionChangePacket;
 import org.solace.network.packet.impl.UseItemPacketHandler;
@@ -61,20 +62,22 @@ public class PacketType {
 	 */
 	static {
 		
+		ObjectInteractionPacket objectInteraction = new ObjectInteractionPacket();
+		incomingPacket.put(ObjectInteractionPacket.FIRST_CLICK_OBJECT_OPCODE, objectInteraction);
+		incomingPacket.put(ObjectInteractionPacket.SECOND_CLICK_OBJECT_OPCODE, objectInteraction);
+		incomingPacket.put(ObjectInteractionPacket.THIRD_CLICK_OBJECT_OPCODE, objectInteraction);
+		
+		incomingPacket.put(236, new PickupGroundItemPacket());
+		
 		incomingPacket.put(DialoguePacket.DIALOGUE_OPCODE,new DialoguePacket());
 		
 		
 		PrivateMessagingPacket privateMessage = new PrivateMessagingPacket();
-		incomingPacket.put(PrivateMessagingPacket.ADD_FRIEND_OPCODE,
-				privateMessage);
-		incomingPacket.put(PrivateMessagingPacket.ADD_IGNORE_OPCODE,
-				privateMessage);
-		incomingPacket.put(PrivateMessagingPacket.REMOVE_FRIEND_OPCODE,
-				privateMessage);
-		incomingPacket.put(PrivateMessagingPacket.REMOVE_IGNORE_OPCODE,
-				privateMessage);
-		incomingPacket.put(PrivateMessagingPacket.SEND_PM_OPCODE,
-				privateMessage);
+		incomingPacket.put(PrivateMessagingPacket.ADD_FRIEND_OPCODE, privateMessage);
+		incomingPacket.put(PrivateMessagingPacket.ADD_IGNORE_OPCODE, privateMessage);
+		incomingPacket.put(PrivateMessagingPacket.REMOVE_FRIEND_OPCODE, privateMessage);
+		incomingPacket.put(PrivateMessagingPacket.REMOVE_IGNORE_OPCODE, privateMessage);
+		incomingPacket.put(PrivateMessagingPacket.SEND_PM_OPCODE, privateMessage);
 		
 		incomingPacket.put(41, new EquipPacketHandler());
 		
@@ -83,6 +86,9 @@ public class PacketType {
 		ItemActionPacket itemActions = new ItemActionPacket();
 		
 		incomingPacket.put(ItemActionPacket.FIRST_ITEM_ACTION_OPCODE, itemActions);
+		incomingPacket.put(ItemActionPacket.SECOND_ITEM_ACTION_OPCODE, itemActions);
+		incomingPacket.put(ItemActionPacket.THIRD_ITEM_ACTION_OPCODE, itemActions);
+		incomingPacket.put(ItemActionPacket.FOURTH_ITEM_ACTION_OPCODE, itemActions);
 
 		NPCInteractionPacket npcInteraction = new NPCInteractionPacket();
 		incomingPacket.put(NPCInteractionPacket.FIRST_CLICK, npcInteraction);
@@ -100,21 +106,25 @@ public class PacketType {
 
 		incomingPacket.put(241, new ClickingIngamePacket());
 		
-		PlayeInteractionPacket playerInteraction = new PlayeInteractionPacket();
-		incomingPacket.put(PlayeInteractionPacket.ATTACK, playerInteraction);
-		incomingPacket.put(PlayeInteractionPacket.FOLLOW, playerInteraction);
+		PlayerInteractionPacket playerInteraction = new PlayerInteractionPacket();
+		incomingPacket.put(PlayerInteractionPacket.ATTACK, playerInteraction);
+		incomingPacket.put(PlayerInteractionPacket.FOLLOW, playerInteraction);
+		incomingPacket.put(PlayerInteractionPacket.MAGIC_ON_PLAYER, playerInteraction);
 		
 		incomingPacket.put(185, new ActionButtonPacket());
+		
 		incomingPacket.put(103, new CommandPacket());
+		
 		incomingPacket.put(101, new AppearanceChangePacket());
+		
 		incomingPacket.put(4, new IncomingChatPacket());
+		
 		incomingPacket.put(121, new RegionChangePacket());
-		incomingPacket.put(WalkingUpdatePacket.COMMAND_MOVEMENT_OPCODE,
-				new WalkingUpdatePacket());
-		incomingPacket.put(WalkingUpdatePacket.GAME_MOVEMENT_OPCODE,
-				new WalkingUpdatePacket());
-		incomingPacket.put(WalkingUpdatePacket.MINIMAP_MOVEMENT_OPCODE,
-				new WalkingUpdatePacket());
+		
+		WalkingUpdatePacket walking = new WalkingUpdatePacket();
+		incomingPacket.put(WalkingUpdatePacket.COMMAND_MOVEMENT_OPCODE, walking);
+		incomingPacket.put(WalkingUpdatePacket.GAME_MOVEMENT_OPCODE, walking);
+		incomingPacket.put(WalkingUpdatePacket.MINIMAP_MOVEMENT_OPCODE, walking);
 		
 		UseItemPacketHandler useItem = new UseItemPacketHandler();
 		
