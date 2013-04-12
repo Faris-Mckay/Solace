@@ -1,7 +1,7 @@
 package org.solace.task.impl;
 
 import org.solace.game.Game;
-import org.solace.game.entity.grounded.GroundItemHandler;
+import org.solace.game.entity.mobile.MobileUpdateExecutor;
 import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.task.Task;
@@ -38,14 +38,21 @@ public class EntityUpdateTask extends Task {
 		}
 
 		/*
-		 * Loops through and first updates player, then NPCS
+		 * Loops through and first includes player, then NPCS in the update
 		 */
 		for (Player player : Game.playerRepository.values()) {
 			if (player != null) {
-				player.getUpdater().updateMaster();
-				player.getNpcUpdating().updateThisNpc();
+                                //MobileUpdateExecutor.includeTask(new PlayerUpdateTask(player));
+                               // MobileUpdateExecutor.includeTask(new NPCUpdateTask(player));
+                                player.getUpdater().updateMobile();
+                                player.getNpcUpdating().updateMobile();
 			}
 		}
+                
+                /**
+                 * Updates all awaiting tasks
+                 */
+                MobileUpdateExecutor.getInstance().executeUpdates();
 
 		/*
 		 * resets all player update flags
@@ -66,9 +73,7 @@ public class EntityUpdateTask extends Task {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		
-		GroundItemHandler.updateGroundItems();
+                }
 
 		/**
 		 * Finally, register all players waiting to log in

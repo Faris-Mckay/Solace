@@ -3,34 +3,36 @@ package org.solace.game.entity.mobile.npc;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.solace.game.Game;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
+import org.solace.game.entity.mobile.MobileUpdateTask;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.map.Location;
 import org.solace.network.packet.PacketBuilder;
 
-public class NPCUpdating {
+public class NPCUpdateTask extends MobileUpdateTask {
 
 	private Player player;
 
 	private List<NPC> localNpcs;
 
-	public NPCUpdating(Player player) {
+	public NPCUpdateTask(Player player) {
 		this.player = player;
-		localNpcs = new LinkedList<NPC>();
+		localNpcs = new LinkedList<>();
 	}
 
 	/**
 	 * Updates this npc
 	 */
-	public void updateThisNpc() {
+        @Override
+	public void updateMobile() {
 
 		PacketBuilder out = PacketBuilder.allocate(4096);
 		PacketBuilder block = PacketBuilder.allocate(2048);
 
-		if (out == null || block == null)
-			return;
+		if (out == null || block == null) {
+                    return;
+                }
 		/*
 		 * Initializes the npc updating packet
 		 */
@@ -66,27 +68,21 @@ public class NPCUpdating {
 				iterator.remove();
 			}
 		}
-		/*
-		 * Loops through all available npcs in the repository
-		 */
-		for (NPC npc : Game.npcRepository.values()) {
-
-			if (npc == null || !npc.isNpcVisible()
-					|| player.getNpcUpdating().localNpcs.contains(npc))
-				continue;
-
-			/*
-			 * Checks if the npc is within distance of the player
-			 */
-			if (player.getLocation().withinDistance(npc.getLocation())) {
-				/*
-				 * Adds a new npc to the list
-				 */
-				player.getNpcUpdating().localNpcs.add(npc);
-				addNPC(out, npc);
-				appendNpcUpdateBlock(block, npc);
-			}
-		}
+        for (Iterator<NPC> it = Game.npcRepository.values().iterator(); it.hasNext();) {
+            NPC npc = it.next();
+            if (npc == null || !npc.isNpcVisible()
+                            || player.getNpcUpdating().localNpcs.contains(npc)) {
+                continue;
+            }
+            if (player.getLocation().withinDistance(npc.getLocation())) {
+                    /*
+                     * Adds a new npc to the list
+                     */
+                    player.getNpcUpdating().localNpcs.add(npc);
+                    addNPC(out, npc);
+                    appendNpcUpdateBlock(block, npc);
+            }
+        }
 		/*
 		 * Sends the status to the client
 		 */
@@ -249,5 +245,10 @@ public class NPCUpdating {
 		double x = (double) i / (double) i1;
 		return (int) Math.round(x * i2);
 	}
+
+    @Override
+    public void run() {
+        updateMobile();
+    }
 
 }

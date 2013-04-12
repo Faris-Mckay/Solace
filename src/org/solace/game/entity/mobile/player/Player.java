@@ -14,7 +14,7 @@ import org.solace.game.content.music.MusicHandler;
 import org.solace.game.content.skills.SkillHandler;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.entity.mobile.Mobile;
-import org.solace.game.entity.mobile.npc.NPCUpdating;
+import org.solace.game.entity.mobile.npc.NPCUpdateTask;
 import org.solace.game.item.container.impl.Banking;
 import org.solace.game.item.container.impl.Equipment;
 import org.solace.game.item.container.impl.Inventory;
@@ -39,11 +39,11 @@ public class Player extends Mobile {
 	private PacketDispatcher packetDispatcher = new PacketDispatcher(this);
 	private PrivateMessaging playerMessaging = new PrivateMessaging(this);
 	private MusicHandler musichandler = new MusicHandler(this);
-	private PlayerUpdating updating = new PlayerUpdating(this);
+	private PlayerUpdateTask updating = new PlayerUpdateTask(this);
 	private Equipment equipment = new Equipment(this);
 	private Inventory inventory = new Inventory(this);
 	private SkillHandler skills = new SkillHandler(this);
-	private NPCUpdating npcUpdating = new NPCUpdating(this);
+	private NPCUpdateTask npcUpdating = new NPCUpdateTask(this);
 	private SkillHandler skillHandler = new SkillHandler(this);
 	private PlayerAdvocate advocate = new PlayerAdvocate(this);
 	private PrayerHandler prayerHandler = new PrayerHandler();
@@ -192,7 +192,7 @@ public class Player extends Mobile {
 	/**
 	 * @return the assistant
 	 */
-	public PlayerUpdating getUpdater() {
+	public PlayerUpdateTask getUpdater() {
 		return updating;
 	}
 
@@ -252,7 +252,7 @@ public class Player extends Mobile {
 	 * 
 	 * @return
 	 */
-	public NPCUpdating getNpcUpdating() {
+	public NPCUpdateTask getNpcUpdating() {
 		return npcUpdating;
 	}
 

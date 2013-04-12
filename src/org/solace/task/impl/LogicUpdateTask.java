@@ -22,6 +22,7 @@ public class LogicUpdateTask extends Task {
 		 * Handles the cycle for the ground item lifetime
 		 */
 		GroundItemHandler.updateGroundItems();
+                
 	}
 
 }

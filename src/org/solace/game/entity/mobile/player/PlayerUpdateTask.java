@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.solace.game.Game;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
+import org.solace.game.entity.mobile.MobileUpdateTask;
 import org.solace.game.item.ItemDefinition;
 import org.solace.game.item.container.impl.Equipment;
 import org.solace.network.packet.PacketBuilder;
@@ -15,7 +16,7 @@ import org.solace.util.ProtocolUtils;
  * 
  * @author Faris
  */
-public class PlayerUpdating {
+public class PlayerUpdateTask extends MobileUpdateTask {
 
 	private Player master;
 	private boolean teleporting = true;
@@ -24,7 +25,7 @@ public class PlayerUpdating {
 	public byte chatText[] = new byte[256];
 	public int chatTextEffects = 0, chatTextColor = 0;
 
-	public PlayerUpdating(Player master) {
+	public PlayerUpdateTask(Player master) {
 		this.master = master;
 		localPlayers = new LinkedList<Player>();
 	}
@@ -52,7 +53,8 @@ public class PlayerUpdating {
 	/**
 	 * Handles the player update protocol
 	 */
-	public void updateMaster() {
+        @Override
+	public void updateMobile() {
 		if (mapRegionChanging) {
 			master.getPacketDispatcher().sendMapRegion();
 		}
@@ -101,11 +103,10 @@ public class PlayerUpdating {
 			// out.put(player.getCachedUpdateBlock().buffer());
 			// return;
 		}
-
 		int mask = 0x0;
-		//if (player.getUpdateFlags().get(UpdateFlag.FORCE_MOVEMENT)) {
+		if (player.getUpdateFlags().get(UpdateFlag.FORCE_MOVEMENT)) {
 		//	mask |= UpdateFlag.FORCE_MOVEMENT.getMask();
-		//}
+                }
 		if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
 			mask |= UpdateFlag.GRAPHICS.getMask();
 		}
@@ -432,32 +433,32 @@ public class PlayerUpdating {
 		out.putByteC(player.getAnimation().getDelay());
 	}
 
-	public PlayerUpdating localPlayers(List<Player> localPlayers) {
+	public PlayerUpdateTask localPlayers(List<Player> localPlayers) {
 		this.localPlayers = localPlayers;
 		return this;
 	}
 
-	public PlayerUpdating setMapRegionChanging(boolean status) {
+	public PlayerUpdateTask setMapRegionChanging(boolean status) {
 		this.mapRegionChanging = status;
 		return this;
 	}
 
-	public PlayerUpdating setTeleporting(boolean status) {
+	public PlayerUpdateTask setTeleporting(boolean status) {
 		this.teleporting = status;
 		return this;
 	}
 
-	public PlayerUpdating chatText(byte[] chatText) {
+	public PlayerUpdateTask chatText(byte[] chatText) {
 		this.chatText = chatText;
 		return this;
 	}
 
-	public PlayerUpdating chatTextEffects(int chatTextEffects) {
+	public PlayerUpdateTask chatTextEffects(int chatTextEffects) {
 		this.chatTextEffects = chatTextEffects;
 		return this;
 	}
 
-	public PlayerUpdating chatTextColor(int chatTextColor) {
+	public PlayerUpdateTask chatTextColor(int chatTextColor) {
 		this.chatTextColor = chatTextColor;
 		return this;
 	}
@@ -472,5 +473,10 @@ public class PlayerUpdating {
 		getMaster().getMobilityManager().walkingDirection(-1)
 				.runningDirection(-1);
 	}
+
+    @Override
+    public void run() {
+        updateMobile();
+    }
 
 }
