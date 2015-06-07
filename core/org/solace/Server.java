@@ -22,6 +22,7 @@ import mint.event.EventManager;
 import mint.event.UniversalEventManager;
 import org.solace.event.EventSystemHandler;
 import org.solace.event.listener.AttackListener;
+import org.solace.event.listener.PlayerDisconnectionListener;
 import org.solace.event.listener.PlayerLoginListener;
 import org.solace.event.listener.PlayerLogoutListener;
 import org.solace.event.listener.PlayerSaveListener;
@@ -108,6 +109,7 @@ public class Server {
         eventManager.registerListener(new SpecialAttackListener());
         eventManager.registerListener(new AttackListener());
         eventManager.registerListener(new ProcessCommandListener());
+        eventManager.registerListener(new PlayerDisconnectionListener());
     }
 
     /**

@@ -16,72 +16,68 @@
 package org.solace.task.impl;
 
 import org.solace.game.Game;
-import org.solace.game.entity.mobile.MobileUpdateExecutor;
-import org.solace.game.entity.mobile.MobileUpdateTask;
-import org.solace.game.entity.mobile.ParallelUpdateTask;
+import org.solace.game.entity.mobile.update.MobileUpdateExecutor;
+import org.solace.game.entity.mobile.update.MobileUpdateTask;
+import org.solace.game.entity.mobile.update.ParallelUpdateTask;
 import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.task.Task;
 
 /**
- * 
+ *
  * @author Faris
  */
 public class EntityUpdateTask extends Task {
 
-	@Override
-	public void execute() {
-		/*
-		 * Loops through and handles all player content
-		 */
-		for (Player player : Game.getPlayerRepository().values()) {
-			if (player != null) {
-				player.update();
-			}
-		}
+    @Override
+    public void execute() {
+        /*
+         * Loops through and handles all player content
+         */
+        for (Player player : Game.getPlayerRepository().values()) {
+            if (player != null) {
+                player.update();
+            }
+        }
 
-		/*
-		 * Loops through all NPCs and handles all logic to be updated (e.g
-		 * Combat and animations)
-		 */
-		for (NPC npc : Game.getNpcRepository().values()) {
-			if (npc != null) {
-				try {
-					npc.update();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
+        /*
+         * Loops through all NPCs and handles all logic to be updated (e.g
+         * Combat and animations)
+         */
+        for (NPC npc : Game.getNpcRepository().values()) {
+            if (npc != null) {
+                try {
+                    npc.update();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-		/*
-		 * Loops through and first includes player, then NPCS in the update
-		 */
-                MobileUpdateTask task = new ParallelUpdateTask();
-                
-                
-                /**
-                 * Unimplemented, for use with machines which don't benefit from multiple cores
-                 */
+        /*
+         * Loops through and first includes player, then NPCS in the update
+         */
+        MobileUpdateTask task = new ParallelUpdateTask();
+
+        /**
+         * Unimplemented, for use with machines which don't benefit from
+         * multiple cores
+         */
                 //MobileUpdateTask task = new SequentialUpdateTask();
-                
-                
-                /**
-                 * Ensures the updates are handled in correct ordered 
-                 */
-                MobileUpdateExecutor.includeTask(task);
-    
-                
-                /**
-                 * Updates all awaiting tasks
-                 */
-                MobileUpdateExecutor.getInstance().executeUpdates();
+        /**
+         * Ensures the updates are handled in correct ordered
+         */
+        MobileUpdateExecutor.includeTask(task);
 
+        /**
+         * Updates all awaiting tasks
+         */
+        MobileUpdateExecutor.getInstance().executeUpdates();
 
-		/**
-		 * Finally, register all players waiting to log in
-		 */
-		Game.getSingleton().syncCycleRegistrys();
-	}
+        /**
+         * Finally, register all players waiting to log in
+         */
+        Game.getSingleton().syncCycleRegistrys();
+    }
 
 }

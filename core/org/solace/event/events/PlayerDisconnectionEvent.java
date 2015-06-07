@@ -13,25 +13,25 @@
  * Solace. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.solace.event.listener;
+package org.solace.event.events;
 
-import mint.event.EventHandler;
-import mint.event.EventListener;
-
-import org.solace.event.events.ProcessCommandEvent;
-import org.solace.game.entity.mobile.player.command.CommandHandler;
+import mint.event.Event;
+import org.solace.game.entity.mobile.player.Player;
 
 /**
- * Processes a players command through the command handler
  *
  * @author Faris <https://github.com/faris-mckay>
- *
  */
-public class ProcessCommandListener implements EventListener {
+public class PlayerDisconnectionEvent implements Event {
+    
+    private Player player;
 
-    @EventHandler
-    public void processCommand(ProcessCommandEvent event) {
-        CommandHandler.processCommand(event.getPlayer(), event.getCommand());
+    public PlayerDisconnectionEvent(Player player) {
+        this.player = player;
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+    
 }

@@ -28,7 +28,7 @@ import org.solace.task.Task;
 public class EngineCleanTask extends Task {
 	
 	public EngineCleanTask() {
-		super(100);
+		super(500);
 		System.gc();
 		System.runFinalization();
 		Server.logger.info("System resource cleanup scheduled...");
