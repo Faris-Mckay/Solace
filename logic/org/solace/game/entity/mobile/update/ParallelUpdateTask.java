@@ -13,7 +13,7 @@
  * Solace. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.solace.game.entity.mobile;
+package org.solace.game.entity.mobile.update;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadFactory;
 import org.solace.game.Game;
 import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.game.entity.mobile.player.Player;
-import org.solace.game.entity.mobile.player.PlayerUpdateTask;
+import org.solace.game.entity.mobile.update.impl.PlayerUpdateTask;
 import org.solace.game.entity.mobile.update.PostUpdateExecutor;
 import org.solace.game.entity.mobile.update.PreUpdateExecutor;
 import org.solace.util.NamedThreadFactory;

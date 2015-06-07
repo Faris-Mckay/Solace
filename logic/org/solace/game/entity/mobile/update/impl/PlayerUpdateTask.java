@@ -13,7 +13,7 @@
  * Solace. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.solace.game.entity.mobile.player;
+package org.solace.game.entity.mobile.update.impl;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,7 +21,8 @@ import java.util.List;
 
 import org.solace.game.Game;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
-import org.solace.game.entity.mobile.MobileUpdateTask;
+import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.entity.mobile.update.MobileUpdateTask;
 import org.solace.game.item.ItemDefinition;
 import org.solace.game.item.container.impl.Equipment;
 import org.solace.network.packet.PacketBuilder;

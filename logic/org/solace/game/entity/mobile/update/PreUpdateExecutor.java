@@ -15,7 +15,6 @@
  */
 package org.solace.game.entity.mobile.update;
 
-import org.solace.game.entity.mobile.MobileUpdateTask;
 import org.solace.game.entity.mobile.player.Player;
 
 

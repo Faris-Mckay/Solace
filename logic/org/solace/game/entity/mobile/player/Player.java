@@ -15,8 +15,10 @@
  */
 package org.solace.game.entity.mobile.player;
 
+import org.solace.game.entity.mobile.update.impl.PlayerUpdateTask;
 import java.util.Random;
 import org.solace.Server;
+import org.solace.event.events.PlayerDisconnectionEvent;
 import org.solace.event.events.PlayerLoginEvent;
 import org.solace.event.events.PlayerLogoutEvent;
 import org.solace.event.impl.PlayerDeathService;
@@ -29,7 +31,7 @@ import org.solace.game.content.dialogue.Dialogue;
 import org.solace.game.content.skills.SkillHandler;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.entity.mobile.Mobile;
-import org.solace.game.entity.mobile.npc.NPCUpdateTask;
+import org.solace.game.entity.mobile.update.impl.NPCUpdateTask;
 import org.solace.game.item.container.impl.Banking;
 import org.solace.game.item.container.impl.Equipment;
 import org.solace.game.item.container.impl.Inventory;
@@ -65,9 +67,7 @@ public class Player extends Mobile {
     private PlayerSettings settings = new PlayerSettings();
     private Banking banking = new Banking(this);
 
-    /*
-     * Cached details.
-     */
+
     /**
      * The cached update block.
      */
@@ -98,9 +98,10 @@ public class Player extends Mobile {
     private int prayerIcon = -1;
     private double prayerDrainRate;
     public long foodDelay;
+    private boolean genuineDisconnection = false, disconnectionHandled;
 
     public Player(String username, String password, RSChannelContext channelContext) {
-        super(new Location(3200 + new Random().nextInt(200),3200+ new Random().nextInt(200)));
+        super(new Location(3200,3200));
         this.authenticator = new PlayerAuthentication(username, password);
         this.channelContext = channelContext;
         setDefaultAppearance();
@@ -116,20 +117,12 @@ public class Player extends Mobile {
     public void update() {
         getMobilityManager().processMovement();
         if (getStatus() != WelfareStatus.DEAD) {
-            /*
-             * Combat tick
-             */
             Combat.handleCombatTick(this);
             if (inWild()) {
                 getPacketDispatcher().sendWalkableInterface(197);
                 getPacketDispatcher().sendString(199, "@yel@Level: " + getWildernessLevel());
             }
-
-            /*
-             * Prayer draining
-             */
             PrayerHandler.handlePrayerDraining(this);
-
             getSkills().handleSkillRestoring();
         }
     }
@@ -174,10 +167,18 @@ public class Player extends Mobile {
      * Schedules a new logout event event for this player
      */
     public void handleLogoutData() {
+        setGenuineDisconnection(true);
         if (System.currentTimeMillis() - getCombatDelay() > 10000) {
             Server.getEventManager().dispatchEvent(new PlayerLogoutEvent(this));
         } else {
             getPacketDispatcher().sendMessage("You must wait a few seconds before loggout out of combat.");
+        }
+    }
+    
+    public void handleDisconnection(){
+        if(!isDisconnectionHandled()){
+            Server.getEventManager().dispatchEvent(new PlayerDisconnectionEvent(this));
+            setDisconnectionHandled(true);
         }
     }
 
@@ -494,6 +495,34 @@ public class Player extends Mobile {
 
     public void setBuryingBones(boolean burying) {
         this.buryingBones = burying;
+    }
+
+    /**
+     * @return the genuineDisconnection
+     */
+    public boolean isGenuineDisconnection() {
+        return genuineDisconnection;
+    }
+
+    /**
+     * @param genuineDisconnection the genuineDisconnection to set
+     */
+    public void setGenuineDisconnection(boolean genuineDisconnection) {
+        this.genuineDisconnection = genuineDisconnection;
+    }
+
+    /**
+     * @return the disconnectionHandled
+     */
+    public boolean isDisconnectionHandled() {
+        return disconnectionHandled;
+    }
+
+    /**
+     * @param disconnectionHandled the disconnectionHandled to set
+     */
+    public void setDisconnectionHandled(boolean disconnectionHandled) {
+        this.disconnectionHandled = disconnectionHandled;
     }
 
 }

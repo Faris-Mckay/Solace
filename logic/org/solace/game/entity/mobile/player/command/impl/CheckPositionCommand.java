@@ -13,14 +13,26 @@
  * Solace. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.solace.game.entity.mobile;
+package org.solace.game.entity.mobile.player.command.impl;
+
+import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.entity.mobile.player.PrivilegeRank;
+import org.solace.game.entity.mobile.player.command.Command;
 
 /**
  *
- * @author Faris
+ * @author Faris <https://github.com/faris-mckay>
  */
-public abstract class MobileUpdateTask implements Runnable { 
-    
-    public abstract void synchronize();
+public class CheckPositionCommand extends Command {
+
+    @Override
+    public void handle(Player player, String command) {
+        player.getAdvocate().displayChatboxText("X: " + player.getLocation().getX() + " Y: " + player.getLocation().getY());
+    }
+
+    @Override
+    public PrivilegeRank rightsRequired() {
+        return PrivilegeRank.MODERATOR;
+    }
     
 }

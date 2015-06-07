@@ -13,26 +13,32 @@
  * Solace. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.solace.network.packet.impl;
+package org.solace.game.entity.mobile.player.command.impl;
 
-import org.solace.Server;
-import org.solace.event.events.ProcessCommandEvent;
 import org.solace.game.entity.mobile.player.Player;
-import org.solace.network.packet.Packet;
-import org.solace.network.packet.PacketHandler;
-import org.solace.util.ProtocolUtils;
+import org.solace.game.entity.mobile.player.PrivilegeRank;
+import org.solace.game.entity.mobile.player.command.Command;
 
 /**
  *
  * @author Faris <https://github.com/faris-mckay>
- *
  */
-public class CommandPacket implements PacketHandler {
-
-    @Override
-    public void handlePacket(Player player, Packet packet) {
-        String command = ProtocolUtils.getRSString(packet.buffer());
-        Server.getEventManager().dispatchEvent(new ProcessCommandEvent(player, command));
+public class SetLevelCommand extends Command {
+    
+     @Override
+    public void handle(Player player, String command) {
+        String[] args = command.split(" ");
+        String secondWord = args[1].toLowerCase();
+        int skill = Integer.parseInt(secondWord);
+	int level = Integer.parseInt(args[2]);
+	player.getSkills().getPlayerLevel()[skill] = level;
+        player.getSkills().getPlayerExp()[skill] = player.getSkills().getXPForLevel(level);
+        player.getSkills().refreshSkill(skill);
     }
 
+    @Override
+    public PrivilegeRank rightsRequired() {
+        return PrivilegeRank.ADMINISTRATOR;
+    }
+    
 }

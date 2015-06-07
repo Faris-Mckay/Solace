@@ -46,7 +46,8 @@ public class Game {
     /**
      * List containing all players in queue waiting to be registered to game
      */
-    public static List<Player> registryQueue = new LinkedList<Player>();
+    public static LinkedList<Player> registryQueue = new LinkedList<Player>();
+    
 
     /**
      * Stores the singleton instance of the game class
@@ -103,15 +104,19 @@ public class Game {
     }
 
     /**
-     * Synchronizes the registry queue with the real game repository and clears
+     * Synchronises the registry queue with the real game repository and clears
      * the registry after
      */
     public void syncCycleRegistrys() {
         if (registryQueue.isEmpty()) {
             return;
         }
-        for (Player player : registryQueue) {
+        LinkedList<Player> queue = (LinkedList) registryQueue.clone();
+        for (Player player : queue) {
             if (player.isLogoutRequired()) {
+                if(!player.isGenuineDisconnection()){
+                    player.handleDisconnection();
+                }
                 getPlayerRepository().remove(player.getIndex());
                 IndexManager.freeIndex(player.getIndex());
                 player = null;

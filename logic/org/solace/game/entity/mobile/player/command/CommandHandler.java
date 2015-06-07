@@ -19,13 +19,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.solace.game.entity.mobile.player.Player;
+import org.solace.game.entity.mobile.player.command.impl.ChangeLookCommand;
+import org.solace.game.entity.mobile.player.command.impl.CheckPositionCommand;
+import org.solace.game.entity.mobile.player.command.impl.EmptyInventoryCommand;
+import org.solace.game.entity.mobile.player.command.impl.MapTeleportCommand;
+import org.solace.game.entity.mobile.player.command.impl.MasterStatsCommand;
+import org.solace.game.entity.mobile.player.command.impl.PlayAnimationCommand;
+import org.solace.game.entity.mobile.player.command.impl.PlayGraphicCommand;
+import org.solace.game.entity.mobile.player.command.impl.PlayerTeleportCommand;
+import org.solace.game.entity.mobile.player.command.impl.PlayersCheckCommand;
+import org.solace.game.entity.mobile.player.command.impl.SetLevelCommand;
+import org.solace.game.entity.mobile.player.command.impl.SetSidebarCommand;
 import org.solace.game.entity.mobile.player.command.impl.SpawnItemCommand;
 import org.solace.game.entity.mobile.player.command.impl.SpawnNPCCommand;
+import org.solace.game.entity.mobile.player.command.impl.SpawnObjectCommand;
 
 /**
  * Handles the storing and processing of commands
  *
- * @author Arithium
+ * @author Faris <https://github.com/faris-mckay>
  *
  */
 public class CommandHandler {
@@ -35,6 +47,18 @@ public class CommandHandler {
     public static void loadCommands() {
         commandMap.put("item", new SpawnItemCommand());
         commandMap.put("npc", new SpawnNPCCommand());
+        commandMap.put("players", new PlayersCheckCommand());
+        commandMap.put("master", new MasterStatsCommand());
+        commandMap.put("object", new SpawnObjectCommand());
+        commandMap.put("anim", new PlayAnimationCommand());
+        commandMap.put("gfx", new PlayGraphicCommand());
+        commandMap.put("mypos", new CheckPositionCommand());
+        commandMap.put("tele", new MapTeleportCommand());
+        commandMap.put("teleto", new PlayerTeleportCommand());
+        commandMap.put("setlevel", new SetLevelCommand());
+        commandMap.put("sidebar", new SetSidebarCommand());
+        commandMap.put("empty", new EmptyInventoryCommand());
+        commandMap.put("changelook", new ChangeLookCommand());
     }
     
     public static void processCommand(Player player, String command) {

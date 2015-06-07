@@ -13,26 +13,14 @@
  * Solace. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.solace.network.packet.impl;
-
-import org.solace.Server;
-import org.solace.event.events.ProcessCommandEvent;
-import org.solace.game.entity.mobile.player.Player;
-import org.solace.network.packet.Packet;
-import org.solace.network.packet.PacketHandler;
-import org.solace.util.ProtocolUtils;
+package org.solace.game.entity.mobile.update;
 
 /**
  *
- * @author Faris <https://github.com/faris-mckay>
- *
+ * @author Faris
  */
-public class CommandPacket implements PacketHandler {
-
-    @Override
-    public void handlePacket(Player player, Packet packet) {
-        String command = ProtocolUtils.getRSString(packet.buffer());
-        Server.getEventManager().dispatchEvent(new ProcessCommandEvent(player, command));
-    }
-
+public abstract class MobileUpdateTask implements Runnable { 
+    
+    public abstract void synchronize();
+    
 }

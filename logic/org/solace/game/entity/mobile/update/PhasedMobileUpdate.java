@@ -13,7 +13,7 @@
  * Solace. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.solace.game.entity.mobile;
+package org.solace.game.entity.mobile.update;
 
 import java.util.concurrent.Phaser;
 
