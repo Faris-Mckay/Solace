@@ -15,8 +15,8 @@
  */
 package org.solace.game.entity.mobile.player;
 
+import org.jboss.netty.channel.Channel;
 import org.solace.game.entity.mobile.update.impl.PlayerUpdateTask;
-import java.util.Random;
 import org.solace.Server;
 import org.solace.event.events.PlayerDisconnectionEvent;
 import org.solace.event.events.PlayerLoginEvent;
@@ -36,9 +36,12 @@ import org.solace.game.item.container.impl.Banking;
 import org.solace.game.item.container.impl.Equipment;
 import org.solace.game.item.container.impl.Inventory;
 import org.solace.game.map.Location;
-import org.solace.network.RSChannelContext;
+import org.solace.game.map.Region;
+import org.solace.network.Session;
+import org.solace.network.packet.Packet;
 import org.solace.network.packet.PacketBuilder;
 import org.solace.network.packet.PacketDispatcher;
+import org.solace.network.util.Stream;
 import org.solace.task.Task;
 
 /**
@@ -51,7 +54,6 @@ public class Player extends Mobile {
      * Player stored objects
      */
     private Task walkToAction;
-    private RSChannelContext channelContext;
     private PlayerAuthentication authenticator;
     private PacketDispatcher packetDispatcher = new PacketDispatcher(this);
     private PrivateMessaging playerMessaging = new PrivateMessaging(this);
@@ -72,6 +74,11 @@ public class Player extends Mobile {
      * The cached update block.
      */
     private PacketBuilder cachedUpdateBlock;
+    public boolean disconnected;
+    public boolean updateRequired;
+    private Stream outStream;
+    private Region cachedRegionNew;
+    private boolean appearanceUpdateRequired;
 
     /**
      * Initialises the attributes
@@ -96,15 +103,16 @@ public class Player extends Mobile {
     private int specialAmount = 100;
     private int specialBarId;
     private int prayerIcon = -1;
+    private Session session;
     private double prayerDrainRate;
     public long foodDelay;
     private boolean genuineDisconnection = false, disconnectionHandled;
 
-    public Player(String username, String password, RSChannelContext channelContext) {
+    public Player(Channel channel, String username, String password) {
         super(new Location(3200,3200));
         this.authenticator = new PlayerAuthentication(username, password);
-        this.channelContext = channelContext;
         setDefaultAppearance();
+      
         getUpdateFlags().flag(UpdateFlag.APPEARANCE);
         this.getAuthentication().setPlayerRights(PrivilegeRank.OWNER);
     }
@@ -125,26 +133,6 @@ public class Player extends Mobile {
             PrayerHandler.handlePrayerDraining(this);
             getSkills().handleSkillRestoring();
         }
-    }
-
-    /**
-     * Sets channel context as parsed context
-     *
-     * @param channelContext
-     * @return updated player
-     */
-    public Player channelContext(RSChannelContext channelContext) {
-        this.channelContext = channelContext;
-        return this;
-    }
-
-    /**
-     * Returns the channelContext for the player
-     *
-     * @return
-     */
-    public RSChannelContext channelContext() {
-        return channelContext;
     }
 
     /**
@@ -523,6 +511,27 @@ public class Player extends Mobile {
      */
     public void setDisconnectionHandled(boolean disconnectionHandled) {
         this.disconnectionHandled = disconnectionHandled;
+    }
+
+
+    public void queueMessage(Packet packet) {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Stream getOutStream() {
+        return outStream;
+    }
+
+    public void setCachedRegion(Region region) {
+        this.cachedRegionNew = region;
+    }
+
+    public void setAppearanceUpdateRequired(boolean b) {
+        this.appearanceUpdateRequired = b;
+    }
+
+    public Session getSession() {
+        return session;
     }
 
 }

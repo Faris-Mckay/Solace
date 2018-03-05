@@ -35,9 +35,9 @@ public class WalkingUpdatePacket implements PacketHandler {
     @Override
     public void handlePacket(Player player, Packet packet) {
         if (packet.opcode() == 248) {
-            packet.length(packet.length() - 14);
+            packet.setLength(packet.length() - 14);
         }
-        player.getPacketDispatcher().sendCloseInterface();
+        player.getPacketDispatcher().closeAllWindows();
         Combat.resetCombat(player);
         if ((Boolean) player.getAttribute("FROZEN")) {
             player.getPacketDispatcher().sendMessage("A magical force prevents you from moving.");

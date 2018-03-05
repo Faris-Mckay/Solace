@@ -41,81 +41,7 @@ public class NPCUpdateTask extends MobileUpdateTask {
 	 * Updates this npc
 	 */
 	public void updateMobile() {
-
-		PacketBuilder out = PacketBuilder.allocate(4096);
-		PacketBuilder block = PacketBuilder.allocate(2048);
-
-		if (out == null || block == null) {
-                    return;
-                }
-		/*
-		 * Initializes the npc updating packet
-		 */
-		out.createShortSizedFrame(65, player.channelContext().encryption());
-		out.bitAccess();
-		/*
-		 * Writes the local npc list size
-		 */
-		out.putBits(8, player.getNpcUpdating().localNpcs.size());
-		/*
-		 * Iterates over all of the npcs in the localNpcs list
-		 */
-		for (Iterator<NPC> iterator = localNpcs.iterator(); iterator.hasNext();) {
-			/*
-			 * Constructs a single npc from the iterator
-			 */
-			NPC n = iterator.next();
-			/*
-			 * Checks if the npc is visible and within distance and the player
-			 * has the npc in his list
-			 */
-			if (n.isNpcVisible()
-					&& player.getLocation().withinDistance(n.getLocation())
-					&& player.getNpcUpdating().localNpcs.contains(n)) {
-				updateNpcMovement(out, n);
-				appendNpcUpdateBlock(block, n);
-			} else {
-				/*
-				 * Removes the npc from the list
-				 */
-				out.putBit(true);
-				out.putBits(2, 3);
-				iterator.remove();
-			}
-		}
-        for (Iterator<NPC> it = Game.getNpcRepository().values().iterator(); it.hasNext();) {
-            NPC npc = it.next();
-            if (npc == null || !npc.isNpcVisible()
-                            || player.getNpcUpdating().localNpcs.contains(npc)) {
-                continue;
-            }
-            if (player.getLocation().withinDistance(npc.getLocation())) {
-                    /*
-                     * Adds a new npc to the list
-                     */
-                    player.getNpcUpdating().localNpcs.add(npc);
-                    addNPC(out, npc);
-                    appendNpcUpdateBlock(block, npc);
-            }
-        }
-		/*
-		 * Sends the status to the client
-		 */
-		if (block.buffer().position() > 0) {
-			out.putBits(14, 16383);
-			out.byteAccess();
-			out.put(block.buffer());
-		} else {
-			out.byteAccess();
-		}
-		/*
-		 * Ends the npc updating block
-		 */
-		out.finishShortSizedFrame();
-		/*
-		 * Writes to the players outstream channel
-		 */
-		out.sendTo(player.channelContext().channel());
+            
 	}
 
 	/**
@@ -154,7 +80,7 @@ public class NPCUpdateTask extends MobileUpdateTask {
 		out.putBits(5, delta.getX());
 		out.putBits(1, 0);
 		out.putBits(12, npc.getNpcId());
-		out.putBit(true);
+		//out.putBit(true);
 	}
 
 	private void appendNpcUpdateBlock(PacketBuilder block, NPC npc) {
@@ -205,7 +131,7 @@ public class NPCUpdateTask extends MobileUpdateTask {
 			block.putShort(npc.getUpdateFlags().getFaceIndex());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
-			block.putString(npc.getUpdateFlags().getForceChatMessage());
+			//block.putString(npc.getUpdateFlags().getForceChatMessage());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.HIT_2)) {
 			appendHitMask2(block, npc);
@@ -229,11 +155,11 @@ public class NPCUpdateTask extends MobileUpdateTask {
 	 * @param npc
 	 */
 	private void appendHitMask(PacketBuilder block, NPC npc) {
-		block.putByteA(npc.getUpdateFlags().getDamage());
+		/*block.putByteA(npc.getUpdateFlags().getDamage());
 		block.putByteC(npc.getUpdateFlags().getHitType());
 		block.putByteA(getCurrentHP(npc.getHitpoints(), npc.getDefinition()
 				.getHitpoints(), 100));
-		block.putByte(100);
+		block.putByte(100);*/
 	}
 	
 	/**
@@ -243,8 +169,8 @@ public class NPCUpdateTask extends MobileUpdateTask {
 	 */
 	public void appendHitMask2(PacketBuilder out, NPC npc) {
 		out.putByteC(npc.getUpdateFlags().getDamage2());
-		out.putByteS(npc.getUpdateFlags().getHitType2());
-		out.putByteS(getCurrentHP(npc.getHitpoints(), npc.getDefinition().getHitpoints(), 100));
+		//out.putByteS(npc.getUpdateFlags().getHitType2());
+		//out.putByteS(getCurrentHP(npc.getHitpoints(), npc.getDefinition().getHitpoints(), 100));
 		out.putByteC(100);
 	}
 

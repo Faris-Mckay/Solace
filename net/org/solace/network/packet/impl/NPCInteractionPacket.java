@@ -42,7 +42,7 @@ public class NPCInteractionPacket implements PacketHandler {
 
     @Override
     public void handlePacket(Player player, Packet packet) {
-        switch (packet.opcode()) {
+        switch (packet.getOpcode()) {
             case ATTACK:
                 handleNpcAttack(player, packet);
                 break;

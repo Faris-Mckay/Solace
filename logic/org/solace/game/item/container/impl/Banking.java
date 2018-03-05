@@ -246,8 +246,7 @@ public class Banking extends Container {
 	@Override
 	public Banking refreshItems() {
 		player().getPacketDispatcher().sendItemContainer(this, BANK_INTERFACE);
-		player().getPacketDispatcher().sendItemContainer(
-				player().getInventory(), BANK_INVENTORY_INTERFACE);
+		player().getPacketDispatcher().sendItemContainer(player().getInventory(), BANK_INVENTORY_INTERFACE);
 		return this;
 	}
 

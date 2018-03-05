@@ -37,18 +37,14 @@ public class PlayerLogoutListener implements EventListener {
 
     @EventHandler
     public void handleLogout(PlayerLogoutEvent event) {
-        if (event.getPlayer().channelContext().channel() == null) {
+        if (event.getPlayer().getSession().getChannel() == null) {
             Game.getSingleton().deregister(event.getPlayer());
             return;
         }
         event.getPlayer().getPrivateMessaging().refresh(true);
         Server.getEventManager().dispatchEvent(new PlayerSaveEvent(event.getPlayer()));
         event.getPlayer().getPacketDispatcher().sendLogout();
-        try {
-            event.getPlayer().channelContext().channel().close();
-        } catch (IOException ex) {
-            Logger.getLogger(PlayerLogoutListener.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        event.getPlayer().getSession().getChannel().close();
         Game.getSingleton().deregister(event.getPlayer());
         Server.logger.info("[Deregistry]: connection terminated for player: " + event.getPlayer().getAuthentication().getUsername());
     }

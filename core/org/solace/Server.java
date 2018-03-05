@@ -31,8 +31,6 @@ import org.solace.event.listener.SpecialAttackListener;
 import org.solace.game.Game;
 import org.solace.game.content.combat.specials.SpecialAttackManager;
 import org.solace.game.entity.mobile.player.command.CommandHandler;
-import org.solace.network.NIOSelector;
-import org.solace.network.NIOServer;
 import org.solace.task.TaskExecuter;
 import org.solace.task.impl.MaintainedNetworkTask;
 import org.solace.task.impl.ShutdownExecutionTask;
@@ -57,14 +55,6 @@ public class Server {
      * Creates a new instance of the event manager
      */
     private static EventManager eventManager = new UniversalEventManager();
-    /**
-     * NIOselector instance for networking
-     */
-    public static NIOSelector selector;
-    /**
-     * Handles the timed listening for new connections
-     */
-    public static MaintainedNetworkTask networkTask;
 
     /**
      * Pre-loads any required data for game
@@ -73,7 +63,6 @@ public class Server {
      */
     private void init() throws Exception {
         Runtime.getRuntime().addShutdownHook(new ShutdownExecutionTask());
-        selector = new NIOSelector();
         XStreamUtil.loadAllXmlData();
         SpecialAttackManager.loadSpecials();
         CommandHandler.loadCommands();
@@ -85,9 +74,7 @@ public class Server {
      * @throws IOException
      */
     private void constructNetwork() throws IOException {
-        NIOServer.bind(Constants.SERVER_LISTEN_PORT);
-        networkTask = new MaintainedNetworkTask(selector);
-        TaskExecuter.get().schedule(networkTask);
+        new MaintainedNetworkTask().init();
         logger.info("Constructing network backend...");
     }
 

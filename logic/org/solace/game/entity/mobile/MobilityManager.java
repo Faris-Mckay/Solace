@@ -116,9 +116,9 @@ public class MobilityManager {
 		if (mobile.getStatus() == WelfareStatus.DEAD) {
 			return;
 		}
-		if ((Boolean) mobile.getAttribute("FROZEN")) {
+	/*	if ((Boolean) mobile.getAttribute("FROZEN")) {
 			return;
-		}
+		}*/
 		if (mobile instanceof Player) {
 			if (movementSteps.isEmpty()) {
 				return;

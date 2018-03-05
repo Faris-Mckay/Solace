@@ -1,427 +1,468 @@
-/*
- * This file is part of Solace Framework.
- * Solace is free software: you can redistribute it and/or modify it under the
+/**
+ * This file is part of Zap Framework.
+ *
+ * Zap is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
  *
- * Solace is distributed in the hope that it will be useful, but WITHOUT ANY
+ * Zap is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * Solace. If not, see <http://www.gnu.org/licenses/>.
- *
+ * Zap. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.solace.network.packet;
 
-import java.nio.ByteBuffer;
-
-import net.burtlebutle.bob.rand.isaac.ISAAC;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.solace.network.packet.Packet.Type;
 
 /**
- * Data packet builder.
- * 
- * Helper class to build outgoing {@link Packet}s under RuneScape protocol
- * standards.
- * 
- * @author kLeptO <http://www.rune-server.org/members/klepto/>
+ *
+ * @author Faris
  */
-public class PacketBuilder extends Packet {
+public class PacketBuilder {
 
-	private int[] frameSizes = new int[10];
-	private int frameSizePointer = 0;
+    /**
+     * Bit mask array.
+     */
+    public static final int[] BIT_MASK_OUT = new int[32];
 
-	private int bitPosition;
-	private boolean bitAccess = false;
+    /**
+     * Creates the bit mask array.
+     */
+    static {
+        for (int i = 0; i < BIT_MASK_OUT.length; i++) {
+            BIT_MASK_OUT[i] = (1 << i) - 1;
+        }
+    }
+    /**
+     * The opcode.
+     */
+    private final int opcode;
+    /**
+     * The type.
+     */
+    private final Type type;
+    /**
+     * The payload.
+     */
+    private final ChannelBuffer payload = ChannelBuffers.dynamicBuffer();
+    /**
+     * The current bit position.
+     */
+    private int bitPosition;
 
-	/**
-	 * Writes a boolean bit flag.
-	 * 
-	 * @param flag
-	 *            the flag
-	 */
-	public PacketBuilder putBit(boolean flag) {
-		putBits(1, flag ? 1 : 0);
-		return this;
-	}
+    /**
+     * Creates a raw packet builder.
+     */
+    public PacketBuilder() {
+        this(-1);
+    }
 
-	/**
-	 * Appends the bytes buffer to this packet.
-	 * 
-	 * @param buffer
-	 *            the bytes buffer
-	 */
-	public PacketBuilder put(ByteBuffer buffer) {
-		buffer().put((ByteBuffer) buffer.flip());
-		return this;
-	}
+    /**
+     * Creates a fixed packet builder with the specified opcode.
+     *
+     * @param opcode The opcode.
+     */
+    public PacketBuilder(final int opcode) {
+        this(opcode, Type.FIXED);
+    }
+    
+    
 
-	/**
-	 * Appends the bytes array to this packet.
-	 * 
-	 * @param buffer
-	 *            the bytes array
-	 */
-	public PacketBuilder put(byte[] buffer) {
-		for (int i = 0; i < buffer.length; i++) {
-			buffer().put(buffer[i]);
-		}
-		return this;
-	}
+    /**
+     * Creates a packet builder with the specified opcode and type.
+     *
+     * @param opcode The opcode.
+     * @param type The type.
+     */
+    public PacketBuilder(final int opcode, final Type type) {
+        this.opcode = opcode;
+        this.type = type;
+    }
 
-	/**
-	 * Puts the signed byte to the buffer.
-	 * 
-	 * @param value
-	 *            the signed byte
-	 */
-	public PacketBuilder putByte(int value) {
-		buffer().put((byte) value);
-		return this;
-	}
+    /**
+     * Writes a byte.
+     *
+     * @param b The byte to write.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder put(final byte b) {
+        payload.writeByte(b);
+        return this;
+    }
 
-	/**
-	 * Puts the signed byte with addition.
-	 * 
-	 * @param value
-	 *            the signed byte
-	 */
-	public PacketBuilder putByteA(int value) {
-		putByte(value + 128);
-		return this;
-	}
+    /**
+     * Puts boolean as a bit into byte buffer.
+     *
+     * @param amount the number of bits
+     *
+     * @param value the boolean value
+     */
+    public PacketBuilder putBits(int amount, boolean value) {
+        putBits(amount, value ? 1 : 0);
+        return this;
+    }
 
-	/**
-	 * Puts the signed byte as subtrahend.
-	 * 
-	 * @param value
-	 *            the signed byte
-	 */
-	public PacketBuilder putByteS(int value) {
-		putByte(128 - value);
-		return this;
-	}
+    /**
+     * Writes an array of bytes.
+     *
+     * @param b The byte array.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder put(final byte[] b) {
+        payload.writeBytes(b);
+        return this;
+    }
 
-	/**
-	 * Puts the negated signed byte.
-	 * 
-	 * @param value
-	 *            the signed byte
-	 */
-	public PacketBuilder putByteC(int value) {
-		putByte(-value);
-		return this;
-	}
+    /**
+     * Writes a short.
+     *
+     * @param s The short.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putShort(final int s) {
+        payload.writeShort((short) s);
+        return this;
+    }
 
-	/**
-	 * Puts the signed short.
-	 * 
-	 * @param value
-	 *            the signed short
-	 */
-	public PacketBuilder putShort(int value) {
-		buffer().putShort((short) value);
-		return this;
-	}
+    /**
+     * Writes an integer.
+     *
+     * @param i The integer.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putInt(final int i) {
+        payload.writeInt(i);
+        return this;
+    }
 
-	/**
-	 * Puts the big-endian short with addition.
-	 * 
-	 * @param value
-	 *            the signed short
-	 */
-	public PacketBuilder putShortA(int value) {
-		putByte(value >> 8).putByte(value + 128);
-		return this;
-	}
+    /**
+     * Writes a long.
+     *
+     * @param l The long.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putLong(final long l) {
+        payload.writeLong(l);
+        return this;
+    }
 
-	/**
-	 * Puts the signed little-endian short.
-	 * 
-	 * @param value
-	 *            the signed short
-	 */
-	public PacketBuilder putLEShort(int value) {
-		putByte(value).putByte(value >> 8);
-		return this;
-	}
+    /**
+     * Converts this PacketBuilder to a packet.
+     *
+     * @return The Packet object.
+     */
+    public Packet toPacket() {
+        return new Packet(opcode, type, payload.copy());
+    }
 
-	/**
-	 * Puts the signed little-endian short with addition.
-	 * 
-	 * @param value
-	 *            the signed short
-	 */
-	public PacketBuilder putLEShortA(int value) {
-		putByte(value + 128).putByte(value >> 8);
-		return this;
-	}
+    /**
+     * Writes a RuneScape string.
+     *
+     * @param string The string to write.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putRS2String(final String string) {
+        payload.writeBytes(string.getBytes());
+        payload.writeByte((byte) 10);
+        return this;
+    }
 
-	/**
-	 * Puts the mixed-endian small integer.
-	 * 
-	 * @param value
-	 *            the signed integer
-	 */
-	public PacketBuilder putInt1(int value) {
-		putByte((byte) (value >> 8)).putByte((byte) value)
-				.putByte((byte) (value >> 24)).putByte((byte) (value >> 16));
-		return this;
-	}
+    /**
+     * Writes a type-A short.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putShortA(final int val) {
+        payload.writeByte((byte) (val >> 8));
+        payload.writeByte((byte) (val + 128));
+        return this;
+    }
 
-	public PacketBuilder putInt(int value) {
-		putByte((byte) (value >> 24)).putByte((byte) value >> 16)
-				.putByte((byte) (value >> 8)).putByte((byte) (value));
-		return this;
-	}
+    /**
+     * Writes a little endian type-A short.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putLEShortA(final int val) {
+        payload.writeByte((byte) (val + 128));
+        payload.writeByte((byte) (val >> 8));
+        return this;
+    }
 
-	public PacketBuilder putLEInt(int value) {
-		putByte((byte) (value)).putByte((byte) value >> 8)
-				.putByte((byte) (value >> 16)).putByte((byte) (value >> 24));
-		return this;
-	}
+    /**
+     * Checks if this packet builder is empty.
+     *
+     * @return <code>true</code> if so, <code>false</code> if not.
+     */
+    public boolean isEmpty() {
+        return payload.writerIndex() == 0;
+    }
 
-	/**
-	 * Puts an integer value
-	 * 
-	 * @param value
-	 *            The signed integer
-	 * @return The packet builder
-	 */
-	public PacketBuilder putInt2(int value) {
-		putByte(value >> 16).putByte(value >> 24).putByte(value)
-				.putByte(value >> 8);
-		return this;
-	}
+    /**
+     * Starts bit access.
+     *
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder startBitAccess() {
+        bitPosition = payload.writerIndex() * 8;
+        return this;
+    }
 
-	public PacketBuilder putIntTest(int value) {
-		putByte(value >> 8).putByte(value >> 16).putByte(value)
-				.putByte(value >> 24);
-		return this;
-	}
+    /**
+     * Finishes bit access.
+     *
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder finishBitAccess() {
+        payload.writerIndex((bitPosition + 7) / 8);
+        return this;
+    }
 
-	public PacketBuilder putByte3(int value) {
-		putByte((byte) value).putByte((byte) value >> 8).putByte(
-				(byte) value >> 16);
-		return this;
-	}
+    /**
+     * Writes some bits.
+     *
+     * @param numBits The number of bits to write.
+     * @param value The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putBits(int numBits, final int value) {
+        if (!payload.hasArray()) {
+            throw new UnsupportedOperationException("The ChannelBuffer implementation must support array() for bit usage.");
+        }
+        final int bytes = (int) Math.ceil(numBits / 8D) + 1;
+        payload.ensureWritableBytes((bitPosition + 7) / 8 + bytes);
 
-	/**
-	 * Puts the given amount of bytes with the same specified value.
-	 * 
-	 * @param value
-	 *            the value of the bytes
-	 * 
-	 * @param amount
-	 *            the amount of bytes
-	 */
-	public PacketBuilder putBytes(int value, int amount) {
-		for (; amount > 0; amount--) {
-			putByte(value);
-		}
-		return this;
-	}
+        final byte[] buffer = payload.array();
 
-	/**
-	 * Writes the bytes into this buffer.
-	 * 
-	 * @param from
-	 */
-	public void writeBytes(byte[] from, int size) {
-		buffer().put(from, 0, size);
-	}
+        int bytePos = bitPosition >> 3;
+        int bitOffset = 8 - (bitPosition & 7);
+        bitPosition += numBits;
 
-	/**
-	 * Puts the signed long to the buffer.
-	 * 
-	 * @param value
-	 *            the signed long
-	 */
-	public PacketBuilder putLong(long value) {
-		buffer().putLong(value);
-		return this;
-	}
+        for (; numBits > bitOffset; bitOffset = 8) {
+            buffer[bytePos] &= ~BIT_MASK_OUT[bitOffset];
+            buffer[bytePos++] |= (value >> (numBits - bitOffset)) & BIT_MASK_OUT[bitOffset];
+            numBits -= bitOffset;
+        }
+        if (numBits == bitOffset) {
+            buffer[bytePos] &= ~BIT_MASK_OUT[bitOffset];
+            buffer[bytePos] |= value & BIT_MASK_OUT[bitOffset];
+        } else {
+            buffer[bytePos] &= ~(BIT_MASK_OUT[numBits] << (bitOffset - numBits));
+            buffer[bytePos] |= (value & BIT_MASK_OUT[numBits]) << (bitOffset - numBits);
+        }
+        return this;
+    }
 
-	/**
-	 * Puts the string to the buffer.
-	 * 
-	 * @param value
-	 *            the string
-	 */
-	public PacketBuilder putString(String value) {
-		put(value.getBytes()).putByte(10);
-		return this;
-	}
+    /**
+     * Puts an
+     * <code>IoBuffer</code>.
+     *
+     * @param buf The buffer.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder put(final ChannelBuffer buf) {
+        payload.writeBytes(buf);
+        return this;
+    }
 
-	public PacketBuilder putString2(String value) {
-		for (byte values : value.getBytes()) {
-			putByte(values);
-		}
-		putByte(10);
-		return this;
-	}
+    /**
+     * Writes a type-C byte.
+     *
+     * @param val The value to write.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putByteC(final int val) {
+        put((byte) (-val));
+        return this;
+    }
 
-	/**
-	 * Creates packet frame with given opcode.
-	 * 
-	 * @param opcode
-	 *            the packet opcode
-	 * 
-	 * @param encryption
-	 *            the ISAAC encryption
-	 */
-	public PacketBuilder createFrame(int opcode, ISAAC encryption) {
-		putByte(opcode + encryption.getNextKey()).opcode(opcode);
-		return this;
-	}
+    /**
+     * Puts the signed byte to the buffer.
+     *
+     * @param value the signed byte
+     */
+    public PacketBuilder putByte(int value) {
+        put((byte) value);
+        return this;
+    }
 
-	/**
-	 * Creates sized packet frame with specified opcode.
-	 * 
-	 * @param opcode
-	 *            the packet opcode
-	 * 
-	 * @param encryption
-	 *            the ISAAC encryption
-	 */
-	public PacketBuilder createSizedFrame(int opcode, ISAAC encryption) {
-		createFrame(opcode, encryption).putByte(0);
-		frameSizes[++frameSizePointer] = buffer().position();
-		return this;
-	}
+    /**
+     * Writes a little-endian short.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putLEShort(final int val) {
+        payload.writeByte((byte) (val));
+        payload.writeByte((byte) (val >> 8));
+        return this;
+    }
 
-	/**
-	 * Creates short sized packet frame with specified opcode.
-	 * 
-	 * @param opcode
-	 *            the packet opcode
-	 * 
-	 * @param encryption
-	 *            the ISAAC encryption
-	 */
-	public PacketBuilder createShortSizedFrame(int opcode, ISAAC encryption) {
-		createFrame(opcode, encryption).putShort(0);
-		frameSizes[++frameSizePointer] = buffer().position();
-		return this;
-	}
+    /**
+     * Writes a type-1 integer.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putInt1(final int val) {
+        payload.writeByte((byte) (val >> 8));
+        payload.writeByte((byte) val);
+        payload.writeByte((byte) (val >> 24));
+        payload.writeByte((byte) (val >> 16));
+        return this;
+    }
 
-	/**
-	 * Finishes sized packet frame.
-	 */
-	public PacketBuilder finishSizedFrame() {
-		int position = buffer().position();
-		int length = position - frameSizes[frameSizePointer--];
-		buffer().put(position - length - 1, (byte) length);
-		return this;
-	}
+    /**
+     * Writes a type-2 integer.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putInt2(final int val) {
+        payload.writeByte((byte) (val >> 16));
+        payload.writeByte((byte) (val >> 24));
+        payload.writeByte((byte) val);
+        payload.writeByte((byte) (val >> 8));
+        return this;
+    }
 
-	/**
-	 * Finishes short sized packet frame.
-	 */
-	public PacketBuilder finishShortSizedFrame() {
-		int position = buffer().position();
-		int length = position - frameSizes[frameSizePointer--];
-		buffer().put(position - length - 2, (byte) (length >> 8));
-		buffer().put(position - length - 1, (byte) length);
-		return this;
-	}
+    /**
+     * Writes a little-endian integer.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putLEInt(final int val) {
+        payload.writeByte((byte) (val));
+        payload.writeByte((byte) (val >> 8));
+        payload.writeByte((byte) (val >> 16));
+        payload.writeByte((byte) (val >> 24));
+        return this;
+    }
 
-	/**
-	 * Initializes bit access to the buffer.
-	 */
-	public PacketBuilder bitAccess() {
-		if (!bitAccess) {
-			bitPosition = buffer().position() * 8;
-			bitAccess = true;
-		}
-		return this;
-	}
+    /**
+     * Puts a sequence of bytes in the buffer.
+     *
+     * @param data The bytes.
+     * @param offset The offset.
+     * @param length The length.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder put(final byte[] data, final int offset, final int length) {
+        payload.writeBytes(data, offset, length);
+        return this;
+    }
 
-	/**
-	 * Initializes byte access to the buffer only if bit access is currently
-	 * active.
-	 */
-	public PacketBuilder byteAccess() {
-		if (bitAccess) {
-			buffer().position((bitPosition + 7) / 8);
-			bitAccess = false;
-		}
-		return this;
-	}
+    /**
+     * Puts a type-A byte in the buffer.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putByteA(final byte val) {
+        payload.writeByte((byte) (val + 128));
+        return this;
+    }
 
-	/**
-	 * Puts boolean as a bit into byte buffer.
-	 * 
-	 * @param amount
-	 *            the number of bits
-	 * 
-	 * @param value
-	 *            the boolean value
-	 */
-	public PacketBuilder putBits(int amount, boolean value) {
-		putBits(amount, value ? 1 : 0);
-		return this;
-	}
+    /**
+     * Puts a type-C byte in the buffer.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putByteC(final byte val) {
+        payload.writeByte((byte) (-val));
+        return this;
+    }
 
-	/**
-	 * Puts bits into byte buffer.
-	 * 
-	 * @param amount
-	 *            the number of bits
-	 * 
-	 * @param value
-	 *            the bits value
-	 */
-	public PacketBuilder putBits(int amount, int value) {
-		int i = 0, bytePos = bitPosition >> 3;
-		int bitOffset = 8 - (bitPosition & 7);
-		bitPosition += amount;
-		for (; amount > bitOffset; bitOffset = 8) {
-			i = buffer().get(bytePos) & ~BIT_MASK[bitOffset];
-			buffer().put(bytePos, (byte) i);
-			i = buffer().get(bytePos) | (value >> (amount - bitOffset))
-					& BIT_MASK[bitOffset];
-			buffer().put(bytePos++, (byte) i);
-			amount -= bitOffset;
-		}
-		if (amount == bitOffset) {
-			i = buffer().get(bytePos) & ~BIT_MASK[bitOffset];
-			buffer().put(bytePos, (byte) i);
-			i = buffer().get(bytePos) | value & BIT_MASK[bitOffset];
-			buffer().put(bytePos, (byte) i);
-		} else {
-			i = buffer().get(bytePos)
-					& ~(BIT_MASK[amount] << (bitOffset - amount));
-			buffer().put(bytePos, (byte) i);
-			i = buffer().get(bytePos)
-					| (value & BIT_MASK[amount]) << (bitOffset - amount);
-			buffer().put(bytePos, (byte) i);
-		}
-		return this;
-	}
+    /**
+     * Puts a type-S byte in the buffer.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putByteS(final byte val) {
+        payload.writeByte((byte) (128 - val));
+        return this;
+    }
 
-	/**
-	 * Allocates packet builder with given capacity.
-	 * 
-	 * @param capacity
-	 *            the packet capacity
-	 * 
-	 * @return the newly allocated packet builder
-	 */
-	public static PacketBuilder allocate(int capacity) {
-		return (PacketBuilder) new PacketBuilder().buffer(ByteBuffer
-				.allocateDirect(capacity));
-	}
+    /**
+     * Puts a series of reversed bytes in the buffer.
+     *
+     * @param is The source byte array.
+     * @param offset The offset.
+     * @param length The length.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putReverse(final byte[] is, final int offset, final int length) {
+        for (int i = (offset + length - 1); i >= offset; i--) {
+            payload.writeByte(is[i]);
+        }
+        return this;
+    }
 
-	public static int BIT_MASK[] = new int[32];
+    /**
+     * Puts a series of reversed type-A bytes in the buffer.
+     *
+     * @param is The source byte array.
+     * @param offset The offset.
+     * @param length The length.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putReverseA(final byte[] is, final int offset, final int length) {
+        for (int i = (offset + length - 1); i >= offset; i--) {
+            putByteA(is[i]);
+        }
+        return this;
+    }
 
-	/**
-	 * Initializes the bit masks.
-	 */
-	static {
-		for (int i = 0; i < 32; i++)
-			BIT_MASK[i] = (1 << i) - 1;
-	}
+    /**
+     * Puts a 3-byte integer.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putTriByte(final int val) {
+        payload.writeByte((byte) (val >> 16));
+        payload.writeByte((byte) (val >> 8));
+        payload.writeByte((byte) val);
+        return this;
+    }
 
+    /**
+     * Puts a byte or short.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putSmart(final int val) {
+        if (val >= 128) {
+            putShort((val + 32768));
+        } else {
+            put((byte) val);
+        }
+        return this;
+    }
+
+    /**
+     * Puts a byte or short for signed use.
+     *
+     * @param val The value.
+     * @return The PacketBuilder instance, for chaining.
+     */
+    public PacketBuilder putSignedSmart(final int val) {
+        if (val >= 128) {
+            putShort((val + 49152));
+        } else {
+            put((byte) (val + 64));
+        }
+        return this;
+    }
 }

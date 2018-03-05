@@ -30,7 +30,7 @@ public class ItemActionPacket implements PacketHandler {
 
 	@Override
 	public void handlePacket(Player player, Packet packet) {
-		switch (packet.opcode()) {
+		switch (packet.getOpcode()) {
 		case FIRST_ITEM_ACTION_OPCODE:
 			handleFirstItemAction(player, packet);
 			break;
@@ -105,7 +105,7 @@ public class ItemActionPacket implements PacketHandler {
 	 *            the packet
 	 */
 	public void handleThirdItemAction(Player player, Packet packet) {
-		int interfaceIndex = packet.getULEShort();
+		int interfaceIndex = packet.getLEShort();
 		int itemIndex = packet.getUShortA();
 		int itemSlot = packet.getUShortA();
 

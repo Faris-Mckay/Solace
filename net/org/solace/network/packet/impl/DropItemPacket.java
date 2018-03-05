@@ -30,7 +30,7 @@ public class DropItemPacket implements PacketHandler {
 	@Override
 	public void handlePacket(Player player, Packet packet) {
 		@SuppressWarnings("unused")
-		int itemIndex = packet.getUShortA();
+		int itemIndex = packet.getUnsignedShortA();
 		@SuppressWarnings("unused")
 		int interfaceIndex = packet.getUShort();
 		int itemSlot = packet.getUShortA();

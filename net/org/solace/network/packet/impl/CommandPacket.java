@@ -31,7 +31,7 @@ public class CommandPacket implements PacketHandler {
 
     @Override
     public void handlePacket(Player player, Packet packet) {
-        String command = ProtocolUtils.getRSString(packet.buffer());
+        String command = packet.getRS2String();
         Server.getEventManager().dispatchEvent(new ProcessCommandEvent(player, command));
     }
 

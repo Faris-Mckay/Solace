@@ -26,6 +26,8 @@ import org.solace.game.entity.mobile.update.MobileUpdateTask;
 import org.solace.game.item.ItemDefinition;
 import org.solace.game.item.container.impl.Equipment;
 import org.solace.network.packet.PacketBuilder;
+import org.solace.network.util.Stream;
+import org.solace.util.Constants;
 import org.solace.util.ProtocolUtils;
 
 /**
@@ -40,6 +42,8 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 	private List<Player> localPlayers;
 	public byte chatText[] = new byte[256];
 	public int chatTextEffects = 0, chatTextColor = 0;
+        
+        private Stream out = new Stream(new byte[Constants.BUFFER_SIZE]);
 
 	public PlayerUpdateTask(Player master) {
 		this.master = master;
@@ -71,16 +75,14 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 	 */
         @Override
 	public void synchronize() {
-		if (mapRegionChanging) {
+		/*if (mapRegionChanging) {
 			master.getPacketDispatcher().sendMapRegion();
 		}
-		PacketBuilder out = PacketBuilder.allocate(16384);
-		PacketBuilder block = PacketBuilder.allocate(8192);
-		out.createShortSizedFrame(81, master.channelContext().encryption());
-		out.bitAccess();
-		updateThisPlayerMovement(out);
+		getOut().createShortSizedFrame(81, master.channelContext().encryption());
+		getOut().bitAccess();
+		updateThisPlayerMovement(getOut());
 		updateGivenPlayer(block, master, false);
-		out.putBits(8, localPlayers.size());
+		getOut().putBits(8, localPlayers.size());
 
 		for (Iterator<Player> i = localPlayers.iterator(); i.hasNext();) {
 			Player player = i.next();
@@ -88,26 +90,26 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 					&& !player.getUpdater().teleporting
 					&& player.getLocation().withinDistance(
 							getMaster().getLocation())) {
-				updatePlayerMovement(out, player);
+				updatePlayerMovement(getOut(), player);
 				if (player.getUpdateFlags().isUpdateRequired()) {
 					updateGivenPlayer(block, player, false);
 				}
 			} else {
 				i.remove();
-				out.putBits(1, 1); // Update Requierd
-				out.putBits(2, 3); // Remove Player
+				getOut().putBits(1, 1); // Update Requierd
+				getOut().putBits(2, 3); // Remove Player
 			}
 		}
-		populateRegion(out, block);
+		populateRegion(getOut(), block);
 		if (block.buffer().position() > 0) {
-			out.putBits(11, 2047);
-			out.byteAccess();
-			out.put(block.buffer());
+			getOut().putBits(11, 2047);
+			getOut().byteAccess();
+			getOut().put(block.buffer());
 		} else {
-			out.byteAccess();
+			getOut().byteAccess();
 		}
-		out.finishShortSizedFrame();
-		out.sendTo(master.channelContext().channel());
+		getOut().finishShortSizedFrame();
+		getOut().sendTo(master.channelContext().channel());*/
 	}
 
 	public void updateGivenPlayer(PacketBuilder out, Player player,
@@ -116,7 +118,7 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 			return;
 		}
 		if (player.hasCachedUpdateBlock() && player != getMaster() && !force) {
-			 out.put(player.getCachedUpdateBlock().buffer());
+			// out.put(player.getCachedUpdateBlock().buffer());
 			 return;
 		}
 		int mask = 0x0;
@@ -249,7 +251,7 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 			appendAnimationMask(player, out);
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
-			out.putString(player.getUpdateFlags().getForceChatMessage());
+			//out.putString(player.getUpdateFlags().getForceChatMessage());
 		}
 		if (player.getUpdateFlags().get(UpdateFlag.CHAT)
 				&& player != getMaster()) {
@@ -290,7 +292,7 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 	 */
 	public void updateHit(PacketBuilder out, Player player) {
 		out.putByte(player.getUpdateFlags().getDamage());
-		out.putByteA(player.getUpdateFlags().getHitType());
+		//out.putByteA(player.getUpdateFlags().getHitType());
 		out.putByteC(player.getSkills().getPlayerLevel()[3]);
 		out.putByte(player.getSkills().getLevelForXP(
 				player.getSkills().getPlayerExp()[3]));
@@ -298,7 +300,7 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 
 	private void updatingHit2(PacketBuilder out, Player player) {
 		out.putByte(player.getUpdateFlags().getDamage2());
-		out.putByteS(player.getUpdateFlags().getHitType2());
+		//out.putByteS(player.getUpdateFlags().getHitType2());
 		out.putByte(player.getSkills().getPlayerLevel()[3]);
 		out.putByteC(player.getSkills().getLevelForXP(
 				player.getSkills().getPlayerExp()[3]));
@@ -314,7 +316,7 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 	}
 
 	public void updatePlayerAppearance(PacketBuilder out, Player player) {
-		PacketBuilder props = PacketBuilder.allocate(128);
+		/*PacketBuilder props = PacketBuilder.allocate(128);
 		props.putByte(player.getAuthentication().playerGender());
 		props.putByte(player.getPrayerIcon());
 		props.putByte(player.getPlayerHeadIcon());
@@ -414,12 +416,12 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 		props.putShort(0x338); // TODO: runAnimIndex
 		/**
 		 * Sends player name as long
-		 */
+		 *//*
 		props.putLong(ProtocolUtils.getLongString(player.getAuthentication().getUsername()));
 		props.putByte(player.getSkills().calculateCombatLevel()); // send combat level
 		props.putShort(0); // games room title crap
 		out.putByteC(props.buffer().position());
-		out.put(props.buffer());
+		out.put(props.buffer());*/
 	}
 
 	/**
@@ -431,7 +433,7 @@ public class PlayerUpdateTask extends MobileUpdateTask {
 	public void appendGraphicMask(Player player, PacketBuilder out) {
 		if (player.getGraphic() != null) {
 			out.putLEShort(player.getGraphic().getId());
-			out.putIntTest(player.getGraphic().getValue());
+			//out.putIntTest(player.getGraphic().getValue());
 		}
 	}
 
@@ -493,6 +495,13 @@ public class PlayerUpdateTask extends MobileUpdateTask {
     @Override
     public void run() {
         synchronize();
+    }
+
+    /**
+     * @return the out
+     */
+    public Stream getOut() {
+        return out;
     }
 
 }

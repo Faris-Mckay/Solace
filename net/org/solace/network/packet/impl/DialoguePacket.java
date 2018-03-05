@@ -32,10 +32,10 @@ public class DialoguePacket implements PacketHandler {
                 player.getDialogue().sendDialogue(
                         player.getDialogue().getDialogueId(), npc.getNpcId());
             } else {
-                player.getPacketDispatcher().sendCloseInterface();
+                player.getPacketDispatcher().closeAllWindows();
             }
         } else {
-            player.getPacketDispatcher().sendCloseInterface();
+            player.getPacketDispatcher().closeAllWindows();
         }
 
     }

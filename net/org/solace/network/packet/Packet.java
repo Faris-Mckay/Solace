@@ -1,325 +1,421 @@
-/*
- * This file is part of Solace Framework.
- * Solace is free software: you can redistribute it and/or modify it under the
+/**
+ * This file is part of Zap Framework.
+ *
+ * Zap is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
  *
- * Solace is distributed in the hope that it will be useful, but WITHOUT ANY
+ * Zap is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * Solace. If not, see <http://www.gnu.org/licenses/>.
- *
+ * Zap. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.solace.network.packet;
 
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-
-import org.solace.Server;
-import org.solace.event.events.PlayerSaveEvent;
-import org.solace.game.Game;
-import org.solace.network.NIOSelector;
-import org.solace.network.RSChannelContext;
+import org.jboss.netty.buffer.ChannelBuffer;
 
 /**
- * Single data packet implementation. Represents a data packet which is used to
- * decode incoming or encode outgoing data with RuneScape protocol standards.
- * 
- * @author Graham Edgecomb
+ *
+ * @author Faris
  */
 public class Packet {
 
-	private ByteBuffer buffer = ByteBuffer.allocate(5096);
-	private int opcode, length;
+    public int getUShort() {
+        return this.getUnsignedShort();
+    }
+    
+    public int getUShortA() {
+        return this.getUnsignedShortA();
+    }
 
-	/**
-	 * Reads a signed byte.
-	 * 
-	 * @return the signed byte value
-	 */
-	public int getByte() {
-		return buffer.get();
-	}
+    public int getUByteS() {
+        return this.getUnsignedByte();
+    }
 
-	/**
-	 * Reads negated signed byte.
-	 * 
-	 * @return the signed byte value
-	 */
-	public int getByteC() {
-		return -(buffer.get());
-	}
+    public byte[] getBytesA(int length) {
+        return this.getBytesA(length);
+    }
 
-	/**
-	 * Reads the unsigned subtrahend from the buffer.
-	 * 
-	 * @return the unsigned byte value
-	 */
-	public int getUByteS() {
-		return 128 - buffer.get() & 0xff;
-	}
+    public int opcode() {
+        return this.getOpcode();
+    }
 
-	/**
-	 * Reads signed big-endian short.
-	 * 
-	 * @return the short value
-	 */
-	public int getShort() {
-		return buffer.getShort();
-	}
+    public long readLong() {
+        return this.getLong();
+    }
 
-	/**
-	 * Reads unsigned big-endian short.
-	 * 
-	 * @return the short value
-	 */
-	public int getUShort() {
-		int i = buffer.get(), j = buffer.get();
-		return ((i & 0xff) << 8) + (j & 0xff);
-	}
+    public int length() {
+        return this.getLength();
+    }
 
-	/**
-	 * Reads unsigned little-endian short.
-	 * 
-	 * @return the short value
-	 */
-	public int getULEShort() {
-		int i = buffer.get(), j = buffer.get();
-		return ((j & 0xff) << 8) + (i & 0xff);
-	}
+    public byte[] readBytes(int size) {
+       return this.getBytesA(size);
+    }
 
-	/**
-	 * Reads unsigned big-endian short with addition.
-	 * 
-	 * @return the short value
-	 */
-	public int getUShortA() {
-		int i = buffer.get(), j = buffer.get();
-		return ((i & 0xff) << 8) + (j - 128 & 0xff);
-	}
+    public void setLength(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
-	/**
-	 * Reads unsigned little-endian short with addition.
-	 * 
-	 * @return the short value
-	 */
-	public int getULEShortA() {
-		int i = buffer.get(), j = buffer.get();
-		return ((j & 0xff) << 8) + (i - 128 & 0xff);
-	}
 
-	/**
-	 * Reads little-endian short.
-	 * 
-	 * @return the short value
-	 */
-	public int getLEShort() {
-		int i = buffer.get(), j = buffer.get();
-		int value = ((j & 0xff) << 8) + (i & 0xff);
-		return value > 32767 ? value - 0x10000 : value;
-	}
+    /**
+     * The type of packet.
+     *
+     * @author Graham Edgecombe
+     *
+     */
+    public enum Type {
 
-	/**
-	 * Reads little-endian short.
-	 * 
-	 * @return the short value
-	 */
-	public int getLEShortA() {
-		int i = buffer.get(), j = buffer.get();
-		int value = ((j & 0xff) << 8) + (i - 128 & 0xff);
-		return value > 32767 ? value - 0x10000 : value;
-	}
+        /**
+         * A fixed size packet where the size never changes.
+         */
+        FIXED,
+        /**
+         * A variable packet where the size is described by a byte.
+         */
+        VARIABLE,
+        /**
+         * A variable packet where the size is described by a word.
+         */
+        VARIABLE_SHORT;
+    }
+    /**
+     * The opcode.
+     */
+    private final int opcode;
+    /**
+     * The type.
+     */
+    private final Type type;
+    /**
+     * The payload.
+     */
+    private final ChannelBuffer payload;
 
-	/**
-	 * Reads big-endian long.
-	 * 
-	 * @return the long value
-	 */
-	public long getLong() {
-		return buffer.getLong();
-	}
+    /**
+     * Creates a packet.
+     *
+     * @param opcode The opcode.
+     * @param type The type.
+     * @param payload The payload.
+     */
+    public Packet(final int opcode, final Type type, final ChannelBuffer payload) {
+        this.opcode = opcode;
+        this.type = type;
+        this.payload = payload;
+    }
 
-	public long readLong() {
-		long l = (long) readInt() & 0xffffffffL;
-		long l1 = (long) readInt() & 0xffffffffL;
-		return (l << 32) + l1;
-	}
-	
-	public int readUByte() {
-		return buffer.get() & 0xff;
-	}
+    /**
+     * Checks if this packet is raw. A raw packet does not have the usual
+     * headers such as opcode or size.
+     *
+     * @return <code>true</code> if so, <code>false</code> if not.
+     */
+    public boolean isRaw() {
+        return opcode == -1;
+    }
 
-	public int readInt() {
-		long value = 0;
-		value |= readUByte() << 24;
-		value |= readUByte() << 16;
-		value |= readUByte() << 8;
-		value |= readUByte();
-		return (int) value;
-	}
+    /**
+     * Gets the opcode.
+     *
+     * @return The opcode.
+     */
+    public int getOpcode() {
+        return opcode;
+    }
 
-	/**
-	 * Reads given amount of bytes to the array along with addition to the
-	 * values.
-	 * 
-	 * @param amount
-	 *            the amount of bytes
-	 * 
-	 * @return the bytes array
-	 */
-	public byte[] getBytesA(int amount) {
-		byte[] bytes = new byte[amount];
-		for (int i = 0; i < amount; i++) {
-			bytes[i] = (byte) (buffer.get() + 128);
-		}
-		return bytes;
-	}
+    /**
+     * Gets the type.
+     *
+     * @return The type.
+     */
+    public Type getType() {
+        return type;
+    }
 
-	/**
-	 * Reads the amount of bytes into a byte array, starting at the current
-	 * position.
-	 * 
-	 * @param amount
-	 *            the amount of bytes
-	 * @param type
-	 *            the value type of each byte
-	 * @return a buffer filled with the data
-	 */
-	public byte[] readBytes(int amount) {
-		byte[] data = new byte[amount];
-		for (int i = 0; i < amount; i++) {
-			data[i] = (byte) getByte();
-		}
-		return data;
-	}
+    /**
+     * Gets the payload.
+     *
+     * @return The payload.
+     */
+    public ChannelBuffer getPayload() {
+        return payload;
+    }
 
-	/**
-	 * Reads given amount of bytes to the array in reverse order along with
-	 * addition to the values.
-	 * 
-	 * @param amount
-	 *            the amount of bytes
-	 * 
-	 * @return the bytes array
-	 */
-	public byte[] getReversedBytesA(int amount) {
-		byte[] bytes = new byte[amount];
-		int position = amount - 1;
-		for (; position >= 0; position--) {
-			bytes[position] = (byte) (buffer.get() + 128);
-		}
-		return bytes;
-	}
+    /**
+     * Gets the length.
+     *
+     * @return The length.
+     */
+    public int getLength() {
+        return payload.capacity();
+    }
 
-	/**
-	 * Sets associated buffer for this packet
-	 * 
-	 * @param buffer
-	 *            the byte buffer
-	 */
-	public Packet buffer(ByteBuffer buffer) {
-		this.buffer = buffer;
-		return this;
-	}
+    /**
+     * Reads a single byte.
+     *
+     * @return A single byte.
+     */
+    public byte get() {
+        return payload.readByte();
+    }
 
-	/**
-	 * Gets the associated byte buffer.
-	 * 
-	 * @return the byte buffer
-	 */
-	public ByteBuffer buffer() {
-		return buffer;
-	}
+    /**
+     * Reads several bytes.
+     *
+     * @param b The target array.
+     */
+    public void get(final byte[] b) {
+        payload.readBytes(b);
+    }
 
-	/**
-	 * Sets the associated opcode.
-	 * 
-	 * @param opcode
-	 *            the packet opcode
-	 */
-	public Packet opcode(int opcode) {
-		this.opcode = opcode;
-		return this;
-	}
+    /**
+     * Reads a byte.
+     *
+     * @return A single byte.
+     */
+    public byte getByte() {
+        return get();
+    }
 
-	/**
-	 * Gets the associated opcode.
-	 * 
-	 * @return the packet opcode
-	 */
-	public int opcode() {
-		return opcode;
-	}
+    /**
+     * Reads an unsigned byte.
+     *
+     * @return An unsigned byte.
+     */
+    public int getUnsignedByte() {
+        return payload.readByte() & 0xff;
+    }
 
-	/**
-	 * Sets the packet payload length.
-	 * 
-	 * @param length
-	 *            the payload length
-	 */
-	public Packet length(int length) {
-		this.length = length;
-		return this;
-	}
+    /**
+     * Reads a short.
+     *
+     * @return A short.
+     */
+    public short getShort() {
+        return payload.readShort();
+    }
 
-	/**
-	 * Gets the packet payload length.
-	 * 
-	 * @return the payload length
-	 */
-	public int length() {
-		return length;
-	}
+    /**
+     * Reads an unsigned short.
+     *
+     * @return An unsigned short.
+     */
+    public int getUnsignedShort() {
+        int value = 0;
+        value |= (get() & 0xff) << 8;
+        value |= (get() & 0xff);
+        return value;
+    }
 
-	/**
-	 * Sends the packet data to the socket channel.
-	 * 
-	 * @param channel
-	 *            the socket channel
-	 * 
-	 * @see SocketChannel #write(ByteBuffer)
-	 */
-	public Packet sendTo(SocketChannel channel) {
-		try {
-			buffer.flip();
-			channel.write(buffer);
-		} catch (Exception e) {
-			Server.getEventManager().dispatchEvent(new PlayerSaveEvent(((RSChannelContext) channel.keyFor(
-					NIOSelector.selector()).attachment()).player()));
-			Game.getSingleton().deregister(
-					((RSChannelContext) channel.keyFor(NIOSelector.selector())
-							.attachment()).player());
-		}
-		return this;
-	}
+    public int getUnsignedShortA() {
+        int value = 0;
+        value |= (get() & 0xff) << 8;
+        value |= ((get() - 128) & 0xff);
+        return value;
+    }
 
-	/**
-	 * Builds the incoming packet for packet processing.
-	 * 
-	 * @param source
-	 *            the data source
-	 * 
-	 * @param opcode
-	 *            the packet opcode
-	 * 
-	 * @param length
-	 *            the payload length
-	 * 
-	 * @return new packet ready to be processed
-	 */
-	public static Packet buildPacket(ByteBuffer source, int opcode, int length) {
-		Packet packet = new Packet().buffer(ByteBuffer.allocateDirect(length))
-				.opcode(opcode).length(length);
-		for (; length > 0; length--) {
-			packet.buffer().put(source.get());
-		}
-		packet.buffer().flip();
-		return packet;
-	}
+    /**
+     * Reads an integer.
+     *
+     * @return An integer.
+     */
+    public int getInt() {
+        return payload.readInt();
+    }
 
-	NIOSelector selector = new NIOSelector();
+    /**
+     * Reads a long.
+     *
+     * @return A long.
+     */
+    public long getLong() {
+        return payload.readLong();
+    }
 
+    /**
+     * Reads a type C byte.
+     *
+     * @return A type C byte.
+     */
+    public byte getByteC() {
+        return (byte) (-get());
+    }
+
+    /**
+     * Gets a type S byte.
+     *
+     * @return A type S byte.
+     */
+    public byte getByteS() {
+        return (byte) (128 - get());
+    }
+
+    /**
+     * Reads a little-endian type A short.
+     *
+     * @return A little-endian type A short.
+     */
+    public short getLEShortA() {
+        int i = (get() - 128 & 0xFF) | ((get() & 0xFF) << 8);
+        if (i > 32767) {
+            i -= 0x10000;
+        }
+        return (short) i;
+    }
+
+    /**
+     * Reads a little-endian short.
+     *
+     * @return A little-endian short.
+     */
+    public short getLEShort() {
+        int i = (get() & 0xFF) | ((get() & 0xFF) << 8);
+        if (i > 32767) {
+            i -= 0x10000;
+        }
+        return (short) i;
+    }
+
+    /**
+     * Reads a V1 integer.
+     *
+     * @return A V1 integer.
+     */
+    public int getInt1() {
+        final byte b1 = get();
+        final byte b2 = get();
+        final byte b3 = get();
+        final byte b4 = get();
+        return ((b3 << 24) & 0xFF) | ((b4 << 16) & 0xFF) | ((b1 << 8) & 0xFF)
+                | (b2 & 0xFF);
+    }
+
+    /**
+     * Reads a V2 integer.
+     *
+     * @return A V2 integer.
+     */
+    public int getInt2() {
+        final int b1 = get() & 0xFF;
+        final int b2 = get() & 0xFF;
+        final int b3 = get() & 0xFF;
+        final int b4 = get() & 0xFF;
+        return ((b2 << 24) & 0xFF) | ((b1 << 16) & 0xFF) | ((b4 << 8) & 0xFF)
+                | (b3 & 0xFF);
+    }
+
+    /**
+     * Gets a 3-byte integer.
+     *
+     * @return The 3-byte integer.
+     */
+    public int getTriByte() {
+        return ((get() << 16) & 0xFF) | ((get() << 8) & 0xFF) | (get() & 0xFF);
+    }
+
+    /**
+     * Reads a type A byte.
+     *
+     * @return A type A byte.
+     */
+    public byte getByteA() {
+        return (byte) (get() - 128);
+    }
+
+    /**
+     * Reads a RuneScape string.
+     *
+     * @return The string.
+     */
+    public String getRS2String() {
+        StringBuilder bldr = new StringBuilder();
+        byte b;
+        while (payload.readable() && (b = payload.readByte()) != 10) {
+            bldr.append((char) b);
+        }
+        return bldr.toString();
+    }
+
+    /**
+     * Reads a type A short.
+     *
+     * @return A type A short.
+     */
+    public short getShortA() {
+        int i = ((get() & 0xFF) << 8) | (get() - 128 & 0xFF);
+        if (i > 32767) {
+            i -= 0x10000;
+        }
+        return (short) i;
+    }
+
+    /**
+     * Reads a series of bytes in reverse.
+     *
+     * @param is The target byte array.
+     * @param offset The offset.
+     * @param length The length.
+     */
+    public void getReverse(final byte[] is, final int offset, final int length) {
+        for (int i = (offset + length - 1); i >= offset; i--) {
+            is[i] = get();
+        }
+    }
+
+    /**
+     * Reads a series of type A bytes in reverse.
+     *
+     * @param is The target byte array.
+     * @param offset The offset.
+     * @param length The length.
+     */
+    public void getReverseA(final byte[] is, final int offset, final int length) {
+        for (int i = (offset + length - 1); i >= offset; i--) {
+            is[i] = getByteA();
+        }
+    }
+
+    /**
+     * Reads a series of bytes.
+     *
+     * @param is The target byte array.
+     * @param offset The offset.
+     * @param length The length.
+     */
+    public void get(final byte[] is, final int offset, final int length) {
+        for (int i = 0; i < length; i++) {
+            is[offset + i] = get();
+        }
+    }
+
+    /**
+     * Gets a smart.
+     *
+     * @return The smart.
+     */
+    public int getSmart() {
+        final int peek = payload.getByte(payload.readerIndex());
+        if (peek < 128) {
+            return (get() & 0xFF);
+        } else {
+            return (getShort() & 0xFFFF) - 32768;
+        }
+    }
+
+    /**
+     * Gets a signed smart.
+     *
+     * @return The signed smart.
+     */
+    public int getSignedSmart() {
+        final int peek = payload.getByte(payload.readerIndex());
+        if (peek < 128) {
+            return ((get() & 0xFF) - 64);
+        } else {
+            return ((getShort() & 0xFFFF) - 49152);
+        }
+    }
 }

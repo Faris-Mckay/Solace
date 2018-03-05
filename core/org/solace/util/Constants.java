@@ -40,5 +40,8 @@ public class Constants {
     public static final int SERVER_CYCLE_RATE = 600;
     
     public static final boolean SERVER_DEBUG_MODE = true;
+    
+    public static final int  BUFFER_SIZE = 512;
+    
 
 }

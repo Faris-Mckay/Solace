@@ -14,22 +14,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Zap.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.solace.network.packet;
-
-import org.solace.game.entity.mobile.player.Player;
-
+package org.solace.network;
 
 /**
- * Packet handler interface.
+ *
  * @author Faris
  */
-public interface PacketHandler {
-
-	/**
-	 * Handles an incoming packet.
-	 * @param player the player reference
-	 * @param packet the packet
-	 */
-	public void handlePacket(Player player, Packet packet);
+public enum LoginState {
+    
+    /**
+     * Used to describe a Player who has completed the 
+     * process of login in.
+     */
+    CONNECTED,
+    
+    /**
+     * Used to Describe a Player who is yet to complete the
+     * process of logging in.
+     */
+    LOGGING_IN;
 
 }

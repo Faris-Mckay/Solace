@@ -102,6 +102,20 @@ public class Game {
         player.setLogoutRequired(true);
         registryQueue.add(player);
     }
+    
+    /**
+     * Finds the player by name matching string specified
+     * @param name is the string to search for amidst the online
+     * @return player if found or null
+     */
+    public static Player getPlayerByName(String name){
+        for(Player player : playerRepository.values()){
+            if(name.equals(player.getAuthentication().getUsername())){
+                return player;
+            }
+        }
+        return null;
+    }
 
     /**
      * Synchronises the registry queue with the real game repository and clears

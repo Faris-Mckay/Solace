@@ -15,9 +15,6 @@
  */
 package org.solace.event.listener;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import mint.event.EventHandler;
 import mint.event.EventListener;
 import org.solace.Server;
@@ -33,7 +30,7 @@ public class PlayerDisconnectionListener implements EventListener {
     
     @EventHandler
     public void handleDisconnection(PlayerDisconnectionEvent event) {
-        if (event.getPlayer().channelContext().channel() == null) {
+        if (event.getPlayer().getSession().getChannel() == null) {
             Server.getEventManager().dispatchEvent(new PlayerSaveEvent(event.getPlayer()));
             event.getPlayer().getPrivateMessaging().refresh(true);
             Game.getSingleton().deregister(event.getPlayer());
@@ -42,11 +39,7 @@ public class PlayerDisconnectionListener implements EventListener {
         event.getPlayer().getPrivateMessaging().refresh(true);
         Server.getEventManager().dispatchEvent(new PlayerSaveEvent(event.getPlayer()));
         event.getPlayer().getPacketDispatcher().sendLogout();
-        try {
-            event.getPlayer().channelContext().channel().close();
-        } catch (IOException ex) {
-            Logger.getLogger(PlayerLogoutListener.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        event.getPlayer().getSession().getChannel().close();
         Game.getSingleton().deregister(event.getPlayer());
         Server.logger.info("[Disconnection]: connection terminated for player: " + event.getPlayer().getAuthentication().getUsername());
     }

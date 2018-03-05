@@ -30,7 +30,7 @@ public class IncomingChatPacket implements PacketHandler {
     public void handlePacket(Player player, Packet packet) {
         int effects = packet.getUByteS();
         int color = packet.getUByteS();
-        int length = packet.length() - 2;
+        int length = packet.getLength() - 2;
         byte[] text = packet.getBytesA(length);
         player.getUpdater().chatTextEffects(effects).chatTextColor(color).chatText(text);
         player.getUpdateFlags().flag(UpdateFlag.CHAT);
