@@ -46,7 +46,7 @@ public class ActionButtonPacket implements PacketHandler {
 			player.handleLogoutData();
 			break;
 		case 3651:
-			player.getPacketDispatcher().closeAllWindows();
+			player.getPacketDispatcher().sendCloseInterface();
 			break;
 		case 7562:
 		case 12311:

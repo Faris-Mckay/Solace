@@ -96,16 +96,16 @@ public class RS2LoginProtocolDecoder extends FrameDecoder {
                     isaacSeed[i] += 50;
                 }
                 final ISAAC outCipher = new ISAAC(isaacSeed);
-                final int version = buffer.readInt();
+                final int userId = buffer.readInt();
                 final String name = NetUtilities.formatPlayerName(NetUtilities.getRS2String(buffer));
                 final String pass = NetUtilities.getRS2String(buffer);
                 channel.getPipeline().replace("decoder", "decoder", new RS2ProtocolDecoder(inCipher));
-                return login(channel, inCipher, outCipher, version, name, pass, clientRevision);
+                return login(channel,outCipher, userId, name, pass);
         }
         return null;
     }
 
-    private static Player login(Channel channel, ISAAC inCipher, ISAAC outCipher, int version, String name, String pass, int clientRevision) {
+    private static Player login(Channel channel,ISAAC outCipher, int userId, String name, String pass) {
         int returnCode = 2;
         if (!name.matches("[A-Za-z0-9 ]+")) {
             returnCode = 4;
@@ -114,7 +114,8 @@ public class RS2LoginProtocolDecoder extends FrameDecoder {
             returnCode = 8;
         }
         Player player = new Player(channel, name, pass);
-
+        player.getOutStream().packetEncryption = outCipher;
+        boolean loaded = new PlayerLoadService(player).load();
         if (Game.getPlayerByName(name) != null) {
             returnCode = 5;
         }
@@ -122,7 +123,6 @@ public class RS2LoginProtocolDecoder extends FrameDecoder {
             returnCode = 7;
         }
         if (returnCode == 2) {
-            boolean loaded = new PlayerLoadService(player).load();
             if (!loaded) {
 		returnCode = 3;
 	} else {
@@ -137,6 +137,7 @@ public class RS2LoginProtocolDecoder extends FrameDecoder {
             }
             bldr.put((byte) 0);
             channel.write(bldr.toPacket());
+            player.getPacketDispatcher().sendInitPacket();
         } else {
             System.out.println("returncode:" + returnCode);
             sendReturnCode(channel, returnCode);

@@ -37,7 +37,7 @@ public class WalkingUpdatePacket implements PacketHandler {
         if (packet.opcode() == 248) {
             packet.setLength(packet.length() - 14);
         }
-        player.getPacketDispatcher().closeAllWindows();
+        player.getPacketDispatcher().sendCloseInterface();
         Combat.resetCombat(player);
         if ((Boolean) player.getAttribute("FROZEN")) {
             player.getPacketDispatcher().sendMessage("A magical force prevents you from moving.");

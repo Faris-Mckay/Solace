@@ -15,16 +15,14 @@
  */
 package org.solace.game.entity.mobile.update.impl;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import org.solace.game.Game;
 import org.solace.game.entity.UpdateFlags.UpdateFlag;
 import org.solace.game.entity.mobile.npc.NPC;
 import org.solace.game.entity.mobile.update.MobileUpdateTask;
 import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.map.Location;
-import org.solace.network.packet.PacketBuilder;
+import org.solace.network.util.Stream;
 
 public class NPCUpdateTask extends MobileUpdateTask {
 
@@ -52,15 +50,15 @@ public class NPCUpdateTask extends MobileUpdateTask {
 	 * @param npc
 	 *            The npc being updated
 	 */
-	public void updateNpcMovement(PacketBuilder out, NPC npc) {
+	public void updateNpcMovement(Stream out, NPC npc) {
 		if (npc.getMobilityManager().walkingDirection() == -1) {
-			out.putBits(1, 1);
-			out.putBits(2, 0);
+			out.writeBits(1, 1);
+			out.writeBits(2, 0);
 		} else {
-			out.putBits(1, 1);
-			out.putBits(2, 1);
-			out.putBits(3, npc.getMobilityManager().walkingDirection());
-			out.putBits(1, 1);
+			out.writeBits(1, 1);
+			out.writeBits(2, 1);
+			out.writeBits(3, npc.getMobilityManager().walkingDirection());
+			out.writeBits(1, 1);
 		}
 	}
 
@@ -71,19 +69,19 @@ public class NPCUpdateTask extends MobileUpdateTask {
 	 * @param npc
 	 * @param player
 	 */
-	private void addNPC(PacketBuilder out, NPC npc) {
-		out.putBits(14, npc.getIndex());
+	private void addNPC(Stream out, NPC npc) {
+		out.writeBits(14, npc.getIndex());
 		Location delta = new Location(npc.getLocation().getX()
 				- player.getLocation().getX(), npc.getLocation().getY()
 				- player.getLocation().getY());
-		out.putBits(5, delta.getY());
-		out.putBits(5, delta.getX());
-		out.putBits(1, 0);
-		out.putBits(12, npc.getNpcId());
-		//out.putBit(true);
+		out.writeBits(5, delta.getY());
+		out.writeBits(5, delta.getX());
+		out.writeBits(1, 0);
+		out.writeBits(12, npc.getNpcId());
+		out.writeBits(1,1);
 	}
 
-	private void appendNpcUpdateBlock(PacketBuilder block, NPC npc) {
+	private void appendNpcUpdateBlock(Stream block, NPC npc) {
 
 		/*
 		 * Creates an instance for the update mask
@@ -114,24 +112,24 @@ public class NPCUpdateTask extends MobileUpdateTask {
 		/*
 		 * Writes the update mask to the client
 		 */
-		block.putByte(updateMask);
+		block.writeByte(updateMask);
 
 		if (npc.getUpdateFlags().get(UpdateFlag.ANIMATION)) {
-			block.putLEShort(npc.getAnimation().getId());
-			block.putByte(npc.getAnimation().getDelay());
+			block.writeWordBigEndian(npc.getAnimation().getId());
+			block.writeByte(npc.getAnimation().getDelay());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.HIT)) {
 			appendHitMask(block, npc);
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
-			block.putShort(npc.getGraphic().getId());
-			block.putInt(npc.getGraphic().getValue());
+			block.writeWord(npc.getGraphic().getId());
+			block.writeDWord(npc.getGraphic().getValue());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			block.putShort(npc.getUpdateFlags().getFaceIndex());
+			block.writeWord(npc.getUpdateFlags().getFaceIndex());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
-			//block.putString(npc.getUpdateFlags().getForceChatMessage());
+			block.writeString(npc.getUpdateFlags().getForceChatMessage());
 		}
 		if (npc.getUpdateFlags().get(UpdateFlag.HIT_2)) {
 			appendHitMask2(block, npc);
@@ -139,11 +137,11 @@ public class NPCUpdateTask extends MobileUpdateTask {
 		if (npc.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
 			Location pos = npc.getUpdateFlags().getFaceLocation();
 			if (pos == null) {
-				block.putLEShort(0);
-				block.putLEShort(0);
+				block.writeWordBigEndian(0);
+				block.writeWordBigEndian(0);
 			} else {
-				block.putLEShort(pos.getX() * 2 + 1);
-				block.putLEShort(pos.getY() * 2 + 1);
+				block.writeWordBigEndian(pos.getX() * 2 + 1);
+				block.writeWordBigEndian(pos.getY() * 2 + 1);
 			}
 		}
 	}
@@ -154,12 +152,12 @@ public class NPCUpdateTask extends MobileUpdateTask {
 	 * @param block
 	 * @param npc
 	 */
-	private void appendHitMask(PacketBuilder block, NPC npc) {
-		/*block.putByteA(npc.getUpdateFlags().getDamage());
-		block.putByteC(npc.getUpdateFlags().getHitType());
-		block.putByteA(getCurrentHP(npc.getHitpoints(), npc.getDefinition()
+	private void appendHitMask(Stream block, NPC npc) {
+		block.writeByteA(npc.getUpdateFlags().getDamage());
+		block.writeByteC(npc.getUpdateFlags().getHitType());
+		block.writeByteA(getCurrentHP(npc.getHitpoints(), npc.getDefinition()
 				.getHitpoints(), 100));
-		block.putByte(100);*/
+		block.writeByte(100);
 	}
 	
 	/**
@@ -167,11 +165,11 @@ public class NPCUpdateTask extends MobileUpdateTask {
 	 * @param out
 	 * @param npc
 	 */
-	public void appendHitMask2(PacketBuilder out, NPC npc) {
-		out.putByteC(npc.getUpdateFlags().getDamage2());
-		//out.putByteS(npc.getUpdateFlags().getHitType2());
-		//out.putByteS(getCurrentHP(npc.getHitpoints(), npc.getDefinition().getHitpoints(), 100));
-		out.putByteC(100);
+	public void appendHitMask2(Stream out, NPC npc) {
+		out.writeByteC(npc.getUpdateFlags().getDamage2());
+		out.writeByteS(npc.getUpdateFlags().getHitType2());
+		out.writeByteS(getCurrentHP(npc.getHitpoints(), npc.getDefinition().getHitpoints(), 100));
+		out.writeByteC(100);
 	}
 
 	/**

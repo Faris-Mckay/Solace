@@ -39,10 +39,10 @@ import org.solace.game.map.Location;
 import org.solace.game.map.Region;
 import org.solace.network.Session;
 import org.solace.network.packet.Packet;
-import org.solace.network.packet.PacketBuilder;
 import org.solace.network.packet.PacketDispatcher;
 import org.solace.network.util.Stream;
 import org.solace.task.Task;
+import org.solace.util.Constants;
 
 /**
  *
@@ -73,12 +73,13 @@ public class Player extends Mobile {
     /**
      * The cached update block.
      */
-    private PacketBuilder cachedUpdateBlock;
+    private Stream cachedUpdateBlock;
     public boolean disconnected;
     public boolean updateRequired;
     private Stream outStream;
     private Region cachedRegionNew;
     private boolean appearanceUpdateRequired;
+    private Stream inStream;
 
     /**
      * Initialises the attributes
@@ -110,9 +111,12 @@ public class Player extends Mobile {
 
     public Player(Channel channel, String username, String password) {
         super(new Location(3200,3200));
+        this.session = new Session(channel);
+        this.session.setClient(this);
+        outStream = new Stream(new byte[Constants.BUFFER_SIZE]);
+        outStream.currentOffset = 0;
         this.authenticator = new PlayerAuthentication(username, password);
         setDefaultAppearance();
-      
         getUpdateFlags().flag(UpdateFlag.APPEARANCE);
         this.getAuthentication().setPlayerRights(PrivilegeRank.OWNER);
     }
@@ -270,6 +274,10 @@ public class Player extends Mobile {
 
     public PlayerSettings getSettings() {
         return settings;
+    }
+    
+    public Stream getInStream() {
+        return inStream;
     }
 
     /**
@@ -431,7 +439,7 @@ public class Player extends Mobile {
      *
      * @param cachedUpdateBlock The cached update block.
      */
-    public void setCachedUpdateBlock(PacketBuilder cachedUpdateBlock) {
+    public void setCachedUpdateBlock(Stream cachedUpdateBlock) {
         this.cachedUpdateBlock = cachedUpdateBlock;
     }
 
@@ -440,7 +448,7 @@ public class Player extends Mobile {
      *
      * @return The cached update block.
      */
-    public PacketBuilder getCachedUpdateBlock() {
+    public Stream getCachedUpdateBlock() {
         return cachedUpdateBlock;
     }
 

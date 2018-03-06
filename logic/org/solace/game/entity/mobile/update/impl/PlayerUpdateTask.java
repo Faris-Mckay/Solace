@@ -25,472 +25,465 @@ import org.solace.game.entity.mobile.player.Player;
 import org.solace.game.entity.mobile.update.MobileUpdateTask;
 import org.solace.game.item.ItemDefinition;
 import org.solace.game.item.container.impl.Equipment;
-import org.solace.network.packet.PacketBuilder;
 import org.solace.network.util.Stream;
 import org.solace.util.Constants;
 import org.solace.util.ProtocolUtils;
 
 /**
- * 
+ *
  * @author Faris
  */
 public class PlayerUpdateTask extends MobileUpdateTask {
 
-	private Player master;
-	private boolean teleporting = true;
-	private boolean mapRegionChanging = true;
-	private List<Player> localPlayers;
-	public byte chatText[] = new byte[256];
-	public int chatTextEffects = 0, chatTextColor = 0;
-        
-        private Stream out = new Stream(new byte[Constants.BUFFER_SIZE]);
+    private Player master;
+    private boolean teleporting = true;
+    private boolean mapRegionChanging = true;
+    private List<Player> localPlayers;
+    public byte chatText[] = new byte[256];
+    public int chatTextEffects = 0, chatTextColor = 0;
 
-	public PlayerUpdateTask(Player master) {
-		this.master = master;
-		localPlayers = new LinkedList<Player>();
-	}
+    private Stream out = new Stream(new byte[Constants.BUFFER_SIZE]);
 
-	public Player getMaster() {
-		return master;
-	}
+    public PlayerUpdateTask(Player master) {
+        this.master = master;
+        localPlayers = new LinkedList<Player>();
+    }
 
-	private void populateRegion(PacketBuilder out, PacketBuilder block) {
-		for (Player player : Game.getPlayerRepository().values()) {
-			if (getMaster().getUpdater().localPlayers.size() >= 255) {
-				break;
-			}
-			if (player == getMaster()
-					|| getMaster().getUpdater().localPlayers.contains(player))
-				continue;
-			if (getMaster().getLocation().withinDistance(player.getLocation())) {
-				getMaster().getUpdater().localPlayers.add(player);
-				addPlayer(out, player);
-				updateGivenPlayer(block, player, true);
-			}
-		}
-	}
+    public Player getMaster() {
+        return master;
+    }
 
-	/**
-	 * Handles the player update protocol
-	 */
-        @Override
-	public void synchronize() {
-		/*if (mapRegionChanging) {
-			master.getPacketDispatcher().sendMapRegion();
-		}
-		getOut().createShortSizedFrame(81, master.channelContext().encryption());
-		getOut().bitAccess();
-		updateThisPlayerMovement(getOut());
-		updateGivenPlayer(block, master, false);
-		getOut().putBits(8, localPlayers.size());
+    private void populateRegion(Stream out, Stream block) {
+        for (Player player : Game.getPlayerRepository().values()) {
+            if (getMaster().getUpdater().localPlayers.size() >= 255) {
+                break;
+            }
+            if (player == getMaster()
+                    || getMaster().getUpdater().localPlayers.contains(player)) {
+                continue;
+            }
+            if (getMaster().getLocation().withinDistance(player.getLocation())) {
+                getMaster().getUpdater().localPlayers.add(player);
+                addPlayer(out, player);
+                updateGivenPlayer(block, player, true);
+            }
+        }
+    }
 
-		for (Iterator<Player> i = localPlayers.iterator(); i.hasNext();) {
-			Player player = i.next();
-			if (Game.getPlayerRepository().values().contains(player)
-					&& !player.getUpdater().teleporting
-					&& player.getLocation().withinDistance(
-							getMaster().getLocation())) {
-				updatePlayerMovement(getOut(), player);
-				if (player.getUpdateFlags().isUpdateRequired()) {
-					updateGivenPlayer(block, player, false);
-				}
-			} else {
-				i.remove();
-				getOut().putBits(1, 1); // Update Requierd
-				getOut().putBits(2, 3); // Remove Player
-			}
-		}
-		populateRegion(getOut(), block);
-		if (block.buffer().position() > 0) {
-			getOut().putBits(11, 2047);
-			getOut().byteAccess();
-			getOut().put(block.buffer());
-		} else {
-			getOut().byteAccess();
-		}
-		getOut().finishShortSizedFrame();
-		getOut().sendTo(master.channelContext().channel());*/
-	}
+    /**
+     * Handles the player update protocol
+     */
+    @Override
+    public void synchronize() {
+        if (mapRegionChanging) {
+            master.getPacketDispatcher().sendMapRegion();
+        }
+        Stream block = new Stream(new byte[Constants.BUFFER_SIZE / 2]);
+        getOut().createFrameVarSizeWord(81);
+        getOut().initBitAccess();
+        updateThisPlayerMovement(getOut());
+        updateGivenPlayer(block, master, false);
+        getOut().writeBits(8, localPlayers.size());
 
-	public void updateGivenPlayer(PacketBuilder out, Player player,
-			boolean force) {
-		if (!player.getUpdateFlags().isUpdateRequired() && !force) {
-			return;
-		}
-		if (player.hasCachedUpdateBlock() && player != getMaster() && !force) {
-			// out.put(player.getCachedUpdateBlock().buffer());
-			 return;
-		}
-		int mask = 0x0;
-		if (player.getUpdateFlags().get(UpdateFlag.FORCE_MOVEMENT)) {
-			mask |= UpdateFlag.FORCE_MOVEMENT.getMask();
+        for (Iterator<Player> i = localPlayers.iterator(); i.hasNext();) {
+            Player player = i.next();
+            if (Game.getPlayerRepository().values().contains(player)
+                    && !player.getUpdater().teleporting
+                    && player.getLocation().withinDistance(
+                            getMaster().getLocation())) {
+                updatePlayerMovement(getOut(), player);
+                if (player.getUpdateFlags().isUpdateRequired()) {
+                    updateGivenPlayer(block, player, false);
                 }
-		if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
-			mask |= UpdateFlag.GRAPHICS.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.ANIMATION)) {
-			mask |= UpdateFlag.ANIMATION.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
-			mask |= UpdateFlag.FORCED_CHAT.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.CHAT)
-				&& player != getMaster()) {
-			mask |= UpdateFlag.CHAT.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			mask |= UpdateFlag.FACE_ENTITY.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
-			mask |= UpdateFlag.APPEARANCE.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
-			mask |= UpdateFlag.FACE_COORDINATE.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
-			mask |= UpdateFlag.HIT.getMask();
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
-			mask |= UpdateFlag.HIT_2.getMask();
-		}
-		if (mask >= 0x100) {
-			mask |= 0x40;
-			out.putByte(mask & 0xFF);
-			out.putByte(mask >> 8);
-		} else {
-			out.putByte(mask);
-		}
-		checkRequiredUpdates(out, player, force);
-	}
+            } else {
+                i.remove();
+                getOut().writeBits(1, 1); // Update Requierd
+                getOut().writeBits(2, 3); // Remove Player
+            }
+        }
+        populateRegion(getOut(), block);
+        if (block.currentOffset > 0) {
+            getOut().writeBits(11, 2047);
+            getOut().finishBitAccess();
+            getOut().writeBytes(block.buffer, block.currentOffset, 0);
+        } else {
+            getOut().finishBitAccess();
+        }
+        getOut().endFrameVarSizeWord();
+    }
 
-	public void updateThisPlayerMovement(PacketBuilder out) {
-		if (teleporting || mapRegionChanging) {
-			out.putBits(1, 1); // Update Required
-			out.putBits(2, 3); // Player Teleported
-			out.putBits(2, master.getLocation().getH()); // current height
-			out.putBits(1, teleporting); // teleporting);
-			out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // update
-																		// required
-			if (master.getCachedRegion() == null) {
-				out.putBits(7, master.getLocation().localY());
-				out.putBits(7, master.getLocation().localX());
-			} else {
-				out.putBits(7, master.getCachedRegion().localY());
-				out.putBits(7, master.getCachedRegion().localX());
-			}
-		} else {
-			if (master.getMobilityManager().walkingDirection() == -1) {
-				if (master.getUpdateFlags().isUpdateRequired()) {
-					out.putBits(1, 1); // update required
-					out.putBits(2, 0); // we didn't move
-				} else {
-					out.putBits(1, 0); // Nothing changed
-				}
-			} else {
-				if (master.getMobilityManager().runningDirection() == -1) {
-					out.putBits(1, 1); // this is update required...
-					out.putBits(2, 1); // walking
-					out.putBits(3, master.getMobilityManager()
-							.walkingDirection()); // Direction
-					out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
-																				// block
-				} else {
-					out.putBits(1, 1); // updating required
-					out.putBits(2, 2); // running - 2 seconds
-					out.putBits(3, master.getMobilityManager()
-							.walkingDirection()); // Walking
-					out.putBits(3, master.getMobilityManager()
-							.runningDirection()); // Running
-					out.putBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
-																				// block
-				}
-			}
-		}
-	}
+    public void updateGivenPlayer(Stream out, Player player,
+            boolean force) {
+        if (!player.getUpdateFlags().isUpdateRequired() && !force) {
+            return;
+        }
+        if (player.hasCachedUpdateBlock() && player != getMaster() && !force) {
+            return;
+        }
+        int mask = 0x0;
+        if (player.getUpdateFlags().get(UpdateFlag.FORCE_MOVEMENT)) {
+            mask |= UpdateFlag.FORCE_MOVEMENT.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
+            mask |= UpdateFlag.GRAPHICS.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.ANIMATION)) {
+            mask |= UpdateFlag.ANIMATION.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
+            mask |= UpdateFlag.FORCED_CHAT.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.CHAT)
+                && player != getMaster()) {
+            mask |= UpdateFlag.CHAT.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
+            mask |= UpdateFlag.FACE_ENTITY.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
+            mask |= UpdateFlag.APPEARANCE.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
+            mask |= UpdateFlag.FACE_COORDINATE.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
+            mask |= UpdateFlag.HIT.getMask();
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
+            mask |= UpdateFlag.HIT_2.getMask();
+        }
+        if (mask >= 0x100) {
+            mask |= 0x40;
+            out.writeByte(mask & 0xFF);
+            out.writeByte(mask >> 8);
+        } else {
+            out.writeByte(mask);
+        }
+        checkRequiredUpdates(out, player, force);
+    }
 
-	private void updatePlayerMovement(PacketBuilder out, Player player) {
-		if (player.getMobilityManager().walkingDirection() == -1) {
-			if (player.getUpdateFlags().isUpdateRequired()) {
-				out.putBits(1, 1); // Update required
-				out.putBits(2, 0); // No movement
-			} else {
-				out.putBits(1, 0); // Nothing changed
-			}
-		} else if (player.getMobilityManager().runningDirection() == -1) {
-			out.putBits(1, 1); // Update required
-			out.putBits(2, 1); // Player walking one tile
-			out.putBits(3, player.getMobilityManager().walkingDirection()); // Walking
-			out.putBits(1, player.getUpdateFlags().isUpdateRequired()); // Update
-		} else {
-			out.putBits(1, 1); // Update Required
-			out.putBits(2, 2); // Moved two tiles
-			out.putBits(3, player.getMobilityManager().walkingDirection()); // Walking
-			out.putBits(3, player.getMobilityManager().runningDirection()); // Running
-			out.putBits(1, player.getUpdateFlags().isUpdateRequired()); // Update
-		}
-	}
+    public void updateThisPlayerMovement(Stream out) {
+        if (teleporting || mapRegionChanging) {
+            out.writeBits(1, 1); // Update Required
+            out.writeBits(2, 3); // Player Teleported
+            out.writeBits(2, master.getLocation().getH()); // current height
+            out.writeBits(1, teleporting); // teleporting);
+            out.writeBits(1, master.getUpdateFlags().isUpdateRequired()); // update
+            // required
+            if (master.getCachedRegion() == null) {
+                out.writeBits(7, master.getLocation().localY());
+                out.writeBits(7, master.getLocation().localX());
+            } else {
+                out.writeBits(7, master.getCachedRegion().localY());
+                out.writeBits(7, master.getCachedRegion().localX());
+            }
+        } else {
+            if (master.getMobilityManager().walkingDirection() == -1) {
+                if (master.getUpdateFlags().isUpdateRequired()) {
+                    out.writeBits(1, 1); // update required
+                    out.writeBits(2, 0); // we didn't move
+                } else {
+                    out.writeBits(1, 0); // Nothing changed
+                }
+            } else {
+                if (master.getMobilityManager().runningDirection() == -1) {
+                    out.writeBits(1, 1); // this is update required...
+                    out.writeBits(2, 1); // walking
+                    out.writeBits(3, master.getMobilityManager()
+                            .walkingDirection()); // Direction
+                    out.writeBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
+                    // block
+                } else {
+                    out.writeBits(1, 1); // updating required
+                    out.writeBits(2, 2); // running - 2 seconds
+                    out.writeBits(3, master.getMobilityManager()
+                            .walkingDirection()); // Walking
+                    out.writeBits(3, master.getMobilityManager()
+                            .runningDirection()); // Running
+                    out.writeBits(1, master.getUpdateFlags().isUpdateRequired()); // Update
+                    // block
+                }
+            }
+        }
+    }
 
-	public void addPlayer(PacketBuilder out, Player otherPlayer) {
-		out.putBits(11, otherPlayer.getIndex()); // Writing player index.
-		out.putBits(1, 1); // Update required.
-		out.putBits(1, 1); // Discard walking.
-		int yPos = otherPlayer.getLocation().getY()
-				- master.getLocation().getY();
-		int xPos = otherPlayer.getLocation().getX()
-				- master.getLocation().getX();
-		out.putBits(5, yPos); // The relative coordinates.
-		out.putBits(5, xPos); // The relative coordinates.
-	}
+    private void updatePlayerMovement(Stream out, Player player) {
+        if (player.getMobilityManager().walkingDirection() == -1) {
+            if (player.getUpdateFlags().isUpdateRequired()) {
+                out.writeBits(1, 1); // Update required
+                out.writeBits(2, 0); // No movement
+            } else {
+                out.writeBits(1, 0); // Nothing changed
+            }
+        } else if (player.getMobilityManager().runningDirection() == -1) {
+            out.writeBits(1, 1); // Update required
+            out.writeBits(2, 1); // Player walking one tile
+            out.writeBits(3, player.getMobilityManager().walkingDirection()); // Walking
+            out.writeBits(1, player.getUpdateFlags().isUpdateRequired()); // Update
+        } else {
+            out.writeBits(1, 1); // Update Required
+            out.writeBits(2, 2); // Moved two tiles
+            out.writeBits(3, player.getMobilityManager().walkingDirection()); // Walking
+            out.writeBits(3, player.getMobilityManager().runningDirection()); // Running
+            out.writeBits(1, player.getUpdateFlags().isUpdateRequired()); // Update
+        }
+    }
 
-	private void checkRequiredUpdates(PacketBuilder out, Player player,
-			boolean force) {
-		if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
-			appendGraphicMask(player, out);
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.ANIMATION)) {
-			appendAnimationMask(player, out);
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
-			//out.putString(player.getUpdateFlags().getForceChatMessage());
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.CHAT)
-				&& player != getMaster()) {
-			updatePlayerChat(out, player);
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
-			out.putLEShort(player.getUpdateFlags().getFaceIndex());
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
-			updatePlayerAppearance(out, player);
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
-			out.putLEShortA(player.getUpdateFlags().getFaceLocation().getX() * 2 + 1);
-			out.putLEShort(player.getUpdateFlags().getFaceLocation().getY() * 2 + 1);
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
-			updateHit(out, player);
-		}
-		if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
-			updatingHit2(out, player);
-		}
+    public void addPlayer(Stream out, Player otherPlayer) {
+        out.writeBits(11, otherPlayer.getIndex()); // Writing player index.
+        out.writeBits(1, 1); // Update required.
+        out.writeBits(1, 1); // Discard walking.
+        int yPos = otherPlayer.getLocation().getY()
+                - master.getLocation().getY();
+        int xPos = otherPlayer.getLocation().getX()
+                - master.getLocation().getX();
+        out.writeBits(5, yPos); // The relative coordinates.
+        out.writeBits(5, xPos); // The relative coordinates.
+    }
 
-		/*
-		 * Now it is over, cache the block if we can.
-		 */
-		if (player != getMaster() && !force) {
-			player.setCachedUpdateBlock(out);
-		}
-	}
+    private void checkRequiredUpdates(Stream out, Player player,
+            boolean force) {
+        if (player.getUpdateFlags().get(UpdateFlag.GRAPHICS)) {
+            appendGraphicMask(player, out);
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.ANIMATION)) {
+            appendAnimationMask(player, out);
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.FORCED_CHAT)) {
+            out.writeString(player.getUpdateFlags().getForceChatMessage());
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.CHAT)
+                && player != getMaster()) {
+            updatePlayerChat(out, player);
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.FACE_ENTITY)) {
+            out.writeWordBigEndian(player.getUpdateFlags().getFaceIndex());
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.APPEARANCE) || force) {
+            updatePlayerAppearance(out, player);
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.FACE_COORDINATE)) {
+            out.writeWordBigEndianA(player.getUpdateFlags().getFaceLocation().getX() * 2 + 1);
+            out.writeWordBigEndian(player.getUpdateFlags().getFaceLocation().getY() * 2 + 1);
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.HIT)) {
+            updateHit(out, player);
+        }
+        if (player.getUpdateFlags().get(UpdateFlag.HIT_2)) {
+            updatingHit2(out, player);
+        }
+        if (player != getMaster() && !force) {
+            player.setCachedUpdateBlock(out);
+        }
+    }
 
-	/**
-	 * Updates the hit mask
-	 * 
-	 * @param out
-	 *            The output packet builder
-	 * @param player
-	 *            The player instance
-	 */
-	public void updateHit(PacketBuilder out, Player player) {
-		out.putByte(player.getUpdateFlags().getDamage());
-		//out.putByteA(player.getUpdateFlags().getHitType());
-		out.putByteC(player.getSkills().getPlayerLevel()[3]);
-		out.putByte(player.getSkills().getLevelForXP(
-				player.getSkills().getPlayerExp()[3]));
-	}
+    /**
+     * Updates the hit mask
+     *
+     * @param out The output packet builder
+     * @param player The player instance
+     */
+    public void updateHit(Stream out, Player player) {
+        out.writeByte(player.getUpdateFlags().getDamage());
+        out.writeByteA(player.getUpdateFlags().getHitType());
+        out.writeByteC(player.getSkills().getPlayerLevel()[3]);
+        out.writeByte(player.getSkills().getLevelForXP(
+                player.getSkills().getPlayerExp()[3]));
+    }
 
-	private void updatingHit2(PacketBuilder out, Player player) {
-		out.putByte(player.getUpdateFlags().getDamage2());
-		//out.putByteS(player.getUpdateFlags().getHitType2());
-		out.putByte(player.getSkills().getPlayerLevel()[3]);
-		out.putByteC(player.getSkills().getLevelForXP(
-				player.getSkills().getPlayerExp()[3]));
-	}
+    private void updatingHit2(Stream out, Player player) {
+        out.writeByte(player.getUpdateFlags().getDamage2());
+        out.writeByteS(player.getUpdateFlags().getHitType2());
+        out.writeByte(player.getSkills().getPlayerLevel()[3]);
+        out.writeByteC(player.getSkills().getLevelForXP(
+                player.getSkills().getPlayerExp()[3]));
+    }
 
-	public void updatePlayerChat(PacketBuilder out, Player player) {
-		int effects = ((player.getUpdater().chatTextColor & 0xff) << 8)
-				+ (player.getUpdater().chatTextEffects & 0xff);
-		out.putLEShort(effects);
-		out.putByte(player.getAuthentication().getPlayerRights());
-		out.putByteC(player.getUpdater().chatText.length);
-		out.put(player.getUpdater().chatText);
-	}
+    public void updatePlayerChat(Stream out, Player player) {
+        int effects = ((player.getUpdater().chatTextColor & 0xff) << 8)
+                + (player.getUpdater().chatTextEffects & 0xff);
+        out.writeWordBigEndian(effects);
+        out.writeByte(player.getAuthentication().getPlayerRights());
+        out.writeByteC(player.getUpdater().chatText.length);
+        out.writeBytes(player.getUpdater().chatText,player.getUpdater().chatText.length ,0);
+    }
 
-	public void updatePlayerAppearance(PacketBuilder out, Player player) {
-		/*PacketBuilder props = PacketBuilder.allocate(128);
-		props.putByte(player.getAuthentication().playerGender());
-		props.putByte(player.getPrayerIcon());
-		props.putByte(player.getPlayerHeadIcon());
-		
-		int[] equip = new int[player.getEquipment().capacity()];
-		for (int i = 0; i < player.getEquipment().capacity(); i++) {
-			equip[i] = player.getEquipment().items()[i].getIndex();
-		}
+    public void updatePlayerAppearance(Stream out, Player player) {
+        Stream props = new Stream(new byte[128]);
+        props.writeByte(player.getAuthentication().playerGender());
+        props.writeByte(player.getPrayerIcon());
+        props.writeByte(player.getPlayerHeadIcon());
 
-		if (equip[Equipment.HAT_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.HAT_SLOT]);
-		} else {
-			props.putByte(0); // Player Hat
-		}
+        int[] equip = new int[player.getEquipment().capacity()];
+        for (int i = 0; i < player.getEquipment().capacity(); i++) {
+            equip[i] = player.getEquipment().items()[i].getIndex();
+        }
 
-		if (equip[Equipment.CAPE_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.CAPE_SLOT]);
-		} else {
-			props.putByte(0); // Player Cape
-		}
+        if (equip[Equipment.HAT_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.HAT_SLOT]);
+        } else {
+            props.writeByte(0); // Player Hat
+        }
 
-		if (equip[Equipment.AMULET_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.AMULET_SLOT]);
-		} else {
-			props.putByte(0); // Player Amulet
-		}
+        if (equip[Equipment.CAPE_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.CAPE_SLOT]);
+        } else {
+            props.writeByte(0); // Player Cape
+        }
 
-		if (equip[Equipment.WEAPON_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.WEAPON_SLOT]);
-		} else {
-			props.putByte(0); // Player Weapon
-		}
+        if (equip[Equipment.AMULET_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.AMULET_SLOT]);
+        } else {
+            props.writeByte(0); // Player Amulet
+        }
 
-		if (equip[Equipment.BODY_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.BODY_SLOT]);
-		} else {
-			props.putShort(0x100 + player.getAuthentication().playerTorso()); // Player
-																				// Body
-		}
+        if (equip[Equipment.WEAPON_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.WEAPON_SLOT]);
+        } else {
+            props.writeByte(0); // Player Weapon
+        }
 
-		if (equip[Equipment.SHIELD_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.SHIELD_SLOT]);
-		} else {
-			props.putByte(0); // Player Shield
-		}
+        if (equip[Equipment.BODY_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.BODY_SLOT]);
+        } else {
+            props.writeWord(0x100 + player.getAuthentication().playerTorso()); // Player
+            // Body
+        }
 
-		if (ItemDefinition.fullBody(equip[Equipment.BODY_SLOT])) {
-			props.putByte(0);
-		} else {
-			props.putShort(0x100 + player.getAuthentication().playerArms()); // Player
-																				// Arms
-		}
+        if (equip[Equipment.SHIELD_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.SHIELD_SLOT]);
+        } else {
+            props.writeByte(0); // Player Shield
+        }
 
-		if (equip[Equipment.LEGS_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.LEGS_SLOT]);
-		} else {
-			props.putShort(0x100 + player.getAuthentication().playerLegs()); // Player
-																				// Legs
-		}
+        if (ItemDefinition.fullBody(equip[Equipment.BODY_SLOT])) {
+            props.writeByte(0);
+        } else {
+            props.writeWord(0x100 + player.getAuthentication().playerArms()); // Player
+            // Arms
+        }
 
-		if (ItemDefinition.fullHat(equip[Equipment.HAT_SLOT])) {
-			props.putByte(0);
-		} else {
-			props.putShort(0x100 + player.getAuthentication().playerHead()); // Player
-																				// Head
-		}
+        if (equip[Equipment.LEGS_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.LEGS_SLOT]);
+        } else {
+            props.writeWord(0x100 + player.getAuthentication().playerLegs()); // Player
+            // Legs
+        }
 
-		if (equip[Equipment.HANDS_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.HANDS_SLOT]);
-		} else {
-			props.putShort(0x100 + player.getAuthentication().playerHands()); // Player
-																				// Hands
-		}
+        if (ItemDefinition.fullHat(equip[Equipment.HAT_SLOT])) {
+            props.writeByte(0);
+        } else {
+            props.writeWord(0x100 + player.getAuthentication().playerHead()); // Player
+            // Head
+        }
 
-		if (equip[Equipment.FEET_SLOT] > -1) {
-			props.putShort(0x200 + equip[Equipment.FEET_SLOT]);
-		} else {
-			props.putShort(0x100 + player.getAuthentication().playerFeet()); // Player
-																				// Feet
-		}
-		if (player.getAuthentication().getPlayerAppearanceIndex(0) == 0) {
-			props.putShort(0x100 + player.getAuthentication().playerJaw());
-		} else {
-			props.putByte(0);
-		}
-		props.putByte(player.getAuthentication().playerHairColour());
-		props.putByte(player.getAuthentication().playerTorsoColour());
-		props.putByte(player.getAuthentication().playerLegColour());
-		props.putByte(player.getAuthentication().playerFeetColour());
-		props.putByte(player.getAuthentication().playerSkinColour());
-		props.putShort(0x328); // TODO: standAnimIndex
-		props.putShort(0x337); // TODO: standTurnAnimIndex
-		props.putShort(0x333); // TODO: walkAnimIndex
-		props.putShort(0x334); // TODO: turn180AnimIndex
-		props.putShort(0x335); // TODO: turn90CWAnimIndex
-		props.putShort(0x336); // TODO: turn90CCWAnimIndex
-		props.putShort(0x338); // TODO: runAnimIndex
-		/**
-		 * Sends player name as long
-		 *//*
-		props.putLong(ProtocolUtils.getLongString(player.getAuthentication().getUsername()));
-		props.putByte(player.getSkills().calculateCombatLevel()); // send combat level
-		props.putShort(0); // games room title crap
-		out.putByteC(props.buffer().position());
-		out.put(props.buffer());*/
-	}
+        if (equip[Equipment.HANDS_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.HANDS_SLOT]);
+        } else {
+            props.writeWord(0x100 + player.getAuthentication().playerHands()); // Player
+            // Hands
+        }
 
-	/**
-	 * Sends the graphic to the client to be displayed
-	 * 
-	 * @param player
-	 * @param out
-	 */
-	public void appendGraphicMask(Player player, PacketBuilder out) {
-		if (player.getGraphic() != null) {
-			out.putLEShort(player.getGraphic().getId());
-			//out.putIntTest(player.getGraphic().getValue());
-		}
-	}
+        if (equip[Equipment.FEET_SLOT] > -1) {
+            props.writeWord(0x200 + equip[Equipment.FEET_SLOT]);
+        } else {
+            props.writeWord(0x100 + player.getAuthentication().playerFeet()); // Player
+            // Feet
+        }
+        if (player.getAuthentication().getPlayerAppearanceIndex(0) == 0) {
+            props.writeWord(0x100 + player.getAuthentication().playerJaw());
+        } else {
+            props.writeByte(0);
+        }
+        props.writeByte(player.getAuthentication().playerHairColour());
+        props.writeByte(player.getAuthentication().playerTorsoColour());
+        props.writeByte(player.getAuthentication().playerLegColour());
+        props.writeByte(player.getAuthentication().playerFeetColour());
+        props.writeByte(player.getAuthentication().playerSkinColour());
+        props.writeWord(0x328); // TODO: standAnimIndex
+        props.writeWord(0x337); // TODO: standTurnAnimIndex
+        props.writeWord(0x333); // TODO: walkAnimIndex
+        props.writeWord(0x334); // TODO: turn180AnimIndex
+        props.writeWord(0x335); // TODO: turn90CWAnimIndex
+        props.writeWord(0x336); // TODO: turn90CCWAnimIndex
+        props.writeWord(0x338); // TODO: runAnimIndex
+        /**
+         * Sends player name as long
+         */
+        props.writeQWord(ProtocolUtils.getLongString(player.getAuthentication().getUsername()));
+        props.writeByte(player.getSkills().calculateCombatLevel()); // send combat level
+        props.writeWord(0); // games room title crap
+        out.writeByteC(props.currentOffset);
+        out.writeBytes(props.buffer, props.currentOffset, 0);
+    }
 
-	/**
-	 * Sends the animation to the client to be displayed
-	 * 
-	 * @param player
-	 * @param out
-	 */
-	private void appendAnimationMask(Player player, PacketBuilder out) {
-		if (player.getAnimation() == null) {
-			return;
-		}
-		out.putLEShort(player.getAnimation().getId());
-		out.putByteC(player.getAnimation().getDelay());
-	}
+    /**
+     * Sends the graphic to the client to be displayed
+     *
+     * @param player
+     * @param out
+     */
+    public void appendGraphicMask(Player player, Stream out) {
+        if (player.getGraphic() != null) {
+            out.writeWordBigEndian(player.getGraphic().getId());
+            out.writeDWord(player.getGraphic().getValue());
+        }
+    }
 
-	public PlayerUpdateTask localPlayers(List<Player> localPlayers) {
-		this.localPlayers = localPlayers;
-		return this;
-	}
+    /**
+     * Sends the animation to the client to be displayed
+     *
+     * @param player
+     * @param out
+     */
+    private void appendAnimationMask(Player player, Stream out) {
+        if (player.getAnimation() == null) {
+            return;
+        }
+        out.writeWordBigEndian(player.getAnimation().getId());
+        out.writeByteC(player.getAnimation().getDelay());
+    }
 
-	public PlayerUpdateTask setMapRegionChanging(boolean status) {
-		this.mapRegionChanging = status;
-		return this;
-	}
+    public PlayerUpdateTask localPlayers(List<Player> localPlayers) {
+        this.localPlayers = localPlayers;
+        return this;
+    }
 
-	public PlayerUpdateTask setTeleporting(boolean status) {
-		this.teleporting = status;
-		return this;
-	}
+    public PlayerUpdateTask setMapRegionChanging(boolean status) {
+        this.mapRegionChanging = status;
+        return this;
+    }
 
-	public PlayerUpdateTask chatText(byte[] chatText) {
-		this.chatText = chatText;
-		return this;
-	}
+    public PlayerUpdateTask setTeleporting(boolean status) {
+        this.teleporting = status;
+        return this;
+    }
 
-	public PlayerUpdateTask chatTextEffects(int chatTextEffects) {
-		this.chatTextEffects = chatTextEffects;
-		return this;
-	}
+    public PlayerUpdateTask chatText(byte[] chatText) {
+        this.chatText = chatText;
+        return this;
+    }
 
-	public PlayerUpdateTask chatTextColor(int chatTextColor) {
-		this.chatTextColor = chatTextColor;
-		return this;
-	}
+    public PlayerUpdateTask chatTextEffects(int chatTextEffects) {
+        this.chatTextEffects = chatTextEffects;
+        return this;
+    }
 
-	public void resetUpdateVars() {
-		chatTextEffects = chatTextColor = 0;
-		chatText = new byte[256];
-		setTeleporting(false);
-		setMapRegionChanging(false);
-		master.getUpdateFlags().reset();
-		master.resetCachedUpdateBlock();
-		getMaster().getMobilityManager().walkingDirection(-1)
-				.runningDirection(-1);
-	}
+    public PlayerUpdateTask chatTextColor(int chatTextColor) {
+        this.chatTextColor = chatTextColor;
+        return this;
+    }
+
+    public void resetUpdateVars() {
+        chatTextEffects = chatTextColor = 0;
+        chatText = new byte[256];
+        setTeleporting(false);
+        setMapRegionChanging(false);
+        master.getUpdateFlags().reset();
+        master.resetCachedUpdateBlock();
+        getMaster().getMobilityManager().walkingDirection(-1)
+                .runningDirection(-1);
+    }
 
     @Override
     public void run() {
