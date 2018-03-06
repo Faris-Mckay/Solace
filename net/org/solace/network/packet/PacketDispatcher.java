@@ -50,7 +50,7 @@ public class PacketDispatcher {
         player.getSession().getChannel().write(packet);
         player.getOutStream().currentOffset = 0;
     }
-    
+
     public void sendSong(int id) {
         if (player.getOutStream() != null && id != -1) {
             player.getOutStream().createFrame(74);
@@ -92,7 +92,6 @@ public class PacketDispatcher {
         player.getOutStream().writeByteA(1);
         player.getOutStream().writeWordBigEndianA(player.getIndex());
     }
-
 
     public void createPlayerHints(int type, int id) {
         if (player.getOutStream() != null && player != null) {
@@ -165,14 +164,14 @@ public class PacketDispatcher {
             player.getOutStream().writeString(s);
         }
     }
-    
+
     public void showInterface(int i) {
         player.getOutStream().createFrame(97);
         player.getOutStream().writeWord(i);
         flushOutStream();
     }
 
-    public  void sendQuest(String s, int i) {
+    public void sendQuest(String s, int i) {
         player.getOutStream().createFrameVarSizeWord(126);
         player.getOutStream().writeString(s);
         player.getOutStream().writeWordA(i);
@@ -248,7 +247,7 @@ public class PacketDispatcher {
         player.getOutStream().createFrame(24);
         player.getOutStream().writeByteA(i1);
     }
-    
+
     public void sendInitPacket() {
         player.getOutStream().createFrame(249);
         player.getOutStream().writeByteA(1);
@@ -273,7 +272,7 @@ public class PacketDispatcher {
         player.handleLoginData();
         sendLoginConfig();
     }
-    
+
     private void setSidebarInterfaces() {
         int[] data = {2423, 3917, 638, 3213, 1644, 5608, 1151, -1, 5065, 5715,
             2449, 904, 147, 962};
@@ -288,7 +287,7 @@ public class PacketDispatcher {
         sendConfig(173, player.getMobilityManager().running() ? 1 : 0);
 
     }
-    
+
     /**
      * Sends a player right click menu option.
      *
@@ -325,7 +324,7 @@ public class PacketDispatcher {
         }
 
     }
-    
+
     public void stillGfx(int id, int x, int y, int height, int time) {
         if (player.getOutStream() != null && player != null) {
             player.getOutStream().createFrame(85);
@@ -380,12 +379,12 @@ public class PacketDispatcher {
 
     public void showOption(int i, int l, String s, int a) {
         if (player.getOutStream() != null && player != null) {
-                player.getOutStream().createFrameVarSize(104);
-                player.getOutStream().writeByteC(i);
-                player.getOutStream().writeByteA(l);
-                player.getOutStream().writeString(s);
-                player.getOutStream().endFrameVarSize();
-                flushOutStream();
+            player.getOutStream().createFrameVarSize(104);
+            player.getOutStream().writeByteC(i);
+            player.getOutStream().writeByteA(l);
+            player.getOutStream().writeString(s);
+            player.getOutStream().endFrameVarSize();
+            flushOutStream();
         }
     }
 
@@ -442,11 +441,11 @@ public class PacketDispatcher {
     }
 
     public void sendGroundItem(GroundItem groundItem) {
-        //    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendRemoveGroundItem(GroundItem groundItem) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendLogout() {
@@ -455,11 +454,13 @@ public class PacketDispatcher {
     }
 
     public void sendPMServer(int i) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        player.getOutStream().createFrame(221);
+        player.getOutStream().writeByte(i);
+        flushOutStream();
     }
 
     public void sendFriendList(long friend, int checkOnlineStatus) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendPrivateMessage(long name, int rights, byte[] message, int size) {
@@ -503,28 +504,32 @@ public class PacketDispatcher {
         }
     }
 
-    public void sendString(int i, String line1) {
-        //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void sendString(int stringIndex, String string) {
+        player.getOutStream().createFrameVarSize(126);
+        player.getOutStream().writeString(string);
+        player.getOutStream().writeWordBigEndianA(stringIndex);
+        player.getOutStream().endFrameVarSize();
+        flushOutStream();
     }
 
     public void sendChatInterface(int i) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendDialogueAnimation(int i, int emotion) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendPlayerDialogueHead(int i) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendNPCDialogueHead(int id, int i) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendSkill(int i) {
-         if (player.getOutStream() != null && player != null) {
+        if (player.getOutStream() != null && player != null) {
             player.getOutStream().createFrame(134);
             player.getOutStream().writeByte(i);
             player.getOutStream().writeDWord_v1(player.getSkills().getPlayerExp()[i]);
@@ -542,26 +547,26 @@ public class PacketDispatcher {
     }
 
     public void sendCloseInterface() {
-       if (player.getOutStream() != null && player != null) {
+        if (player.getOutStream() != null && player != null) {
             player.getOutStream().createFrame(219);
             flushOutStream();
         }
     }
 
     public void sendInterface(int i) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendObject(GameObject gameObject, boolean b) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendRemoveObject(GameObject o) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendInterfaceSet(int i, int i0) {
-        //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendItemContainer(Inventory container, int interfaceIndex) {
@@ -581,23 +586,36 @@ public class PacketDispatcher {
     }
 
     public void sendItemContainer(Banking aThis, int BANK_INTERFACE) {
-        //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void moveComponent(int i, int i0, int i1) {
-        //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void interfaceConfig(int i, int i0) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void sendItemOnInterface(int i, int i0, int id) {
-        //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public void sendItemContainer(Equipment aThis, int EQUIPMENT_INTERFACE) {
-        //   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void sendItemContainer(Equipment container, int interfaceIndex) {
+        player.getOutStream().createFrameVarSize(53);
+        player.getOutStream().writeWordBigEndian(interfaceIndex);
+        player.getOutStream().writeWordBigEndian(container.capacity());
+        for (Item item : container.items()) {
+            if (item.getAmount() > 254) {
+                player.getOutStream().writeByte(255);
+                player.getOutStream().writeDWord(item.getAmount());
+            } else {
+                player.getOutStream().writeByte(item.getAmount());
+            }
+            player.getOutStream().writeWordBigEndianA(item.getIndex() + 1);
+        }
+        player.getOutStream().endFrameVarSize();
+        flushOutStream();
     }
 
     public void sendMapRegion() {
